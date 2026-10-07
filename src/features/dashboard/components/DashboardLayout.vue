@@ -12,7 +12,7 @@
           :loading="marking"
           @click="$emit('mark-all-overdue')"
         >
-          <Icon icon="check-double" /> إنهاء جميع المتأخرة
+          <Icon icon="check-double" /> تسجيل المتابعات المتأخرة كفائتة
         </BaseButton>
         <RelativeDate
           v-if="lastUpdated"

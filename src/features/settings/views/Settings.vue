@@ -208,6 +208,8 @@ onMounted(async () => {
 async function onThemeChange(theme) {
   try {
     await store.setTheme(theme)
+    form.value.theme = theme
+    form.value.version = store.settings.version
   } catch {
     notify('فشل تغيير السمة', 'danger')
   }
@@ -218,6 +220,7 @@ const { loading: saving, execute: doSave } = useApi(
   {
     onSuccess: () => {
       notify('تم الحفظ', 'success')
+      form.value = { ...store.settings }
       isDirty.value = false
     },
   }

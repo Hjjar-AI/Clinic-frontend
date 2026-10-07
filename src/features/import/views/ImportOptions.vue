@@ -330,8 +330,12 @@
             :loading="medMappingLoading"
             :disabled="medMergeMode === 'overwrite' && !confirmOverwriteMeds"
           >
-            <Icon icon="upload" /> استيراد الأدوية
+            <Icon icon="upload" /> {{ mappedPreview ? 'تأكيد استيراد الأدوية' : 'معاينة الاستيراد' }}
           </BaseButton>
+          <p v-if="mappedPreview" role="status">
+            {{ mappedPreview.counts.create }} إضافة، {{ mappedPreview.counts.update }} تحديث،
+            {{ mappedPreview.counts.failed }} صف غير صالح، {{ mappedPreview.will_retire_existing }} سجل سيُستبدل.
+          </p>
         </form>
       </div>
     </BaseCard>
@@ -358,6 +362,7 @@ const diagPreviewToken = ref('')
 const medFile = ref(null)
 const medPreview = ref(null)
 const medPreviewToken = ref('')
+const mappedPreview = ref(null)
 const columns = ref([])
 const colMap = ref({ generic_english: null, generic_arabic: null, dosage: null, brand_english: null, brand_arabic: null })
 const medMergeMode = ref('merge')
@@ -388,6 +393,7 @@ const { loading: medUploadLoading, execute: doMedUpload } = useApi(async () => {
   if (!file) return
   const res = await importService.uploadMedications(file)
   const payload = res?.data?.data || res?.data || res
+  mappedPreview.value = null
   medPreview.value = payload.preview_rows || []
   medPreviewToken.value = payload.preview_token || ''
   columns.value = payload.columns || []
@@ -400,10 +406,17 @@ const { loading: medMappingLoading, execute: doMedMapping } = useApi(async () =>
   const file = medFile.value?.files?.[0]
   if (!file) return
   const payload = { column_map: { ...colMap.value }, merge_mode: medMergeMode.value }
+  if (!mappedPreview.value) {
+    mappedPreview.value = await importService.mapMedications(file, payload.column_map, payload.merge_mode, medPreviewToken.value, true)
+    medPreviewToken.value = mappedPreview.value.preview_token
+    return
+  }
   await importService.mapMedications(file, payload.column_map, payload.merge_mode, medPreviewToken.value)
+  mappedPreview.value = null
   medPreview.value = null
   medPreviewToken.value = ''
 })
 
+watch([colMap, medMergeMode], () => { mappedPreview.value = null }, { deep: true })
 const mapMedications = () => doMedMapping()
 </script>

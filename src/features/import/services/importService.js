@@ -46,10 +46,11 @@ export default {
     const res = await apiClient.post('/bulk-import/medications/upload/', fd)
     return unwrapResponse(res)
   },
-  async mapMedications(file, columnMap, mergeMode, previewToken) {
+  async mapMedications(file, columnMap, mergeMode, previewToken, preview = false) {
     const fd = new FormData()
     fd.append('file', file)
-    fd.append('column_map', JSON.stringify(columnMap))
+    fd.append('column_map', JSON.stringify(Object.fromEntries(Object.entries(columnMap).map(([key, value]) => [key, value === '' ? null : value]))))
+    if (preview) fd.append('preview', 'true')
     fd.append('merge_mode', mergeMode)
     fd.append('preview_token', previewToken)
     const res = await apiClient.post('/bulk-import/medications/map/', fd)

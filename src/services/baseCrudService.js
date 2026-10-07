@@ -27,8 +27,8 @@ export function createCrudService(resourceUrl) {
       const res = await apiClient.put(`${baseUrl}${id}/`, data)
       return unwrapResponse(res)
     },
-    async delete(id) {
-      const res = await apiClient.delete(`${baseUrl}${id}/`)
+    async delete(id, version) {
+      const res = await apiClient.delete(`${baseUrl}${id}/`, { data: { version } })
       return unwrapResponse(res)
     }
   }

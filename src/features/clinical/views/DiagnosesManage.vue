@@ -235,6 +235,7 @@ function openFormModal(diagnosis) {
     currentId.value = diagnosis.id
 
     form.value = {
+      version: diagnosis.version,
       code: diagnosis.code || '',
       english_name: diagnosis.english_name || '',
       arabic_name: diagnosis.arabic_name || '',

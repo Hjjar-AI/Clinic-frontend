@@ -265,6 +265,7 @@ function openFormModal(medication) {
     currentId.value = medication.id
 
     form.value = {
+      version: medication.version,
       generic_english: medication.generic_english || '',
       generic_arabic: medication.generic_arabic || '',
       dosage: medication.dosage || '',

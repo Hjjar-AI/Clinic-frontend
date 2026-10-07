@@ -115,6 +115,7 @@ const categoryOptions = [
 ]
 
 const initialData = {
+  version: null,
   name: '',
   category: 'depression',
   description: '',
@@ -154,6 +155,7 @@ const { execute: execSubmit } = useApi(
     }
 
     const payload = {
+      ...(isEdit ? { version: form.version } : {}),
       name: form.name,
       description: form.description,
       category: form.category,
@@ -188,6 +190,7 @@ onMounted(async () => {
     const content = template.content || {}
 
     Object.assign(form, {
+      version: template.version,
       name: template.name || '',
       description: template.description || '',
       category: template.category || 'depression',

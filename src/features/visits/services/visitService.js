@@ -19,8 +19,8 @@ export default {
     const res = await apiClient.get(`/patients/${patientId}/visits/`)
     return unwrapResponse(res)
   },
-  async completeFollowUp(id) {
-    const res = await apiClient.put(`/visits/${id}/complete_follow_up/`)
+  async completeFollowUp(id, version, outcome = 'completed') {
+    const res = await apiClient.put(`/visits/${id}/complete_follow_up/`, { version, outcome })
     return unwrapResponse(res)
   },
   async transition(id, status, version, reason = '') {

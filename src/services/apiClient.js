@@ -9,6 +9,36 @@ import { generateIdempotencyKey } from '@/utils/idempotency'
 
 const pendingRequests = new Map()
 const persistentRequests = new Set()
+const uncertainOperations = new Map()
+// Versions are those actually observed by this client. Explicit form versions
+// always take precedence, so stale edits continue to produce a conflict.
+const observedVersions = new Map()
+function resourcePath(url = '') {
+  const path = url.split('?')[0]
+  const nestedVisits = path.match(/^\/patients\/\d+\/visits\/?$/)
+  if (nestedVisits) return '/visits/'
+  const match = path.match(/^(\/(?:options\/(?:diagnoses|medications)|auth\/users|patients|visits|appointments|tasks|templates|scales|billing(?:\/invoices)?))\/(\d+)?/)
+  return match ? `${match[1]}/${match[2] ? match[2] + '/' : ''}` : path === '/settings/' || path === '/settings/theme/' ? '/settings/' : null
+}
+function observeVersions(response) {
+  const path = resourcePath(response.config.url)
+  if (!path) return
+  const base = path.replace(/\d+\/$/, '')
+  const collect = value => {
+    if (Array.isArray(value)) { value.forEach(collect); return }
+    if (!value || typeof value !== 'object' || value instanceof Blob) return
+    if (Number.isInteger(value.version)) {
+      observedVersions.set(value.id ? `${base}${value.id}/` : base, value.version)
+      return
+    }
+    for (const key of ['data', 'results', 'items', 'patients', 'visits', 'appointments', 'tasks', 'invoices', 'diagnoses', 'medications', 'scales', 'templates', 'users']) {
+      if (value[key]) collect(value[key])
+    }
+  }
+  collect(response.data)
+  const parentVersion = Number(response.headers['x-resource-version'])
+  if (Number.isInteger(parentVersion) && parentVersion > 0) observedVersions.set(path, parentVersion)
+}
 
 // Endpoints that require idempotency enforcement (paths starting with these)
 const IDEMPOTENT_URL_PREFIXES = [
@@ -22,6 +52,10 @@ const IDEMPOTENT_URL_PREFIXES = [
   '/bulk-import/',
   '/settings/',
   '/auth/users/',
+  '/options/',
+  '/scales/',
+  '/templates/',
+  '/referrals/',
 ]
 
 function isIdempotentUrl(url) {
@@ -92,6 +126,12 @@ apiClient.interceptors.request.use(config => {
     }
   }
 
+  if (['post', 'put', 'patch', 'delete'].includes(config.method)) {
+    const path = resourcePath(config.url)
+    const explicit = config.data instanceof FormData ? config.data.get('version') : config.data?.version
+    const version = explicit ?? observedVersions.get(path)
+    if (version != null && !config.headers['If-Match']) config.headers['If-Match'] = String(version)
+  }
   const loadingStore = useLoadingStore()
   loadingStore.start()
 
@@ -110,6 +150,12 @@ apiClient.interceptors.request.use(config => {
 
   // A rapid duplicate mutation is the same logical operation. Reuse the
   // first operation's key so the backend can safely collapse both requests.
+  const uncertain = uncertainOperations.get(key)
+  if (uncertain && uncertain.expiresAt > Date.now() && !config.idempotencyKey) {
+    config.idempotencyKey = uncertain.key
+  } else if (uncertain) {
+    uncertainOperations.delete(key)
+  }
   const previousRequest = pendingRequests.get(key)
   if (
     previousRequest?.idempotencyKey &&
@@ -156,9 +202,11 @@ apiClient.interceptors.request.use(config => {
 
 apiClient.interceptors.response.use(
   response => {
+    observeVersions(response)
     useLoadingStore().stop()
 
     const cfg = response.config
+    uncertainOperations.delete(cfg._requestKey)
     if (cfg._isPersistent) {
       if (cfg._requestSource) persistentRequests.delete(cfg._requestSource)
     } else {
@@ -193,6 +241,9 @@ apiClient.interceptors.response.use(
     if (axios.isCancel(error)) return Promise.reject(error)
 
     const config = error.config
+    if (config?.idempotencyKey && config._requestKey && (!error.response || error.response?.data?.error?.code === 'request_in_progress')) {
+      uncertainOperations.set(config._requestKey, { key: config.idempotencyKey, expiresAt: Date.now() + 30 * 60 * 1000 })
+    }
     if (config?._isPersistent) {
       if (config._requestSource) persistentRequests.delete(config._requestSource)
     } else if (config?._requestKey) {
@@ -203,7 +254,7 @@ apiClient.interceptors.response.use(
       // Optimistic-lock conflict. Emit an event; the app layer shows the
       // refresh dialog and re-navigates. Keeps apiClient free of the
       // confirm dialog and the router.
-      if (error.response?.data?.error?.code !== 'duplicate_request') {
+      if (!['duplicate_request', 'request_in_progress'].includes(error.response?.data?.error?.code)) {
         emit(API_EVENTS.CONFLICT, error)
         return Promise.reject(error)
       }

@@ -34,7 +34,7 @@
           >
             <FileUpload
               :max-size-mb="200"
-              accept=".xlsx,.xls,.csv"
+              accept=".xlsx,.csv"
               instructions="اسحب وأفلت الملف هنا"
               :auto-upload="false"
               @select="previewFile"

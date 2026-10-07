@@ -295,6 +295,7 @@ function openAddFieldModal(scale) {
 
 const { execute: doAddField } = useApi(async () => {
   const payload = {
+    version: selectedScale.value.version,
     label: newField.value.label,
     field_type: newField.value.field_type,
     min_val: newField.value.min_val,

@@ -75,7 +75,7 @@ async function markAllOverdue() {
   if (ok) {
     try {
       await analyticsStore.markAllOverdue()
-      notify('تم إنهاء المتابعات المتأخرة', 'success')
+      notify('تم تسجيل المتابعات المتأخرة كفائتة', 'success')
       await refreshAll()
     } catch {
       notify('فشلت العملية', 'danger')

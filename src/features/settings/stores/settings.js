@@ -46,21 +46,21 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   async function updateSettings(payload) {
-    await settingsService.updateSettings(payload)
+    const updated = await settingsService.updateSettings(payload)
 
     settings.value = {
       ...settings.value,
-      ...payload,
+      ...updated,
     }
   }
 
   async function setTheme(theme) {
-    await settingsService.setTheme(theme)
+    const updated = await settingsService.setTheme(theme)
 
     themeService.save({ theme, darkMode: false })
     themeService.apply(theme, false)
 
-    settings.value.theme = theme
+    settings.value = { ...settings.value, ...updated }
   }
 
   async function generateDemoData() {

@@ -9,6 +9,7 @@
     @preview-restore="handlePreviewRestore"
     @execute-restore="handleExecuteRestore"
     @file-selected="onFileSelected"
+    @preview-reset="previewData = null"
   />
 </template>
 
@@ -24,7 +25,7 @@ const selectedFile = ref(null)
 const previewData = ref(null)
 const selectedBackupType = ref('full')
 
-function onFileSelected(file) { selectedFile.value = file }
+function onFileSelected(file) { selectedFile.value = file; previewData.value = null }
 
 const { loading: backupLoading, execute: doBackup } = useApi(async () => {
   const res = await backupService.createBackup(selectedBackupType.value)
@@ -42,11 +43,11 @@ const handleCreateBackup = (type) => {
 
 const { loading: previewLoading, execute: doPreview } = useApi(async () => {
   if (!selectedFile.value) return
-  const response = await backupService.previewRestore(selectedFile.value)
+  const response = await backupService.previewRestore(selectedFile.value, restoreOptions.value)
   previewData.value = unwrapResponse(response)
 })
 
-const handlePreviewRestore = () => doPreview()
+const handlePreviewRestore = (options) => { restoreOptions.value = options; doPreview() }
 
 const restoreOptions = ref(null)
 const { loading: restoreLoading, execute: doRestore } = useApi(async () => {

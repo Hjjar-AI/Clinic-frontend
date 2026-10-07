@@ -31,7 +31,7 @@
                 نسخة كاملة (ZIP)
               </option>
               <option value="json">
-                بيانات المرضى (JSON)
+                السجلات دون ملفات المرفقات (JSON)
               </option>
             </select>
           </FormField>
@@ -53,7 +53,7 @@
       <template #actions>
         <form
           class="flex flex--column gap-3"
-          @submit.prevent="$emit('preview-restore')"
+          @submit.prevent="$emit('preview-restore', options)"
         >
           <FormField
             label="اختر ملف النسخ الاحتياطي"
@@ -70,6 +70,20 @@
             >
           </FormField>
 
+            <FormCheckbox
+              v-model="options.patients"
+              label="استيراد المرضى"
+            />
+            <FormCheckbox
+              v-model="options.medications"
+              label="استيراد الأدوية"
+            />
+            <FormCheckbox
+              v-model="options.diagnoses"
+              label="استيراد التشخيصات"
+            />
+
+          <p class="text-sm">استعادة المرضى تتطلب النسخة الكاملة: تشمل الحسابات والمواعيد والفواتير والإعدادات والسجلات السريرية. استعادة القوائم وحدها تدمجها وتحفظ السجلات الحالية.</p>
           <ConfirmCheckbox
             v-model="confirmClear"
             label="أوافق على مسح كافة السجلات الحالية."
@@ -120,7 +134,7 @@
             </Badge>
           </div>
           <p class="text-sm">
-            الإصدار: {{ previewData.application_version || 'قديم/غير محدد' }}
+            الإصدار: {{ previewData.format_version || 'غير محدد' }}
           </p>
           <p class="text-sm">
             تاريخ الإنشاء: {{ previewData.created_at || 'غير محدد' }}
@@ -129,19 +143,6 @@
             class="flex flex--column gap-2"
             @submit.prevent="$emit('execute-restore', { ...options, confirm_clear: true, confirmation_phrase: confirmationPhrase, preview_token: previewData.preview_token })"
           >
-            <FormCheckbox
-              v-model="options.patients"
-              label="استيراد المرضى"
-            />
-            <FormCheckbox
-              v-model="options.medications"
-              label="استيراد الأدوية"
-            />
-            <FormCheckbox
-              v-model="options.diagnoses"
-              label="استيراد التشخيصات"
-            />
-
             <ConfirmCheckbox
               v-model="confirmExecute"
               label="تأكيد التدمير والاستعادة"
@@ -176,7 +177,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import Badge from '@/components/ui/Badge.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
@@ -196,11 +197,12 @@ defineProps({
   hasFile: { type: Boolean, default: false },
 })
 
-defineEmits(['create-backup', 'preview-restore', 'execute-restore', 'file-selected'])
+const emit = defineEmits(['create-backup', 'preview-restore', 'execute-restore', 'file-selected', 'preview-reset'])
 
 const backupType = ref('full')
 const confirmClear = ref(false)
 const confirmExecute = ref(false)
 const confirmationPhrase = ref('')
 const options = ref({ patients: true, medications: true, diagnoses: true })
+watch(options, () => { confirmExecute.value = false; emit('preview-reset') }, { deep: true })
 </script>

@@ -5,9 +5,10 @@ export default {
   createBackup(backupType) {
     return apiClient.post('/backup', { backup_type: backupType }, { responseType: 'blob' })
   },
-  previewRestore(file) {
+  previewRestore(file, options = { patients: true, diagnoses: true, medications: true }) {
     const fd = new FormData()
     fd.append('backup_file', file)
+    for (const key of ['patients', 'diagnoses', 'medications']) fd.append(`restore_${key}`, options[key])
     return apiClient.post('/backup/restore/preview', fd)
   },
   executeRestore(file, options) {
