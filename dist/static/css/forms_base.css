@@ -1,0 +1,266 @@
+/* ================================================================
+   forms_base.css – Basic form controls, checkbox, radio, toggle
+   ================================================================ */
+
+.form-control {
+    width: 100%;
+    height: var(--control-height-md);
+    padding: var(--control-padding-y) var(--control-padding-x);
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-input);
+    background-color: var(--color-surface);
+    font-size: var(--control-font-size);
+    font-family: inherit;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    color: var(--color-text);
+}
+
+.form-control:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus-ring);
+}
+
+.form-control::placeholder { color: var(--color-placeholder); }
+
+.form-control.is-valid,
+.form-control--success {
+    border-color: var(--color-success);
+}
+.form-control.is-valid:focus-visible,
+.form-control--success:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-success-light);
+}
+
+.form-control.is-invalid,
+.form-control--error {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-light);
+}
+.form-control.is-invalid:focus-visible,
+.form-control--error:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-danger-light);
+}
+
+.form-control.is-warning,
+.form-control--warning {
+    border-color: var(--color-warning);
+}
+.form-control.is-warning:focus-visible,
+.form-control--warning:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-warning-light);
+}
+
+.form-control.is-dirty {
+    border-color: var(--color-warning);
+    background-color: var(--color-warning-light);
+}
+
+.form-control.is-readonly,
+.form-control--readonly {
+    background-color: var(--color-surface-soft);
+    cursor: default;
+}
+
+/* FIX: arrow position was `left 0.75rem` unconditionally. That happens to
+   land on the inline-end side in RTL, but breaks in LTR. Now positioned
+   explicitly per direction. */
+.form-control--select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7a7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    padding-inline-end: 2.5rem;
+}
+
+[dir="rtl"] .form-control--select {
+    background-position: left 0.75rem center;
+}
+
+.form-control--textarea {
+    height: auto;
+    resize: vertical;
+    min-height: var(--control-height-md);
+}
+
+.form-control--sm { height: var(--control-height-sm); font-size: var(--text-xs); }
+.form-control--lg { height: var(--control-height-lg); font-size: var(--text-base); }
+
+.form-group {
+    margin-bottom: var(--spacing-form-group);
+}
+.form-group__label {
+    display: block;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-1);
+    color: var(--color-text-soft);
+}
+
+.form-group.has-error .form-group__label { color: var(--color-danger); }
+.form-group.has-success .form-group__label { color: var(--color-success); }
+.form-group.has-warning .form-group__label { color: var(--color-warning); }
+
+/* Checkbox & Radio */
+.checkbox, .radio {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    min-height: 44px;
+    user-select: none;
+}
+
+.checkbox__input, .radio__input {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: var(--border-width-2) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    transition: all var(--transition-fast);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.radio__input { border-radius: 50%; }
+
+.checkbox__input:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    animation: checkboxPop var(--transition-bounce) forwards;
+}
+.checkbox__input:checked::after {
+    content: '✓';
+    color: var(--color-text-inverse);
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+.radio__input:checked {
+    border-color: var(--color-primary);
+    animation: radioPop var(--transition-bounce) forwards;
+}
+.radio__input:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--space-2);
+    height: var(--space-2);
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+/* Unify animation language with tokens_motion.css */
+@keyframes checkboxPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+@keyframes radioPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    user-select: none;
+    min-height: 44px;
+    font-size: var(--text-sm);
+}
+
+.toggle-switch__track {
+    width: 44px;
+    height: 24px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: background var(--transition-fast);
+}
+
+.toggle-switch__thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--color-surface);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    inset-inline-start: 3px;
+    transition: transform var(--transition-fast);
+    box-shadow: var(--shadow-elevation-1);
+}
+
+.toggle-switch input:checked + .toggle-switch__track {
+    background: var(--color-primary);
+}
+.toggle-switch input:checked + .toggle-switch__track .toggle-switch__thumb {
+    transform: translateX(20px);
+}
+
+/* FIX: `translateX` is not flipped by the browser in RTL, so the checked
+   thumb was moving 20px further right — off the track — whenever the page
+   was RTL. Mirror the offset in the RTL direction. Track width is 44px,
+   thumb is 18px, both-side gap is 3px, so the offset is 44 - 18 - 3*2 = 20px. */
+[dir="rtl"] .toggle-switch input:checked + .toggle-switch__track .toggle-switch__thumb {
+    transform: translateX(-20px);
+}
+
+.form-control:disabled,
+.form-control--disabled {
+    background-color: var(--color-disabled-bg);
+    color: var(--color-disabled-text);
+    border-color: var(--color-disabled-border);
+    cursor: not-allowed;
+    opacity: var(--opacity-disabled);
+}
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-sm);
+    color: var(--color-primary-dark);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-2);
+}
+
+/* Field Error */
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-danger);
+    font-size: var(--text-xs);
+    margin-top: var(--space-1);
+    animation: fieldErrorFadeIn var(--transition-base) ease;
+}
+@keyframes fieldErrorFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding-top: var(--space-5);
+    border-top: var(--border-width-1) solid var(--color-border-subtle);
+    margin-top: var(--space-5);
+}

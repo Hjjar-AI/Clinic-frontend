@@ -1,0 +1,128 @@
+/* ================================================================
+   visits.css – Visit form layout, timeline, visit cards
+   ================================================================ */
+
+/* ---- Visit Form Layout ---- */
+.visit-layout {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.visit-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* FIX: var(--breakpoint-lg) → 900px */
+@media (max-width: 900px) {
+  .visit-layout {
+    flex-direction: column;
+  }
+}
+
+/* ---- Timeline ---- */
+.timeline__badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline__badge--danger {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.timeline__badge--warning {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.timeline__badge--primary {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.timeline__badge-cell {
+  width: 40px;
+}
+
+.timeline__actions-cell {
+  text-align: end;
+}
+
+/* ===== Visit Cards (moved from components.css) ===== */
+.visit-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+.visit-card-link:hover .visit-card {
+    background-color: var(--color-primary-light);
+    transform: translateX(-2px);
+}
+
+.visit-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-inline-start: var(--border-width-3) solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-elevation-1);
+}
+.visit-card--success { border-inline-start-color: var(--color-success); }
+.visit-card--warning { border-inline-start-color: var(--color-warning); }
+.visit-card--danger  { border-inline-start-color: var(--color-danger); }
+
+.visit-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+    flex-wrap: wrap;
+    gap: var(--space-1);
+}
+.visit-card__date { display: flex; align-items: center; gap: var(--space-1); }
+.visit-card__day { font-size: var(--text-xl); font-weight: var(--font-weight-bold); color: var(--color-primary); line-height: 1; }
+.visit-card__month { font-size: var(--text-xs); color: var(--color-text-muted); text-transform: uppercase; }
+.visit-card__meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.visit-card__age { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+.visit-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-bottom: var(--space-2);
+}
+.visit-card__diagnosis { font-size: var(--text-base); font-weight: var(--font-weight-semibold); color: var(--color-text); }
+.visit-card__complaint { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+.visit-card__actions {
+    display: flex;
+    gap: var(--space-1);
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: var(--space-2);
+    border-top: var(--border-width-1) solid var(--color-border-subtle);
+}
+
+.visit-patient-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    border-inline-start: var(--border-width-3) solid var(--color-primary);
+    align-items: center;
+}

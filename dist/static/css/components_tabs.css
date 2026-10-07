@@ -1,0 +1,48 @@
+/* ================================================================
+   components_tabs.css – App Tabs styles
+   ================================================================ */
+
+.app-tabs {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: var(--border-width-1) solid var(--color-border-subtle);
+    background: var(--color-surface);
+}
+.app-tabs__header {
+    display: flex;
+    border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+    background: var(--color-surface-soft);
+    overflow-x: auto;
+}
+.app-tabs__tab {
+    flex: 1;
+    padding: var(--space-3) var(--space-4);
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+    border-bottom: var(--border-width-3) solid transparent;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+}
+.app-tabs__tab:hover {
+    color: var(--color-primary);
+}
+.app-tabs__tab--active {
+    color: var(--color-primary-dark);
+    border-bottom-color: var(--color-primary);
+}
+.app-tabs__tab-icon {
+    font-size: var(--text-base);
+}
+.app-tabs__panels {
+    padding: var(--space-4);
+}

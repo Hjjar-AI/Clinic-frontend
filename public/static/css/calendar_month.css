@@ -1,0 +1,114 @@
+/* ================================================================
+   calendar_month.css – Month view specific styles
+   ================================================================ */
+
+.month-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-soft);
+    font-size: var(--text-xs);
+    margin-bottom: var(--space-2);
+}
+.month-grid-header__cell {
+    padding: var(--space-1) 0;
+}
+
+.month-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+.month-grid__week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-1);
+}
+.month-grid__day {
+    aspect-ratio: 1;
+    border: var(--border-width-1) solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: var(--text-xs);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    position: relative;
+    background: none;
+    font-family: inherit;
+    width: 100%;
+    color: inherit;
+}
+.month-grid__day:hover {
+    background: var(--color-primary-light);
+}
+.month-grid__day--today {
+    background: var(--color-primary-light);
+    font-weight: var(--font-weight-bold);
+    border-color: var(--color-primary);
+}
+.month-grid__day--other-month {
+    color: var(--color-text-light);
+    opacity: 0.5;
+}
+.month-grid__day--weekend {
+    background: var(--color-surface-soft);
+}
+.month-grid__day-number {
+    line-height: 1;
+}
+
+.month-grid__dots {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.month-grid__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+.month-grid__dot--scheduled {
+    background: var(--color-info);
+}
+.month-grid__dot--completed {
+    background: var(--color-success);
+}
+.month-grid__dot--no-show {
+    background: var(--color-warning);
+}
+.month-grid__dot--cancelled {
+    background: var(--color-danger);
+}
+.month-grid__more {
+    font-size: 0.6rem;
+    color: var(--color-text-muted);
+}
+
+/* FIX: var(--breakpoint-xs) → 480px */
+@media (max-width: 480px) {
+    .month-grid-header__cell {
+        font-size: 0.65rem;
+    }
+    .month-grid__day {
+        font-size: 0.7rem;
+        padding: var(--space-0-5);
+    }
+    .month-grid__day-number {
+        margin-bottom: 0;
+    }
+    .month-grid__dots {
+        gap: 1px;
+    }
+    .month-grid__dot {
+        width: 4px;
+        height: 4px;
+    }
+}

@@ -1,0 +1,33 @@
+/* ================================================================
+   tokens_breakpoints.css – Centralised breakpoint definitions
+   Use these variables instead of hardcoded pixel values.
+   ================================================================ */
+
+:root {
+  /* 
+   * 6 well‑chosen breakpoints covering all device sizes
+   * from mobile phones up to large desktop screens.
+   * All values are in px for maximum browser support.
+   */
+  --breakpoint-xs: 480px;    /* Small phones (landscape) and small tablets */
+  --breakpoint-sm: 600px;    /* Phones in landscape, small tablets */
+  --breakpoint-md: 768px;    /* Tablets, small laptops */
+  --breakpoint-lg: 900px;    /* Medium tablets, small desktops (matches existing 900px usage) */
+  --breakpoint-xl: 1024px;   /* Desktops, large tablets */
+  --breakpoint-xxl: 1200px;  /* Large desktops */
+}
+
+/*
+ * Alternative naming (if you prefer semantic names):
+ * --breakpoint-mobile: 480px
+ * --breakpoint-tablet: 768px
+ * --breakpoint-desktop: 1024px
+ * --breakpoint-wide: 1200px
+ */
+
+/* 
+ * Usage examples:
+ * @media (max-width: var(--breakpoint-xs)) { ... }
+ * @media (min-width: var(--breakpoint-lg)) { ... }
+ * @media (max-width: var(--breakpoint-md)) and (orientation: landscape) { ... }
+ */

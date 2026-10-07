@@ -1,0 +1,38 @@
+/* frontend/public/static/css/tags.css */
+.tag, .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-0-5);
+  padding: var(--spacing-tag);
+  border-radius: var(--radius-tag);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.6;
+  border: var(--border-width-1) solid transparent;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Solid variants – use semantic colours directly */
+.tag--danger { background: var(--color-danger); color: var(--color-text-inverse); }
+.tag--success { background: var(--color-success); color: var(--color-text-inverse); }
+.tag--info { background: var(--color-info); color: var(--color-text-inverse); }
+.tag--warning { background: var(--color-warning); color: var(--color-text-inverse); }
+.tag--primary { background: var(--color-primary); color: var(--color-text-inverse); }
+.tag--purple { background: var(--color-purple); color: var(--color-text-inverse); }
+.tag--secondary { background: var(--color-secondary); color: var(--color-text-inverse); }
+.tag--grey { background: var(--color-neutral); color: var(--color-text-inverse); }
+
+/* Soft variants – use semantic light backgrounds and dark text */
+.tag--danger-soft { background: var(--color-danger-light); color: var(--color-danger-dark); border-color: var(--color-danger-soft); }
+.tag--success-soft { background: var(--color-success-light); color: var(--color-success-dark); border-color: var(--color-success-soft); }
+.tag--info-soft { background: var(--color-info-light); color: var(--color-info-dark); border-color: var(--color-info-soft); }
+.tag--warning-soft { background: var(--color-warning-light); color: var(--color-warning-dark); border-color: var(--color-warning-soft); }
+.tag--primary-soft { background: var(--color-primary-light); color: var(--color-primary-dark); border-color: var(--color-primary-soft); }
+.tag--purple-soft { background: var(--color-purple-light); color: var(--color-purple-dark); border-color: var(--color-purple-soft); }
+.tag--secondary-soft { background: var(--color-secondary-light); color: var(--color-secondary-dark); border-color: var(--color-secondary-soft); }  /* added */
+.tag--grey-soft { background: var(--color-surface-strong); color: var(--color-text-soft); border-color: var(--color-border); }
+
+/* Extra small variant – now uses fluid token */
+.tag--xs { font-size: var(--text-2xs); padding: 0 var(--space-1); line-height: 1.4; }

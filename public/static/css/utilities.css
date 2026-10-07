@@ -1,0 +1,89 @@
+/* ================================================================
+   utilities.css – Token‑driven z‑indexes, context menu, offline banner,
+   logical properties for RTL
+   ================================================================ */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) var(--color-surface-soft);
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: var(--color-surface-soft); border-radius: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 10px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+
+.context-menu {
+  position: fixed;
+  background: var(--color-surface);
+  border: var(--border-width-1) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-tooltip);
+  min-width: 200px;
+  padding: 4px 0;
+  z-index: var(--z-tooltip);
+  overflow-y: auto;
+  max-height: 400px;
+}
+.context-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: start;
+  font-family: inherit;
+  min-height: 44px;
+}
+.context-menu__item:hover { background: var(--color-primary-light); color: var(--color-primary); }
+
+/* ---- unified system‑wide banner ---- */
+.system-banner {
+  position: fixed;
+  inset-inline: 0;   /* logical property replaces left/right */
+  z-index: var(--z-tooltip);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.system-banner--info {
+  top: 0;
+  background: var(--color-info-dark);
+  color: var(--color-text-inverse);
+}
+
+.system-banner--warning {
+  top: var(--topbar-height);
+  background: var(--color-warning);
+  color: var(--color-warning-dark);
+}
+
+.system-banner__icon {
+  font-size: var(--icon-lg);
+}
+
+.border-accent-start { border-inline-start: var(--border-width-3) solid var(--color-primary); }
+.border-primary-soft { border-color: var(--color-primary-soft); }
+.border-danger-subtle { border-color: var(--color-danger-soft); }
+.border-bottom { border-bottom: var(--border-width-1) solid var(--color-border-subtle); }
+.border-top { border-top: var(--border-width-1) solid var(--color-border-subtle); }
+.rounded { border-radius: var(--radius-md); }
+.surface-soft { background: var(--color-surface-soft); }
+
+/* Touch targets – ensure interactive elements meet minimum size */
+button, .btn, [role="button"], a.btn, input[type="submit"], input[type="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+/* Removed duplicate .btn--xs / .btn--sm overrides – these are now defined in buttons.css */

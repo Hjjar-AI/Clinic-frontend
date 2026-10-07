@@ -1,0 +1,119 @@
+/* ================================================================
+   cards.css – All card visual tokens unified
+   ================================================================ */
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-elevation-1);
+  overflow: hidden;
+  border: var(--border-width-1) solid var(--color-border-subtle);
+  margin-bottom: var(--spacing-section-gap);
+  transition: box-shadow var(--transition-base);
+}
+
+.card--interactive:hover {
+  box-shadow: var(--shadow-elevation-2);
+  transform: translateY(-2px);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.card__header {
+  padding: var(--space-4) var(--spacing-card-padding);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-base);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+  color: var(--color-text);
+  background: var(--color-surface-soft);
+}
+
+.card__header--primary { background: var(--color-primary-light); color: var(--color-primary-dark); }
+.card__header--warning { background: var(--color-warning-light); color: var(--color-warning-dark); }
+.card__header--danger { background: var(--color-danger-light); color: var(--color-danger-dark); }
+.card__header--success { background: var(--color-success-light); color: var(--color-success-dark); }
+.card__header--info { background: var(--color-info-light); color: var(--color-info-dark); }
+.card__header--purple { background: var(--color-purple-light); color: var(--color-purple-dark); }
+
+.card__body { padding: var(--spacing-card-padding); }
+
+.card__footer {
+  padding: var(--space-4) var(--spacing-card-padding);
+  background: var(--color-surface-soft);
+  border-top: var(--border-width-1) solid var(--color-border-subtle);
+}
+
+.kpi.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-6);
+  min-height: 120px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-elevation-1);
+}
+
+.kpi__number {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+/* FIX: var(--breakpoint-md) → 768px, var(--breakpoint-xs) → 480px */
+@media (max-width: 768px) {
+  .card { margin-bottom: var(--space-4); }
+  .card__header { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); }
+  .card__body { padding: var(--space-3); }
+  .card__footer { padding: var(--space-2) var(--space-3); }
+  .kpi.card {
+    padding: var(--space-4);
+    min-height: 100px;
+  }
+  .kpi__number { font-size: var(--text-xl); }
+}
+
+@media (max-width: 480px) {
+  .card { margin-bottom: var(--space-3); border-radius: var(--radius-md); }
+  .card__header { padding: var(--space-2); font-size: var(--text-xs); }
+  .card__body { padding: var(--space-2); }
+  .kpi.card {
+    padding: var(--space-3);
+    min-height: 80px;
+  }
+  .kpi__number { font-size: var(--text-lg); }
+}
+
+/* Deprecated .panel system – no longer used by BaseCard; retained for any legacy code */
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: var(--border-width-1) solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-elevation-1);
+  overflow: hidden;
+}
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+  background: var(--color-surface-soft);
+  flex-shrink: 0;
+}
+.panel__body {
+  flex: 1 1 auto;
+  padding: var(--space-4);
+  overflow-y: auto;
+}
+.panel__footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--border-width-1) solid var(--color-border-subtle);
+  background: var(--color-surface-soft);
+  flex-shrink: 0;
+}

@@ -1,0 +1,190 @@
+/* themes/dark-mode.css – universal dark mode + fallback */
+/* =================================================================
+   UNIVERSAL DARK MODE – derives dark colors via color-mix()
+   ================================================================= */
+body.dark-mode {
+  --color-primary:            color-mix(in srgb, var(--color-primary) 70%, black);
+  --color-primary-dark:       color-mix(in srgb, var(--color-primary-dark) 70%, black);
+  --color-primary-light:      color-mix(in srgb, var(--color-primary-light) 50%, black);
+  --color-primary-soft:       color-mix(in srgb, var(--color-primary-soft) 50%, black);
+  --color-primary-hover:      color-mix(in srgb, var(--color-primary-hover) 60%, black);
+  --color-primary-surface:    color-mix(in srgb, var(--color-primary-surface) 50%, black);
+
+  --color-secondary:          color-mix(in srgb, var(--color-secondary) 70%, black);
+  --color-secondary-dark:     color-mix(in srgb, var(--color-secondary-dark) 80%, black);
+  --color-secondary-light:    color-mix(in srgb, var(--color-secondary-light) 40%, black);
+  --color-secondary-soft:     color-mix(in srgb, var(--color-secondary-soft) 40%, black);
+  --color-secondary-hover:    color-mix(in srgb, var(--color-secondary-hover) 60%, black);
+
+  --color-accent:             color-mix(in srgb, var(--color-accent) 70%, black);
+  --color-accent-dark:        color-mix(in srgb, var(--color-accent-dark) 80%, black);
+  --color-accent-light:       color-mix(in srgb, var(--color-accent-light) 40%, black);
+  --color-accent-soft:        color-mix(in srgb, var(--color-accent-soft) 40%, black);
+  --color-accent-hover:       color-mix(in srgb, var(--color-accent-hover) 60%, black);
+
+  --color-success:            color-mix(in srgb, var(--color-success) 70%, black);
+  --color-success-dark:       color-mix(in srgb, var(--color-success-dark) 80%, black);
+  --color-success-light:      color-mix(in srgb, var(--color-success-light) 40%, black);
+  --color-success-soft:       color-mix(in srgb, var(--color-success-soft) 40%, black);
+  --color-success-hover:      color-mix(in srgb, var(--color-success-hover) 60%, black);
+
+  --color-danger:             color-mix(in srgb, var(--color-danger) 70%, black);
+  --color-danger-dark:        color-mix(in srgb, var(--color-danger-dark) 80%, black);
+  --color-danger-light:       color-mix(in srgb, var(--color-danger-light) 40%, black);
+  --color-danger-soft:        color-mix(in srgb, var(--color-danger-soft) 40%, black);
+  --color-danger-hover:       color-mix(in srgb, var(--color-danger-hover) 60%, black);
+
+  --color-warning:            color-mix(in srgb, var(--color-warning) 70%, black);
+  --color-warning-dark:       color-mix(in srgb, var(--color-warning-dark) 80%, black);
+  --color-warning-light:      color-mix(in srgb, var(--color-warning-light) 40%, black);
+  --color-warning-soft:       color-mix(in srgb, var(--color-warning-soft) 40%, black);
+  --color-warning-hover:      color-mix(in srgb, var(--color-warning-hover) 60%, black);
+
+  --color-info:               color-mix(in srgb, var(--color-info) 70%, black);
+  --color-info-dark:          color-mix(in srgb, var(--color-info-dark) 80%, black);
+  --color-info-light:         color-mix(in srgb, var(--color-info-light) 40%, black);
+  --color-info-soft:          color-mix(in srgb, var(--color-info-soft) 40%, black);
+  --color-info-hover:         color-mix(in srgb, var(--color-info-hover) 60%, black);
+
+  --color-neutral:            color-mix(in srgb, var(--color-neutral) 70%, black);
+  --color-neutral-hover:      color-mix(in srgb, var(--color-neutral-hover) 60%, black);
+
+  --color-purple:             color-mix(in srgb, var(--color-purple) 70%, black);
+  --color-purple-dark:        color-mix(in srgb, var(--color-purple-dark) 80%, black);
+  --color-purple-light:       color-mix(in srgb, var(--color-purple-light) 40%, black);
+  --color-purple-soft:        color-mix(in srgb, var(--color-purple-soft) 40%, black);
+  --color-purple-hover:       color-mix(in srgb, var(--color-purple-hover) 60%, black);
+
+  --color-text:               color-mix(in srgb, var(--color-text) 30%, white);
+  --color-text-soft:          color-mix(in srgb, var(--color-text-soft) 25%, white);
+  --color-text-muted:         color-mix(in srgb, var(--color-text-muted) 20%, white);
+  --color-text-light:         color-mix(in srgb, var(--color-text-light) 15%, white);
+  --color-text-inverse:       var(--color-surface);
+
+  --color-surface:            color-mix(in srgb, var(--color-surface) 15%, black);
+  --color-surface-soft:       color-mix(in srgb, var(--color-surface-soft) 12%, black);
+  --color-surface-strong:     color-mix(in srgb, var(--color-surface-strong) 10%, black);
+  --color-surface-inverse:    var(--color-text);
+
+  --color-border:             color-mix(in srgb, var(--color-border) 30%, black);
+  --color-border-strong:      color-mix(in srgb, var(--color-border-strong) 30%, black);
+  --color-border-subtle:      color-mix(in srgb, var(--color-border-subtle) 20%, black);
+
+  --color-disabled:           color-mix(in srgb, var(--color-disabled) 50%, black);
+  --color-disabled-text:      color-mix(in srgb, var(--color-disabled-text) 40%, black);
+  --color-disabled-bg:        color-mix(in srgb, var(--color-disabled-bg) 30%, black);
+  --color-disabled-border:    color-mix(in srgb, var(--color-disabled-border) 30%, black);
+
+  --color-focus:              var(--color-primary);
+  --color-focus-shadow:       color-mix(in srgb, var(--color-focus-shadow) 50%, black);
+  --color-selection:          color-mix(in srgb, var(--color-selection) 50%, black);
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode .heading-1,
+body.dark-mode .heading-2,
+body.dark-mode .heading-3,
+body.dark-mode .heading-4,
+body.dark-mode .heading-5,
+body.dark-mode .heading-6 {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* =================================================================
+   FALLBACK for browsers not supporting color-mix()
+   ================================================================= */
+@supports not (color: color-mix(in srgb, red, black)) {
+  body.dark-mode {
+    /* Hardcoded dark values for the default theme only */
+    --color-primary: #4a9a9e;
+    --color-primary-dark: #284b63;
+    --color-primary-light: #1e3535;
+    --color-primary-soft: #2e4a4a;
+    --color-primary-hover: #3a7a7d;
+    --color-secondary: #3a6a80;
+    --color-secondary-dark: #1f3a4d;
+    --color-secondary-light: #1e2d35;
+    --color-secondary-soft: #2a3d48;
+    --color-secondary-hover: #2f586b;
+    --color-accent: #a86e4e;
+    --color-accent-dark: #6d462e;
+    --color-accent-light: #2e221c;
+    --color-accent-soft: #3a2e26;
+    --color-accent-hover: #8a5a3c;
+    --color-neutral: #7a7a7a;
+    --color-neutral-hover: #606060;
+    --color-success: #5a8a5a;
+    --color-success-dark: #3a6247;
+    --color-success-light: #1e2a1e;
+    --color-success-soft: #2a382a;
+    --color-success-hover: #4a7c59;
+    --color-danger: #c06050;
+    --color-danger-dark: #933d30;
+    --color-danger-light: #2e1e1c;
+    --color-danger-soft: #3a2824;
+    --color-danger-hover: #a84c3c;
+    --color-warning: #c49a2b;
+    --color-warning-dark: #9e7a1e;
+    --color-warning-light: #2e2618;
+    --color-warning-soft: #3a3224;
+    --color-warning-hover: #a08030;
+    --color-info: #5a7a9e;
+    --color-info-dark: #4a627a;
+    --color-info-light: #1e2832;
+    --color-info-soft: #283646;
+    --color-info-hover: #4a627a;
+    --color-purple: #8a6a9a;
+    --color-purple-dark: #5a3a6a;
+    --color-purple-light: #24202a;
+    --color-purple-soft: #302a36;
+    --color-purple-hover: #6a5078;
+    --color-text: #e0d9d0;
+    --color-text-soft: #c8beb2;
+    --color-text-muted: #a0988c;
+    --color-text-light: #888076;
+    --color-text-inverse: #353535;
+    --color-surface: #303030;
+    --color-surface-soft: #222222;
+    --color-surface-strong: #1a1a1a;
+    --color-surface-inverse: #e0d9d0;
+    --color-border: #4a4a4a;
+    --color-border-strong: #5e5646;
+    --color-border-subtle: #3a3a3a;
+    --color-disabled: #5e5646;
+    --color-disabled-text: #888076;
+    --color-disabled-bg: #3a3a3a;
+    --color-disabled-border: #4a4a4a;
+    --color-focus: #4a9a9e;
+    --color-focus-shadow: rgba(74, 154, 158, 0.25);
+    --color-selection: rgba(74, 154, 158, 0.3);
+    --color-card-header-primary-start: #1e3535;
+    --color-card-header-primary-end: #2a4040;
+    --color-card-header-neutral-start: #222222;
+    --color-card-header-neutral-end: #1a1a1a;
+    --color-card-header-warning-start: #2e2618;
+    --color-card-header-warning-end: #3a3224;
+    --color-card-header-danger-start: #2e1e1c;
+    --color-card-header-danger-end: #3a2824;
+    --color-card-header-success-start: #1e2a1e;
+    --color-card-header-success-end: #2a382a;
+    --color-card-header-purple-start: #24202a;
+    --color-card-header-purple-end: #302a36;
+    --chart-color-1: #4a9a9e;
+    --chart-color-2: #d07a68;
+    --chart-color-3: #d4b048;
+    --chart-color-4: #7ea856;
+    --chart-color-5: #7a9ab8;
+    --chart-color-6: #967aa8;
+    --chart-color-7: #a86e4e;
+    --chart-color-8: #3a6a80;
+    --chart-color-9: #4a7a72;
+    --chart-color-10: #a85848;
+    --chart-color-11: #a08030;
+    --chart-color-12: #5a8040;
+  }
+}

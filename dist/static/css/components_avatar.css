@@ -1,0 +1,73 @@
+/* ================================================================
+   components_avatar.css – Avatar styles
+   ================================================================ */
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 600;
+    flex-shrink: 0;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+.avatar--xs { width: 30px; height: 30px; font-size: var(--text-xs); }
+.avatar--sm { width: 32px; height: 32px; font-size: var(--text-xs); }
+.avatar--md { width: 40px; height: 40px; font-size: var(--text-sm); }
+.avatar--lg { width: 48px; height: 48px; font-size: var(--text-md); }
+.avatar--xl { width: 56px; height: 56px; font-size: var(--text-lg); }
+
+.avatar--primary { background: var(--color-primary-light); color: var(--color-primary); }
+.avatar--danger { background: var(--color-danger-light); color: var(--color-danger); }
+.avatar--warning { background: var(--color-warning-light); color: var(--color-warning); }
+.avatar--success { background: var(--color-success-light); color: var(--color-success); }
+.avatar--purple { background: var(--color-purple-light); color: var(--color-purple); }
+
+.patient-profile-avatar {
+    width: 48px;
+    height: 48px;
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.patient-list-avatar {
+    width: 32px;
+    height: 32px;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.patient-avatar {
+    width: 32px;
+    height: 32px;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    flex-shrink: 0;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.patient-avatar--danger { background: var(--color-danger-light); color: var(--color-danger); }
+.patient-avatar--warning { background: var(--color-warning-light); color: var(--color-warning); }

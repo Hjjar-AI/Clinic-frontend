@@ -1,0 +1,68 @@
+/* themes/theme-deep-space-strawberry.css */
+body.theme-deep-space-strawberry {
+  --color-primary: #f02d3a;
+  --color-primary-dark: #273043;
+  --color-primary-light: #ffe6e6;
+  --color-primary-soft: #ffc2c2;
+  --color-primary-hover: #c0202a;
+  --color-primary-surface: #fff0f0;
+
+  --color-secondary: #9197ae;
+  --color-secondary-dark: #6c718a;
+  --color-secondary-light: #eef0f5;
+  --color-secondary-soft: #dce0eb;
+  --color-secondary-hover: #6c718a;
+
+  --color-accent: #dd0426;
+  --color-accent-dark: #a0031a;
+  --color-accent-light: #fde0e3;
+  --color-accent-soft: #f8c0c6;
+  --color-accent-hover: #a0031a;
+
+  --color-success: #6a994e;
+  --color-success-dark: #4a7036;
+  --color-success-light: #eef4e8;
+  --color-success-soft: #d4e8c8;
+  --color-success-hover: #4a7036;
+
+  --color-danger: #bc4742;
+  --color-danger-dark: #962f2b;
+  --color-danger-light: #f9eaea;
+  --color-danger-soft: #f0cccc;
+  --color-danger-hover: #962f2b;
+
+  --color-warning: #f2e8cf;
+  --color-warning-dark: #c4b48a;
+  --color-warning-light: #fcf9f2;
+  --color-warning-soft: #f7f0e0;
+  --color-warning-hover: #c4b48a;
+
+  --color-info: #386641;
+  --color-info-dark: #2a4d31;
+  --color-info-light: #e8f0ea;
+  --color-info-soft: #cfe0d2;
+  --color-info-hover: #2a4d31;
+
+  --color-text: #273043;
+  --color-text-soft: #3d4a6b;
+  --color-text-muted: #6a7a9a;
+  --color-text-light: #a0a8b8;
+  --color-text-inverse: #ffffff;
+
+  --color-surface: #eff6ee;
+  --color-surface-soft: #e0efe0;
+  --color-surface-strong: #cfe0cf;
+  --color-surface-inverse: #273043;
+
+  --color-border: #c0c8d0;
+  --color-border-strong: #9098a0;
+  --color-border-subtle: #d8e0d8;
+
+  --color-focus: #f02d3a;
+  --color-focus-shadow: rgba(240,45,58,0.15);
+  --color-selection: rgba(240,45,58,0.25);
+
+  --shadow-primary: 0 2px 12px rgba(240,45,58,0.25);
+  --shadow-primary-hover: 0 4px 20px rgba(240,45,58,0.35);
+  --shadow-danger: 0 2px 12px rgba(188,71,66,0.25);
+}

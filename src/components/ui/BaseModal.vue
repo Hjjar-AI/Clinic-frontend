@@ -1,0 +1,226 @@
+<template>
+  <Teleport to="body">
+    <div
+      v-if="modelValue"
+      ref="modalOverlay"
+      class="modal"
+      :class="[sizeClass, { 'modal--nested': nested }]"
+      tabindex="-1"
+      @click.self="close"
+    >
+      <Transition name="modal">
+        <BaseCard
+          v-if="modelValue"
+          ref="modalContent"
+          class="modal__content"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          :aria-describedby="descriptionId"
+        >
+          <template #header>
+            <div
+              v-if="isMobile"
+              class="modal__handle"
+              aria-hidden="true"
+            />
+            <header :class="headerVariantClass">
+              <div style="display:flex; align-items:center; gap:var(--space-2);">
+                <Icon
+                  v-if="headerIcon"
+                  :icon="headerIcon"
+                  class="modal__header-icon"
+                />
+                <h2
+                  :id="titleId"
+                  style="margin:0; font-size:inherit;"
+                >
+                  {{ title }}
+                </h2>
+              </div>
+              <BaseButton
+                variant="ghost"
+                class="modal__close"
+                aria-label="إغلاق"
+                @click="close"
+              >
+                <Icon icon="cancel" />
+              </BaseButton>
+            </header>
+          </template>
+
+          <div
+            v-if="$slots.default"
+            :id="descriptionId"
+            class="modal__body"
+            style="position:relative;"
+          >
+            <slot />
+            <div
+              v-if="loading"
+              class="modal-body-loading"
+            >
+              <Spinner
+                size="lg"
+                variant="primary"
+              />
+            </div>
+          </div>
+
+          <template
+            v-if="$slots.footer || confirmText"
+            #footer
+          >
+            <div class="modal__footer">
+              <slot name="footer">
+                <BaseButton
+                  variant="secondary"
+                  :disabled="loading"
+                  @click="close"
+                >
+                  إلغاء
+                </BaseButton>
+                <BaseButton
+                  v-if="confirmText"
+                  :variant="confirmClass"
+                  :disabled="loading"
+                  @click="$emit('confirm')"
+                >
+                  {{ confirmText }}
+                </BaseButton>
+              </slot>
+            </div>
+          </template>
+        </BaseCard>
+      </Transition>
+    </div>
+  </Teleport>
+</template>
+
+<script setup>
+import { computed, nextTick, onBeforeUnmount, onMounted,ref, watch } from 'vue'
+
+import Spinner from '@/components/common/Spinner.vue'
+
+import BaseButton from './BaseButton.vue'
+import BaseCard from './BaseCard.vue'
+import Icon from './Icon.vue'
+
+const props = defineProps({
+  modelValue: { type: Boolean, required: true },
+  title: { type: String, default: '' },
+  confirmText: { type: String, default: '' },
+  confirmClass: { type: String, default: 'primary' },
+  size: { type: String, default: 'md', validator: v => ['xs','sm','md','lg','xl'].includes(v) },
+  headerVariant: { type: String, default: 'primary', validator: v => ['primary','info','success','warning','danger','neutral','purple'].includes(v) },
+  descriptionId: { type: String, default: '' },
+  loading: { type: Boolean, default: false }
+})
+
+const emit = defineEmits(['update:modelValue', 'confirm'])
+
+const modalContent = ref(null)
+const modalOverlay = ref(null)
+
+const titleId = `modal-title-${crypto.randomUUID()}`
+const descriptionId = props.descriptionId || `modal-desc-${crypto.randomUUID()}`
+
+const windowWidth = ref(window.innerWidth)
+const onResize = () => { windowWidth.value = window.innerWidth }
+onMounted(() => window.addEventListener('resize', onResize))
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onResize)
+  document.removeEventListener('keydown', globalKeydown)
+})
+const isMobile = computed(() => windowWidth.value < 768)
+
+const nested = ref(false)
+
+const sizeClass = computed(() => ({ xs: 'modal--xs', sm: 'modal--sm', md: 'modal--md', lg: 'modal--lg', xl: 'modal--xl' }[props.size] || 'modal--md'))
+const headerVariantClass = computed(() => props.headerVariant === 'primary' ? '' : `modal__header--${props.headerVariant}`)
+const headerIcon = computed(() => ({ info: 'info-circle', success: 'check-circle', warning: 'exclamation-triangle', danger: 'exclamation-circle', neutral: '', purple: 'crown' }[props.headerVariant] || ''))
+
+let previousActiveElement = null
+
+function globalKeydown(e) {
+  if (e.key === 'Escape') close()
+}
+
+watch(() => props.modelValue, async (val) => {
+  if (val) {
+    previousActiveElement = document.activeElement
+    nested.value = !!document.querySelector('.modal:not(:last-child)')
+    document.addEventListener('keydown', globalKeydown)
+    await nextTick()
+    trapFocus()
+  } else {
+    document.removeEventListener('keydown', globalKeydown)
+    if (previousActiveElement) { previousActiveElement.focus(); previousActiveElement = null }
+  }
+}, { immediate: true })
+
+function trapFocus() {
+  if (!modalContent.value) return
+  const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  const focusableElements = modalContent.value.$el.querySelectorAll(focusableSelector)
+  if (focusableElements.length === 0) return
+  const first = focusableElements[0]
+  const last = focusableElements[focusableElements.length - 1]
+  first.focus()
+
+  function handleTab(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+  }
+  modalContent.value.$el.addEventListener('keydown', handleTab)
+  const cleanup = () => { modalContent.value.$el?.removeEventListener('keydown', handleTab) }
+  const stopWatch = watch(() => props.modelValue, (newVal) => { if (!newVal) { cleanup(); stopWatch() } })
+}
+
+function close() { emit('update:modelValue', false) }
+</script>
+
+<style scoped>
+.modal__handle {
+  width: var(--space-6);
+  height: var(--space-0-5);
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
+  margin: var(--space-2) auto 0;
+}
+.modal__header-icon {
+  font-size: var(--text-xl);
+}
+.modal__close {
+  color: inherit;
+  font-size: var(--text-xl);
+  padding: var(--space-1) var(--space-3);
+  min-width: 44px;
+  min-height: 44px;
+  opacity: 0.8;
+  border-radius: var(--radius-sm);
+}
+/* FIX: rgba(255,255,255,0.15) → var(--color-bg-overlay-inverse) */
+.modal__close:hover {
+  opacity: 1;
+  background: var(--color-bg-overlay-inverse);
+}
+.modal-body-loading {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-base);
+  border-radius: inherit;
+}
+/* FIX: var(--breakpoint-md) → 768px */
+@media (max-width: 768px) {
+  .modal__handle {
+    width: var(--space-8);
+  }
+}
+</style>

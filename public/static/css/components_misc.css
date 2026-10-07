@@ -1,0 +1,12 @@
+/* components_misc.css – bundle all generic component styles */
+
+@import 'components/_base-utilities.css';
+@import 'components/_tooltips-spinners.css';
+@import 'components/_checklist-collapsible.css';
+@import 'components/_danger-daygrid.css';
+@import 'components/_detail-item.css';
+@import 'components/_keyvalue-list.css';
+@import 'components/_dropdown-progress.css';
+@import 'components/_relative-signature.css';
+@import 'components/_step-indicators.css';
+@import 'components/_theme-vertical-alert.css';
