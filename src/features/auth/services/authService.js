@@ -3,6 +3,8 @@ import { unwrapResponse } from '@/services/apiClient'
 
 export default {
   async login(credentials) {
+    // Bootstrap the CSRF cookie before anonymous session login.
+    await apiClient.get('/system/config/')
     const res = await apiClient.post('/auth/login/', credentials)
     return unwrapResponse(res)
   },
