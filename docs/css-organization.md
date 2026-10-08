@@ -1,6 +1,6 @@
 # CSS organization
 
-Shared application CSS starts at [app.css](../public/static/css/app.css), imported once by [main.js](../src/main.js). Its import order defines the existing cascade. Keep third-party CSS after this entry point. Fonts and initial skeleton styles remain separate links in `index.html` for early loading.
+[main.js](../src/main.js) imports shared [app.css](../public/static/css/app.css) once; import order defines cascade, followed by third-party CSS. Keep early fonts/skeletons separately linked in `index.html`.
 
 | Location under `public/static/css/` | Responsibility |
 | --- | --- |
@@ -15,12 +15,12 @@ Shared application CSS starts at [app.css](../public/static/css/app.css), import
 | `motion/` | Animations and Vue transition classes |
 | `documents/` | PDF/document styling |
 
-Component-specific styles remain under `src/styles/`, mirroring the owning Vue component path with kebab-case CSS filenames. Each component uses an external `<style scoped src="...">`; these files must not be imported into the global entry point. Tiny scoped files are intentional when they preserve component ownership and specificity.
+Component CSS: mirrored `src/styles/` paths, kebab-case filenames, external `<style scoped src="...">`; never import globally. Tiny scoped files preserve ownership/specificity.
 
-Use descriptive kebab-case names. Aim for roughly 50–200 readable lines per shared module; review a file before it exceeds 250 lines or about 12 KiB. These are maintenance guidelines, not CSS standards. Keep coherent themes/tokens intact and avoid splitting rules or media queries merely to meet a count. Keep responsive rules beside the widget they affect; cross-component page composition belongs in `layout/responsive-pages.css`.
+Use descriptive kebab-case; target 50–200 readable lines, review above 250 lines/12 KiB (maintenance guidelines, not CSS standards). Keep coherent themes/tokens/rules/media queries intact. Widget-responsive rules stay with widgets; page composition: `layout/responsive-pages.css`.
 
-Add shared modules explicitly to `app.css` at the appropriate cascade position. Its order is not alphabetical: themes override tokens, feature styles retain their later position, and existing shared helpers may override earlier components. Do not merge separate global and scoped definitions just because class names match. Inline bindings are reserved for runtime values such as measured coordinates and data-driven widths.
+Add modules explicitly to `app.css` by cascade, not alphabetically: themes override tokens, features remain later, helpers may override components. Matching classes do not justify global/scoped merging. Inline bindings only for runtime coordinates/data-driven widths.
 
-The reorganization replaces the root underscore-prefixed token/form/calendar/component filenames and removes the `components_misc.css` wrapper. Large layout, form, clinical, and typography files were split at complete section boundaries. Existing small related widget groups remain together; further extraction should follow an actual ownership or reuse need.
+Reorganization replaced root underscore-prefixed token/form/calendar/component names, removed `components_misc.css`, split large layout/form/clinical/typography files at section boundaries. Small related widgets stay grouped; extract further for ownership/reuse needs.
 
-Verification compared expanded shared CSS before and after, preserving every selector, declaration, quoted value, at-rule, and their order (ignoring comments/formatting). Scoped file contents were preserved byte for byte. Import graphs, style references, file sizes, delimiter balance, and light/dark token dependencies were checked with development scripts. No build, compilation, or browser rendering was performed.
+Verified expanded shared selectors/declarations/quoted values/at-rules/order unchanged except comments/formatting; scoped contents byte-identical. Development scripts checked import graphs/references/sizes/delimiters/light-dark token dependencies. No build/compilation/browser rendering.

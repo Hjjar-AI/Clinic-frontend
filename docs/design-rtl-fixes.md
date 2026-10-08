@@ -1,6 +1,6 @@
 # Frontend layout and RTL fixes
 
-Implemented: 2026-10-08, following [the design review](design-rtl-review.md). Runtime/API contracts and dependency versions are unchanged.
+Implemented 2026-10-08 after [the design review](design-rtl-review.md); runtime/API contracts/dependency versions unchanged.
 
 ## Changes
 
@@ -22,22 +22,22 @@ Implemented: 2026-10-08, following [the design review](design-rtl-review.md). Ru
 | 14 | Toast width fits narrow screens. Bottom navigation, content clearance, bulk-action offsets, and scroll-to-top clearance include safe-area space; footer groups wrap. |
 | 15 | Chart presentation resolves colors from the active element/body, responds to theme/direction changes, uses RTL-aware legends, moves legends below narrow charts, and uses dedicated responsive sizing wrappers. |
 
-Availability grids now derive the doctor column count through a runtime CSS custom property and use valid tracks. Queue rows have a labelled mobile presentation. Breakpoint documentation no longer recommends custom properties inside media conditions.
+Availability grids use runtime doctor-count CSS properties/valid tracks; queue rows have mobile labels; breakpoint docs no longer recommend media-condition custom properties.
 
 ## External CSS
 
-- Moved all 20 embedded scoped style blocks to mirrored paths under `src/styles/`; Vue components reference them through external scoped style sources. Existing scoping and deep selectors are preserved.
-- Removed all literal template `style` attributes. Shared semantic helpers live in `public/static/css/`; page/component styles remain external.
-- Converted finite presentation choices (collapse arrows, trigger severity, theme swatches, signature color) to classes/CSS tokens. Removed cosmetic random skeleton widths.
-- Retained data-dependent bindings: floating coordinates/bounds, progress/animation timing, generated avatar colors, column styles/counts, skeleton chart height, and calendar geometry. Textarea resizing and drawer scroll locking also require runtime DOM values.
+- Externalized 20 scoped blocks to mirrored `src/styles/` paths; Vue scoped sources preserve scoping/deep selectors.
+- Removed literal template `style`; shared semantic helpers: `public/static/css/`; page/component styles remain external.
+- Classes/tokens replace finite collapse-arrow/severity/swatch/signature-color choices; removed cosmetic random skeleton widths.
+- Retained runtime floating coordinates/bounds, progress/animation timing, avatar colors, column styles/counts, skeleton heights, calendar geometry; textarea resize/drawer scroll lock also need DOM values.
 
 ## Verification and limits
 
-- JavaScript syntax checks passed for changed JS files and Vue script sections, with module declarations adapted for parser-only checking; no application execution or bundling was involved in those checks.
-- Audited 80 CSS files for balanced delimiters, invalid media-variable usage, and the availability-track issue. All external component style references resolve; no literal template styles, embedded CSS, or obsolete utility names remain.
-- Audited all eight themes in light/dark combinations: no custom-property dependency cycles or missing base palette references.
-- Standalone probes using the actual helper source with controlled DOM/Vue/Chart adapters passed for drawer state separation, focus/scroll handling, chart ownership/concurrent creation/disposal/theme notifications, and floating-panel clamping/flipping/resize/scroll cleanup.
-- These probes do not establish real Vue mounting, CSS rendering, accessibility conformance, or complete browser workflow correctness. The local Firefox launcher failed and direct headless launch crashed; browser verification remains outstanding.
-- No builds, compilation/packaging tasks, test-suite access, migrations, project database operations, or dependency/version changes were performed. Temporary verification helpers lived under `/tmp`.
+- Changed JS/Vue script syntax passed with module declarations adapted for parser-only checks; no app execution/bundling.
+- Audited 80 CSS files: delimiters/media variables/availability tracks; external style references resolve; no literal template styles/embedded CSS/obsolete utilities.
+- Eight themes × light/dark: no token cycles/missing base palettes.
+- Actual-helper probes with controlled DOM/Vue/Chart adapters passed: drawer state/focus/scroll, chart ownership/concurrent creation/disposal/theme notifications, floating clamping/flipping/resize/scroll cleanup.
+- Unverified: real Vue mounting, CSS rendering, accessibility/full browser workflows. Firefox launcher failed; direct headless launch crashed.
+- No builds/compilation/packaging, test-suite access, migrations, project DB/dependency/version changes; temporary helpers: `/tmp`.
 
-Next validation: render 320/375/768/900/1024/1440px widths with long Arabic names, mixed English terms, international phone numbers, populated charts, theme switches, dropdown scrolling, and keyboard navigation.
+Pending rendering: 320/375/768/900/1024/1440px, long Arabic/mixed English, international phones, populated charts/theme switches, dropdown scrolling, keyboard navigation.

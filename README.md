@@ -1,29 +1,29 @@
 # MyClinic frontend
 
-Vue application for the MyClinic clinic management system, with an Arabic interface for patients, visits, appointments, billing, clinical documents, tasks, reports, imports, backups, and administration. It connects to the sibling [Django backend](../backend/README.md).
+Arabic Vue clinic UI: patients, visits, appointments, billing, clinical documents, tasks, reports, imports, backups, administration. API: sibling [Django backend](../backend/README.md).
 
 ## Requirements
 
-- Node.js matching `package.json`: `^22.18.0 || >=24.12.0`.
-- pnpm, with dependencies resolved through `pnpm-lock.yaml`.
-- A configured backend with an initialized database and application accounts.
+- Node.js per `package.json`: `^22.18.0 || >=24.12.0`.
+- pnpm with `pnpm-lock.yaml`.
+- Configured backend, initialized database, application accounts.
 
-The main libraries are Vue, Vue Router, Pinia, Axios, TanStack Vue Query, Chart.js, VeeValidate, and Yup. Vite provides the development server and asset pipeline.
+Libraries: Vue, Vue Router, Pinia, Axios, TanStack Vue Query, Chart.js, VeeValidate, Yup; Vite dev server/asset pipeline.
 
 ## Local development
 
-Start Django on port **5019** using the backend README. In another terminal, from `frontend/`:
+Start Django on **5019** per backend README; second terminal, from `frontend/`:
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Vite uses port **5173**; open the URL printed by the development server. The configured asset base is `/static/`, while application routes use root-based browser history, such as `/login`, `/dashboard`, and `/patients`.
+Open Vite's printed URL (port **5173**). Asset base: `/static/`; root-based history routes: `/login`, `/dashboard`, `/patients`.
 
-Requests to `/api` are proxied to `http://localhost:5019`, so the default browser API base `/api/v1` works without frontend environment configuration. Use the same hostname consistently when accessing the app so session and CSRF cookies remain consistent.
+`/api` proxies to `http://localhost:5019`; default `/api/v1` needs no frontend environment configuration. Use a consistent hostname for session/CSRF cookies.
 
-To change the development proxy destination, supply an environment variable when starting Vite:
+Override the dev proxy when starting Vite:
 
 ```bash
 VITE_BACKEND_URL=http://localhost:8000 pnpm dev
@@ -36,9 +36,9 @@ VITE_BACKEND_URL=http://localhost:8000 pnpm dev
 | `VITE_BACKEND_URL` | `http://localhost:5019` | Development proxy target in `vite.config.js` |
 | `VITE_API_BASE_URL` | `/api/v1` | Browser API base in `src/services/apiClient.js` |
 
-`VITE_BACKEND_URL` is read from `process.env` in the Vite configuration; export it in the shell or use the command above. The configuration does not explicitly load it from an `.env` file.
+Vite reads `VITE_BACKEND_URL` from `process.env`, not explicitly from `.env`; export it or use the command above.
 
-`VITE_API_BASE_URL` follows Vite's client environment handling and can be set in an uncommitted `.env.local`. Its value is exposed to the browser; never put secrets in `VITE_*` variables. Prefer the default same-origin API path. A separate API origin needs compatible backend CORS, CSRF, and cookie settings, and is not a drop-in replacement for the development proxy.
+Set client `VITE_API_BASE_URL` in uncommitted `.env.local`; browser-visible `VITE_*` must contain no secrets. Prefer same-origin defaults: a separate API origin requires compatible CORS/CSRF/cookies and cannot simply replace the dev proxy.
 
 ## Commands
 
@@ -50,7 +50,7 @@ VITE_BACKEND_URL=http://localhost:8000 pnpm dev
 | `pnpm lint` | Run ESLint with automatic fixes; modifies files |
 | `pnpm format` | Run Prettier over the project; modifies files |
 
-The API proxy is configured for the development server. Preview hosting needs its own API routing arrangement. Preserve dependency versions and the lockfile unless a dependency change is explicitly requested.
+The proxy is dev-only; preview hosting needs API routing. Preserve versions/lockfile unless dependency changes are explicitly requested.
 
 ## Project structure
 
@@ -69,34 +69,34 @@ public/           Static resources, including shared CSS
 vite.config.js    Asset base, aliases, plugins, and API proxy
 ```
 
-Use `@/` for imports from `src/`. Vue, router, and Pinia helpers are auto-imported; components directly inside `src/components/ui` and `src/components/common` are registered through the component plugin. Deeper component directories need explicit imports.
+Use `@/` for `src/` imports. Vue/router/Pinia helpers auto-import; the component plugin registers direct `src/components/ui`/`src/components/common` children. Import deeper components explicitly.
 
-Keep static styling in external CSS. Shared tokens/layouts/utilities live in `public/static/css/`; component-specific CSS lives in `src/styles/` and is referenced with `<style scoped src="...">` to preserve scoping. Inline bindings are reserved for runtime values such as measured coordinates, progress widths, and data-driven column counts. The shell owns page gutters; `PageContainer` supports `standard`, `wide`, and `form` width variants.
+External CSS: shared tokens/layouts/utilities in `public/static/css/`; component styles in `src/styles/` via `<style scoped src="...">`. Inline bindings only for runtime coordinates, progress widths, data-driven columns. Shell owns gutters; `PageContainer` widths: `standard`/`wide`/`form`.
 
-Shared CSS loads through `public/static/css/app.css`, with files grouped by responsibility and kebab-case names. Preserve its cascade order. See [CSS organization](docs/css-organization.md) for module ownership, size guidelines, and scoped-style conventions.
+Shared entry: `public/static/css/app.css`; preserve cascade order, responsibility groups, kebab-case names. Ownership/sizes/scoping: [CSS organization](docs/css-organization.md).
 
 ## Backend integration
 
-Use the shared `apiClient` and existing feature services when adding workflows:
+Use shared `apiClient`/feature services:
 
-- Session authentication uses cookies with credentials enabled. The auth service fetches `/system/config/` before login to bootstrap CSRF; unsafe requests send the `csrftoken` value as `X-CSRFToken`.
-- Responses use a `data` envelope. `unwrapResponse` extracts payloads, including valid falsy values. API errors use an `error` object.
-- The client adds trailing slashes, maps `limit` to `per_page`, and tracks resource versions for `If-Match`. Pass explicit versions where the workflow requires them and refresh after stale-edit conflicts.
-- Covered mutations receive `X-Idempotency-Key`. Reuse the key when retrying the same logical operation after an uncertain response.
-- Route guards enforce authentication and permission visibility; the backend remains responsible for authorization.
-- Imports and restores require preview steps. Full recovery and catalog merge have different scopes; preserve their confirmation and preview contracts.
-- Issued clinical documents depend on signed visit revisions. Document issuance must follow the backend's finalized-visit workflow.
+- Session cookies require credentials; auth fetches `/system/config/` before login for CSRF. Unsafe requests send `csrftoken` as `X-CSRFToken`.
+- Responses: `data`; `unwrapResponse` preserves valid falsy payloads. Errors: `error`.
+- Client adds trailing slashes, maps `limit` to `per_page`, tracks `If-Match` versions. Pass explicit versions where required; refresh stale-edit conflicts.
+- Covered mutations receive `X-Idempotency-Key`; uncertain-response retries reuse the logical operation's key.
+- Route guards enforce auth/permission visibility; backend authorizes.
+- Imports/restores require previews; preserve distinct full-recovery/catalog-merge scopes and confirmation contracts.
+- Issue clinical documents from signed revisions through the backend finalized-visit workflow.
 
 ## Hosting
 
-Django reads `frontend/dist/index.html` as the SPA template and includes `frontend/dist/` among its static source directories. The deployed application must serve generated assets under `/static/`, forward `/api/v1/` to Django, and return the SPA entry point for frontend history routes. Preserve the backend's separate `/admin/` and media handling.
+Django uses SPA template `frontend/dist/index.html` and static source `frontend/dist/`. Hosting must serve `/static/`, forward `/api/v1/` to Django, and return SPA entry for history routes; preserve separate `/admin/`/media handling.
 
-The current Vite configuration enables source maps and disables JavaScript/CSS minification. Account for those settings when preparing an authorized production build. Vite preview is a local preview tool, not the production serving arrangement.
+Vite enables source maps and disables JavaScript/CSS minification; account for this in authorized production builds. Vite preview is local, not production hosting.
 
 ## Development notes
 
-Follow the project rules in [backend/AGENTS.md](../backend/AGENTS.md), and check [current work](../backend/workCurrent.md) and [completed work](../backend/doneCurrent.md). Do not inspect test suites, work on migrations, run builds/compilation/packaging, or change versions without explicit authorization.
+Before edits: [AGENTS.md](AGENTS.md), [current work](docs/workCurrent.md), [completed work](docs/doneCurrent.md). API coordination: [backend guide](../backend/AGENTS.md), [backend current work](../backend/docs/workCurrent.md), [backend completed work](../backend/docs/doneCurrent.md). Test-suite inspection, migrations, builds/compilation/packaging, version changes require explicit authorization.
 
-For login problems, verify that Django is running, the proxy target is correct, cookies are accepted, and the CSRF bootstrap request succeeds. For stale-edit conflicts, refresh the record before retrying. For deployment refresh errors, check the SPA history fallback and `/static/` asset paths.
+Login failures: check Django, proxy, cookies, CSRF bootstrap. Stale edits: refresh before retrying. Deployment refresh errors: check SPA history fallback and `/static/` paths.
 
-See the [documentation index](../backend/docs/README.md) and [backend implementation notes](../backend/docs/backend-fixes-implementation.md). Browser workflows, PDF/Arabic rendering, and production database concurrency remain validation items.
+References: [documentation index](../backend/docs/README.md), [backend implementation notes](../backend/docs/backend-fixes-implementation.md). Unverified: browser workflows, PDF/Arabic rendering, production database concurrency.
