@@ -18,7 +18,7 @@
       class="card mb-4 p-3"
     >
       <form @submit.prevent="$emit('add-task', newTaskTitle, newTaskDueDate)">
-        <div class="flex gap-3 flex--end">
+        <div class="task-add-row flex gap-3 flex--end">
           <FormField
             label="عنوان المهمة"
             required

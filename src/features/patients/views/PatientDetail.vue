@@ -1,6 +1,7 @@
 <template>
   <PatientDetailLayout
     :status="pageStatus"
+    @retry="loadPatient"
     :patient="patient"
     :full-name="fullName(patient)"
     :latest-visit="latestVisit"
@@ -88,7 +89,9 @@ function fullName(p) {
   return p ? getFullName(p) : ''
 }
 
-onMounted(async () => {
+onMounted(loadPatient)
+
+async function loadPatient() {
   setLoading()
 
   try {
@@ -133,13 +136,14 @@ onMounted(async () => {
   }
 
   setContent()
-})
+}
 
 async function fetchCareTeam() {
   if (!patient.value) return
   try {
     const data = await patientService.getCareTeam(patient.value.id)
     careTeamMembers.value = data?.care_team || []
+    if (data?.version) patient.value.version = data.version
   } catch {
     careTeamMembers.value = []
   }
@@ -148,7 +152,7 @@ async function fetchCareTeam() {
 async function handleRemoveCareTeamMember(userId) {
   if (!patient.value) return
   try {
-    await patientService.removeCareTeamMember(patient.value.id, userId)
+    await patientService.removeCareTeamMember(patient.value.id, userId, patient.value.version)
     notify('تمت إزالة العضو', 'success')
     fetchCareTeam()
   } catch {

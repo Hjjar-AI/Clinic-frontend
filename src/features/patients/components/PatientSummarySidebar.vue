@@ -83,5 +83,3 @@ const latestRisk = computed(() => {
   }
 })
 </script>
-
-<style scoped src="../../../styles/features/patients/components/patient-summary-sidebar.css"></style>

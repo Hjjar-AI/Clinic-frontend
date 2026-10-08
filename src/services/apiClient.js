@@ -15,6 +15,8 @@ const uncertainOperations = new Map()
 const observedVersions = new Map()
 function resourcePath(url = '') {
   const path = url.split('?')[0]
+  const nestedDocuments = path.match(/^(\/patients\/\d+\/documents)\/(\d+)?/)
+  if (nestedDocuments) return `${nestedDocuments[1]}/${nestedDocuments[2] ? nestedDocuments[2] + '/' : ''}`
   const nestedVisits = path.match(/^\/patients\/\d+\/visits\/?$/)
   if (nestedVisits) return '/visits/'
   const match = path.match(/^(\/(?:options\/(?:diagnoses|medications)|auth\/users|patients|visits|appointments|tasks|templates|scales|billing(?:\/invoices)?))\/(\d+)?/)
@@ -28,7 +30,7 @@ function observeVersions(response) {
     if (Array.isArray(value)) { value.forEach(collect); return }
     if (!value || typeof value !== 'object' || value instanceof Blob) return
     if (Number.isInteger(value.version)) {
-      observedVersions.set(value.id ? `${base}${value.id}/` : base, value.version)
+      observedVersions.set(value.id ? `${base}${value.id}/` : path, value.version)
       return
     }
     for (const key of ['data', 'results', 'items', 'patients', 'visits', 'appointments', 'tasks', 'invoices', 'diagnoses', 'medications', 'scales', 'templates', 'users']) {

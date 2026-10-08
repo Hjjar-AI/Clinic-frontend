@@ -168,3 +168,8 @@
   .app-topbar__right { flex: 1 1 100%; justify-content: flex-end; gap: var(--space-1); }
   .navbar__search { max-inline-size: none; }
 }
+
+/* Directional glyphs follow the actual inherited document direction. */
+.sidebar-collapse-icon:dir(rtl) { transform: rotate(0deg); }
+.collapsed .sidebar-collapse-icon:dir(rtl) { transform: rotate(180deg); }
+.directional-back:dir(ltr), .back-link:dir(ltr) > .fas { transform: rotate(180deg); }

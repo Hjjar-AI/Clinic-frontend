@@ -70,7 +70,7 @@ const props = defineProps({
   title: String,
   description: String,
   actionText: String,
-  actionUrl: String,
+  actionUrl: { type: [String, Object], default: null },
   icon: String,
   tip: String,
   small: Boolean,

@@ -63,15 +63,16 @@ export default {
     const res = await apiClient.get(`/patients/${patientId}/care_team/`)
     return unwrapResponse(res)
   },
-  async addCareTeamMember(patientId, userId, role) {
+  async addCareTeamMember(patientId, userId, role, version) {
     const res = await apiClient.post(`/patients/${patientId}/care_team_add/`, {
       user_id: userId,
       role,
+      version,
     })
     return unwrapResponse(res)
   },
-  async removeCareTeamMember(patientId, userId) {
-    const res = await apiClient.delete(`/patients/${patientId}/care-team/${userId}/`)
+  async removeCareTeamMember(patientId, userId, version) {
+    const res = await apiClient.delete(`/patients/${patientId}/care-team/${userId}/`, { data: { version } })
     return unwrapResponse(res)
   },
 }

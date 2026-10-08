@@ -1,5 +1,5 @@
 <template>
-  <FormWrapper
+  <FormWrapper width="sm"
     header-title="تغيير كلمة المرور"
     header-icon="key"
     :submitting="isSubmitting"

@@ -11,9 +11,9 @@
         class="flex flex--justify-between flex--center p-2 border-bottom"
       >
         <div>
-          <span class="font-semibold">{{ member.full_name }}</span>
+          <span class="font-semibold">{{ member.user_name }}</span>
           <Badge
-            :status="member.role"
+            :status="member.user_role"
             status-type="user"
             size="xs"
             variant="soft"
@@ -27,7 +27,7 @@
           title="إزالة"
           aria-label="إزالة العضو من فريق الرعاية"
           confirm-message="هل أنت متأكد من إزالة هذا العضو؟"
-          @confirmed="$emit('remove', member.user_id)"
+          @confirmed="$emit('remove', member.user)"
         />
       </div>
     </div>
@@ -38,7 +38,7 @@
     />
 
     <!-- Add form -->
-    <div class="mt-3 flex gap-2 flex--end">
+    <div class="care-team-add-row mt-3 flex gap-2 flex--end">
       <ApiSelect
         v-model="newUserId"
         url="/auth/users/doctors/"
@@ -90,6 +90,7 @@ import patientService from '@/features/patients/services/patientService'
 
 const props = defineProps({
   patientId: { type: Number, required: true },
+  version: { type: Number, required: true },
   members: { type: Array, default: () => [] },
 })
 
@@ -102,12 +103,11 @@ const newRole = ref('doctor')
 async function addMember() {
   if (!newUserId.value) return
   try {
-    // FIX: routed through patientService instead of hitting apiClient
-    // directly. No behaviour change — same endpoint, same payload.
     await patientService.addCareTeamMember(
       props.patientId,
       newUserId.value,
       newRole.value,
+      props.version,
     )
     notify('تمت إضافة العضو', 'success')
     emit('added')

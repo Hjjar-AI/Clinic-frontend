@@ -1,6 +1,6 @@
 /* The shell owns page gutters; wrappers only constrain content width. */
 .app-main { container-type: inline-size; min-inline-size: 0; }
-.app-main > :not(.footer) { min-inline-size: 0; }
+
 .page-wrapper--standard { max-inline-size: var(--container-max); }
 .page-wrapper--wide { max-inline-size: none; }
 .page-wrapper--form { max-inline-size: var(--container-sm); }
@@ -36,9 +36,17 @@
   .bottom-nav__item { min-inline-size: 0; padding-inline: var(--space-1); }
 }
 
-/* Align direct route roots with wrapped pages without duplicating gutters. */
-.app-main > :not(.footer) { max-inline-size: var(--container-max); margin-inline: auto; }
-.app-main > .page-wrapper--wide { max-inline-size: none; }
+/* Explicit route boundary handles fragment roots without adding gutters. */
+.route-view { inline-size: 100%; min-inline-size: 0; max-inline-size: var(--container-max); margin-inline: auto; }
+.route-view:has(> .page-wrapper--wide) { max-inline-size: none; }
+.route-view:has(> :is(.page-wrapper--form, .max-width-sm)) { max-inline-size: var(--container-sm); }
 :is(.grid-1, .grid-2, .grid-3, .grid-4, .grid-5, .grid-6, .kpi-grid) > .card { margin-block-end: 0; }
 
-.app-main > :is(.page-wrapper--form, .max-width-sm) { max-inline-size: var(--container-sm); }
+.task-add-row, .care-team-add-row { flex-wrap: wrap; }
+.task-add-row > *, .care-team-add-row > * { min-inline-size: 0; max-inline-size: 100%; }
+.task-add-row > .flex--1, .care-team-add-row > .flex--1 { flex: 1 1 15rem; }
+@container (max-width: 480px) {
+  .task-add-row, .care-team-add-row { flex-direction: column; align-items: stretch; }
+  .task-add-row > .flex--1, .care-team-add-row > .flex--1 { flex-basis: auto; }
+  .care-team-add-row .care-team-role-select { inline-size: 100%; width: 100%; }
+}

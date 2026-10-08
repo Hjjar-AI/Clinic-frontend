@@ -44,9 +44,8 @@
 
 /* ---- unified system‑wide banner ---- */
 .system-banner {
-  position: fixed;
-  inset-inline: 0;   /* logical property replaces left/right */
-  z-index: var(--z-tooltip);
+  position: relative;
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,13 +57,11 @@
 }
 
 .system-banner--info {
-  top: 0;
   background: var(--color-info-dark);
   color: var(--color-text-inverse);
 }
 
 .system-banner--warning {
-  top: var(--topbar-height);
   background: var(--color-warning);
   color: var(--color-warning-dark);
 }

@@ -1,6 +1,7 @@
 <template>
   <aside
     id="app-navigation"
+    tabindex="-1"
     aria-label="القائمة الرئيسية"
     class="app-sidebar"
     :class="{ collapsed: collapsed, 'mobile-open': mobileOpen }"
@@ -11,6 +12,8 @@
     <router-link
       :to="{ name: 'Dashboard' }"
       class="sidebar-brand"
+      :aria-label="clinicName"
+      :title="clinicName"
       @click="$emit('close-mobile')"
     >
       <Icon icon="stethoscope" />

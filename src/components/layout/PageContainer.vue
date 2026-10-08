@@ -76,7 +76,7 @@ defineProps({
   emptyTitle: { type: String, default: '' },
   emptyDescription: { type: String, default: '' },
   emptyActionText: { type: String, default: '' },
-  emptyActionUrl: { type: String, default: '' },
+  emptyActionUrl: { type: [String, Object], default: null },
   emptyType: { type: String, default: 'default' },
   errorMessage: { type: String, default: '' }
 })

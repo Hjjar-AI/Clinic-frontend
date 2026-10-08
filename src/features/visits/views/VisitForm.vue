@@ -243,5 +243,3 @@ function removeGoal(index) {
   form.goals.splice(index, 1)
 }
 </script>
-
-<style scoped src="../../../styles/features/visits/views/visit-form.css"></style>

@@ -32,12 +32,31 @@
         padding: 0 !important;
     }
 
+    .app-sidebar, .app-topbar, .sidebar-backdrop, .system-banner, .critical-overlay,
     .navbar, .sidenav, .bottom-nav, .footer, .btn, .no-print,
     .toast-container, .modal, .skeleton, .loading-overlay, .scroll-top-btn,
     .context-menu, .skip-link, .offline-banner, .route-progress-bar,
     .copy-btn, .column-visibility-panel, .filter-bar, .quick-actions,
     .fab-container, .notification-badge, .timeout-warning-overlay,
     .phi-blur-overlay, .bulk-actions-bar { display: none !important; }
+
+    .app-layout, .app-content, .app-main, .app-route, .route-view, .guest-layout, .guest-route,
+    .page-wrapper, .patient-detail-wrapper, .patient-scrollable-content {
+        display: block !important;
+        min-block-size: 0 !important;
+        block-size: auto !important;
+        max-inline-size: none !important;
+        inline-size: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        container-type: normal !important;
+    }
+    .patient-sticky-header, .patient-summary-sidebar {
+        position: static !important;
+        inset: auto !important;
+    }
+    body { overflow: visible !important; }
 
     :focus, :focus-visible { outline: none !important; box-shadow: none !important; }
 

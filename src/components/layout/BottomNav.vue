@@ -1,5 +1,5 @@
 <template>
-  <nav class="bottom-nav">
+  <nav class="bottom-nav" aria-label="التنقل الرئيسي">
     <router-link
       v-for="item in navItems"
       :key="item.to.name"

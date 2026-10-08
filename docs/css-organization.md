@@ -24,3 +24,5 @@ Add modules explicitly to `app.css` by cascade, not alphabetically: themes overr
 Reorganization replaced root underscore-prefixed token/form/calendar/component names, removed `components_misc.css`, split large layout/form/clinical/typography files at section boundaries. Small related widgets stay grouped; extract further for ownership/reuse needs.
 
 Verified expanded shared selectors/declarations/quoted values/at-rules/order unchanged except comments/formatting; scoped contents byte-identical. Development scripts checked import graphs/references/sizes/delimiters/light-dark token dependencies. No build/compilation/browser rendering.
+
+Shell follow-up: duplicate visit/sidebar geometry now lives only in shared feature CSS; two scoped copies/imports removed. See [fixes](shell-layout-fixes.md).

@@ -49,9 +49,10 @@
           <BaseButton
             variant="secondary"
             size="sm"
+            aria-label="الفترة السابقة"
             @click="$emit('navigate', 'prev')"
           >
-            <Icon icon="chevron-right" />
+            <Icon icon="chevron-right" class="directional-back" />
           </BaseButton>
           <span class="text-base font-semibold text-primary">{{ periodLabel }}</span>
           <BaseButton
@@ -64,9 +65,10 @@
           <BaseButton
             variant="secondary"
             size="sm"
+            aria-label="الفترة التالية"
             @click="$emit('navigate', 'next')"
           >
-            <Icon icon="chevron-left" />
+            <Icon icon="chevron-left" class="directional-back" />
           </BaseButton>
         </div>
       </div>

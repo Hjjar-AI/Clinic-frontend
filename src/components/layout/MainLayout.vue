@@ -24,7 +24,7 @@
       @click="closeNavigation"
     />
 
-    <div class="app-content" :inert="mobileOpen">
+    <div class="app-content">
       <header class="app-topbar">
         <div class="app-topbar__left">
           <BaseButton
@@ -96,7 +96,8 @@
         class="app-main"
         tabindex="-1"
       >
-        <slot />
+        <div class="shell-banners"><slot name="banners" /></div>
+        <div class="app-route"><slot /></div>
         <AppFooter />
       </main>
 
@@ -108,9 +109,10 @@
 
 <script setup>
 // frontend/src/components/layout/MainLayout.vue
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { useOverlay } from '@/composables/useOverlay';
 import ScrollToTop from '@/components/common/ScrollToTop.vue';
 import SearchInput from '@/components/common/SearchInput.vue';
 import RelativeDate from '@/components/ui/RelativeDate.vue';
@@ -139,8 +141,7 @@ const refreshStore = useRefreshStore();
 const settingsStore = useSettingsStore();
 const mobileOpen = ref(false);
 const navigationToggle = ref(null);
-let savedOverflow = null;
-let restoreFocus = null;
+useOverlay(() => mobileOpen.value, () => document.getElementById('app-navigation'), closeNavigation, 600, () => [document.querySelector('.sidebar-backdrop')]);
 
 function toggleNavigation() {
   if (isMobile.value) mobileOpen.value = !mobileOpen.value;
@@ -149,48 +150,8 @@ function toggleNavigation() {
 
 function closeNavigation() { mobileOpen.value = false; }
 
-function handleDrawerKey(event) {
-  if (event.key === 'Escape') {
-    event.preventDefault();
-    closeNavigation();
-  } else if (event.key === 'Tab') {
-    const drawer = document.getElementById('app-navigation');
-    const controls = Array.from(drawer?.querySelectorAll('a[href], button:not([disabled]), [tabindex="0"]') || [])
-      .filter(element => element.getClientRects().length);
-    const first = controls[0];
-    const last = controls.at(-1);
-    if (!first) { event.preventDefault(); return; }
-    if (event.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
-      event.preventDefault(); last.focus();
-    } else if (!event.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
-      event.preventDefault(); first.focus();
-    }
-  }
-}
-
-watch(mobileOpen, async open => {
-  if (open) {
-    restoreFocus = document.activeElement;
-    savedOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', handleDrawerKey);
-    await nextTick();
-    if (mobileOpen.value) document.querySelector('#app-navigation button, #app-navigation a')?.focus();
-  } else {
-    document.removeEventListener('keydown', handleDrawerKey);
-    if (savedOverflow !== null) document.body.style.overflow = savedOverflow;
-    savedOverflow = null;
-    await nextTick();
-    if (!mobileOpen.value && isMobile.value) (restoreFocus || navigationToggle.value?.$el)?.focus();
-    restoreFocus = null;
-  }
-});
 watch(isMobile, mobile => { if (!mobile) closeNavigation(); });
 watch(() => router.currentRoute.value.fullPath, closeNavigation);
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleDrawerKey);
-  if (savedOverflow !== null) document.body.style.overflow = savedOverflow;
-});
 
 onMounted(() => {
   settingsStore.fetchSettings();

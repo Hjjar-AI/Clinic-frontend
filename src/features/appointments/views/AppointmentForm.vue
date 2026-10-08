@@ -1,6 +1,6 @@
 <!-- frontend/src/features/appointments/views/AppointmentForm.vue -->
 <template>
-  <FormWrapper
+  <FormWrapper width="sm"
     :header-title="isEdit ? 'تعديل الموعد' : 'حجز موعد جديد'"
     header-icon="calendar-plus"
     :back-label="'العودة للتقويم'"

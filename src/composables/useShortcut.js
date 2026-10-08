@@ -1,28 +1,15 @@
-// frontend/src/composables/useShortcut.js
-import { useMagicKeys, whenever } from '@vueuse/core'
-import { onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted } from 'vue'
+import { hasActiveOverlay } from '@/services/overlayStack'
 
-/**
- * Registers a global keyboard shortcut using VueUse's useMagicKeys.
- *
- * @param {Object}   config
- * @param {string}   config.key      - KeyboardEvent.key (e.g., 'k', 'Escape')
- * @param {boolean}  [config.ctrl]   - require Ctrl
- * @param {boolean}  [config.alt]    - require Alt
- * @param {Function} config.handler  - callback
- */
-export function useShortcut({ key, ctrl = false, alt = false, handler }) {
-  const keys = useMagicKeys()
-
-  // Build the shortcut string (e.g., 'Control+k' or 'Alt+k')
-  let shortcut = key.toLowerCase()
-  if (ctrl) shortcut = `Control+${shortcut}`
-  if (alt) shortcut = `Alt+${shortcut}`
-
-  // VueUse's whenever will handle the listener
-  const stop = whenever(keys[shortcut], handler)
-
-  onBeforeUnmount(() => {
-    stop()
-  })
+// A handler returning false leaves the browser shortcut available.
+export function useShortcut({ key, ctrl = false, alt = false, allowInInput = false, handler }) {
+  function keydown(event) {
+    if (event.defaultPrevented || event.repeat || event.isComposing || hasActiveOverlay() ||
+        event.metaKey || event.shiftKey || event.ctrlKey !== ctrl || event.altKey !== alt ||
+        event.key.toLowerCase() !== key.toLowerCase()) return
+    if (!allowInInput && event.target?.closest('input, textarea, select, [contenteditable="true"]')) return
+    if (handler(event) !== false) event.preventDefault()
+  }
+  onMounted(() => document.addEventListener('keydown', keydown, { passive: false }))
+  onBeforeUnmount(() => document.removeEventListener('keydown', keydown))
 }

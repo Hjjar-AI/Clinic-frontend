@@ -2,6 +2,7 @@
 <template>
   <PageContainer
     :status="status"
+    @retry="$emit('retry')"
     empty-title="لا توجد بيانات"
     :empty-action-url="authStore.can('edit_patient') ? { name: 'PatientCreate' } : null"
     empty-action-text="إضافة مريض جديد"
@@ -119,6 +120,7 @@
               <PatientCareTeamTab
                 v-if="authStore.can('manage_users')"
                 :patient-id="patient.id"
+                :version="patient.version"
                 :members="careTeamMembers"
                 @remove="$emit('remove-care-team-member', $event)"
                 @added="$emit('refresh-care-team')"
@@ -170,7 +172,7 @@ defineProps({
 })
 
 defineEmits([
-  'export-pdf', 'export-word', 'edit-appointment',
+  'retry', 'export-pdf', 'export-word', 'edit-appointment',
   'remove-care-team-member', 'refresh-care-team', 'export-visit-pdf'
 ])
 

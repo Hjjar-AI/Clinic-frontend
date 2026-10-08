@@ -1,6 +1,6 @@
 <!-- frontend/src/features/settings/views/UserForm.vue -->
 <template>
-  <FormWrapper
+  <FormWrapper width="sm"
     :header-title="isEdit ? 'تعديل مستخدم' : 'مستخدم جديد'"
     header-icon="user-plus"
     back-label="العودة للمستخدمين"

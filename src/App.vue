@@ -2,34 +2,38 @@
 <template>
   <ErrorBoundary>
     <MainLayout v-if="authStore.isAuthenticated">
-      <MaintenanceBanner />
+      <template #banners><AppStatusBar /><MaintenanceBanner /></template>
       <router-view v-slot="{ Component, route }">
         <transition
           name="page-fade"
           mode="out-in"
         >
-          <component
-            :is="Component"
-            :key="route.path"
-          />
+          <div :key="route.path" class="route-view">
+            <component :is="Component" />
+          </div>
         </transition>
       </router-view>
     </MainLayout>
     <main
       v-else
-      class="app-content app-content--full"
+      id="main-content"
+      tabindex="-1"
+      class="guest-layout"
+      :class="{ 'guest-layout--login': router.currentRoute.value.name === 'Login' }"
     >
-      <router-view v-slot="{ Component, route }">
-        <transition
-          name="page-fade"
-          mode="out-in"
-        >
-          <component
-            :is="Component"
-            :key="route.path"
-          />
-        </transition>
-      </router-view>
+      <AppStatusBar />
+      <div class="guest-route">
+        <router-view v-slot="{ Component, route }">
+          <transition
+            name="page-fade"
+            mode="out-in"
+          >
+            <div :key="route.path" class="route-view">
+              <component :is="Component" />
+            </div>
+          </transition>
+        </router-view>
+      </div>
     </main>
   </ErrorBoundary>
 
@@ -63,14 +67,13 @@
   />
 
   <LoadingOverlay :model-value="loadingStore.isLoading" />
-  <AppStatusBar />
   <RouteProgressBar />
   <BaseToast />
   <ShortcutsModal v-model="showShortcuts" />
 </template>
 
 <script setup>
-import { defineAsyncComponent,onMounted, ref } from 'vue'
+import { defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppStatusBar from '@/components/common/AppStatusBar.vue'
@@ -83,6 +86,7 @@ import BaseToast from '@/components/ui/BaseToast.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
 import { useSession } from '@/composables/useSession'
+import { hasActiveOverlay } from '@/services/overlayStack'
 import { useShortcut } from '@/composables/useShortcut'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import { useUserStore } from '@/features/settings/stores/users'
@@ -99,10 +103,14 @@ const userStore = useUserStore()
 const router = useRouter()
 
 const showShortcuts = ref(false)
+watch(() => router.currentRoute.value.path, async () => {
+  await nextTick()
+  if (!hasActiveOverlay()) document.getElementById('main-content')?.focus({ preventScroll: true })
+})
 
 // Global shortcuts
 useShortcut({ key: 'k', alt: true, handler: () => { showShortcuts.value = !showShortcuts.value } })
-useShortcut({ key: 'd', alt: true, handler: () => router.push({ name: 'Dashboard' }) })
+useShortcut({ key: 'd', alt: true, handler: () => { if (!authStore.isAuthenticated) return false; router.push({ name: 'Dashboard' }) } })
 useShortcut({ key: 'p', alt: true, handler: () => navigateIfAllowed('view_patients', 'PatientsList') })
 useShortcut({ key: 'n', alt: true, handler: () => navigateIfAllowed('edit_patient', 'PatientCreate') })
 useShortcut({ key: 'c', alt: true, handler: () => navigateIfAllowed('view_appointments', 'AppointmentsCalendar') })
@@ -112,15 +120,19 @@ useShortcut({ key: 'r', alt: true, handler: () => navigateIfAllowed('view_report
 useShortcut({ key: 's', alt: true, handler: () => navigateIfAllowed('manage_settings', 'Settings') })
 
 // Ctrl+S – save any visible form
-useShortcut({ key: 's', ctrl: true, handler: () => {
-  const submitBtn = document.querySelector('form button[type="submit"]')
-  if (submitBtn) submitBtn.click()
+useShortcut({ key: 's', ctrl: true, allowInInput: true, handler: () => {
+  const activeForm = document.activeElement?.closest('form')
+  const candidates = [...document.querySelectorAll('#main-content form button[type="submit"]')].filter(el => !el.disabled && !el.closest('[inert]') && el.getClientRects().length)
+  const submitBtn = activeForm ? candidates.find(el => el.form === activeForm) : candidates.length === 1 ? candidates[0] : null
+  if (!submitBtn) return false
+  submitBtn.click()
 }})
 
 // Ctrl+F – focus global search
 useShortcut({ key: 'f', ctrl: true, handler: () => {
   const searchInput = document.querySelector('.navbar__search-input')
-  if (searchInput) searchInput.focus()
+  if (!searchInput || !searchInput.getClientRects().length) return false
+  searchInput.focus()
 }})
 
 onMounted(() => {
@@ -135,6 +147,7 @@ async function handleTimeoutLogout() {
   router.push({ name: 'Login' })
 }
 function navigateIfAllowed(permission, routeName) {
-  if (authStore.can(permission)) router.push({ name: routeName })
+  if (!authStore.isAuthenticated || !authStore.can(permission)) return false
+  router.push({ name: routeName })
 }
 </script>

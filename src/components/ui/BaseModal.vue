@@ -4,7 +4,7 @@
       v-if="modelValue"
       ref="modalOverlay"
       class="modal"
-      :class="[sizeClass, { 'modal--nested': nested }]"
+      :class="sizeClass"
       tabindex="-1"
       @click.self="close"
     >
@@ -97,8 +97,9 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted,ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
+import { useOverlay } from '@/composables/useOverlay'
 import Spinner from '@/components/common/Spinner.vue'
 
 import BaseButton from './BaseButton.vue'
@@ -129,54 +130,14 @@ const onResize = () => { windowWidth.value = window.innerWidth }
 onMounted(() => window.addEventListener('resize', onResize))
 onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize)
-  document.removeEventListener('keydown', globalKeydown)
 })
 const isMobile = computed(() => windowWidth.value <= 768)
-
-const nested = ref(false)
 
 const sizeClass = computed(() => ({ xs: 'modal--xs', sm: 'modal--sm', md: 'modal--md', lg: 'modal--lg', xl: 'modal--xl' }[props.size] || 'modal--md'))
 const headerVariantClass = computed(() => props.headerVariant === 'primary' ? '' : `modal__header--${props.headerVariant}`)
 const headerIcon = computed(() => ({ info: 'info-circle', success: 'check-circle', warning: 'exclamation-triangle', danger: 'exclamation-circle', neutral: '', purple: 'crown' }[props.headerVariant] || ''))
 
-let previousActiveElement = null
-
-function globalKeydown(e) {
-  if (e.key === 'Escape') close()
-}
-
-watch(() => props.modelValue, async (val) => {
-  if (val) {
-    previousActiveElement = document.activeElement
-    nested.value = !!document.querySelector('.modal:not(:last-child)')
-    document.addEventListener('keydown', globalKeydown)
-    await nextTick()
-    trapFocus()
-  } else {
-    document.removeEventListener('keydown', globalKeydown)
-    if (previousActiveElement) { previousActiveElement.focus(); previousActiveElement = null }
-  }
-}, { immediate: true })
-
-function trapFocus() {
-  if (!modalContent.value) return
-  const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  const focusableElements = modalContent.value.$el.querySelectorAll(focusableSelector)
-  if (focusableElements.length === 0) return
-  const first = focusableElements[0]
-  const last = focusableElements[focusableElements.length - 1]
-  first.focus()
-
-  function handleTab(e) {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
-    }
-  }
-  modalContent.value.$el.addEventListener('keydown', handleTab)
-  const cleanup = () => { modalContent.value.$el?.removeEventListener('keydown', handleTab) }
-  const stopWatch = watch(() => props.modelValue, (newVal) => { if (!newVal) { cleanup(); stopWatch() } })
-}
+useOverlay(() => props.modelValue, () => modalOverlay.value, close)
 
 function close() { emit('update:modelValue', false) }
 </script>
