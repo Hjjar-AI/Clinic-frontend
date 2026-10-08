@@ -5,7 +5,7 @@
       :clinic-name="clinicName"
       :date="currentDate"
     >
-      <h3 style="margin-top:0;">
+      <h3 class="mt-0">
         خطاب تحويل طبي
       </h3>
       <p><strong>إلى الزميل الفاضل</strong></p>
@@ -50,7 +50,7 @@
         </p>
       </div>
 
-      <p style="margin-top:20px;">
+      <p class="mt-5">
         يرجى التكرم بتقديم الرعاية اللازمة.
       </p>
       <p>مع خالص الشكر والتقدير،</p>
@@ -120,9 +120,4 @@ async function exportPdf() {
 }
 </script>
 
-<style scoped>
-.print-only { display: none; }
-@media print {
-  .print-only { display: block; }
-}
-</style>
+<style scoped src="../../../styles/features/prescription/views/referral-letter.css"></style>

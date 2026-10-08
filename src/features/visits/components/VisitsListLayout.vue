@@ -32,8 +32,8 @@
         </template>
         <template #main_complaints="{ item }">
           <span
-            class="text-truncate"
-            style="max-width: 250px;"
+            class="text-truncate patient-search-control"
+
           >{{ item.main_complaints || '-' }}</span>
         </template>
         <template #status="{ item }">

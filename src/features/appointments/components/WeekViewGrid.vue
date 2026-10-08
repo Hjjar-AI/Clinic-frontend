@@ -16,7 +16,7 @@
     >
       <template #header>
         <BaseButton
-          class="card__header py-2 px-3 flex-grid flex-grid--justify-between card__header--light"
+          class="card__header py-2 px-3 flex-grid flex--justify-between card__header--light"
           :class="{ 'cal-today-header': day.isToday }"
           variant="ghost"
           @click="$emit('day-click', day.date)"
@@ -30,7 +30,7 @@
       <div class="card__body p-3">
         <div
           v-if="day.appointments && day.appointments.length"
-          class="flex-grid flex-grid--column gap-2"
+          class="flex-grid flex--column gap-2"
         >
           <AppointmentBlock
             v-for="apt in day.appointments"

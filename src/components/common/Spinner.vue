@@ -15,6 +15,4 @@ defineProps({
 })
 </script>
 
-<style scoped>
-/* Sizes are inherited from tokens.css via .spinner--xs etc. */
-</style>
+<style scoped src="../../styles/components/common/spinner.css"></style>

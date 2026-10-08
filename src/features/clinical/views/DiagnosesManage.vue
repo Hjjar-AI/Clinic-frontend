@@ -6,7 +6,7 @@
       title="مكتبة التشخيصات"
       subtitle="قائمة معايير التشخيص المعتمدة."
     >
-      <div class="flex flex--gap-2">
+      <div class="flex gap-2">
         <BaseButton
           variant="secondary"
           size="sm"

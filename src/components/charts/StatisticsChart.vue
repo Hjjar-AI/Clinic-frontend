@@ -26,9 +26,10 @@ const props = defineProps({
   visitsCounts: Array,
 })
 
-const { createChart, destroyChart } = useChart()
+const { createChart, destroyChart, presentationVersion } = useChart()
 const canvasRef = ref(null)
 let chartInstance = null
+let renderGeneration = 0
 
 const hasData = computed(() => {
   const labels = typeof props.chartDef.labels === 'function'
@@ -52,56 +53,38 @@ const chartData = computed(() => {
     : props.chartDef.data
 })
 
-const colors = computed(() => {
+const colorCount = computed(() => {
   const count = typeof props.chartDef.colors === 'function'
     ? props.chartDef.colors(props.stats)
     : props.chartDef.colors
-  return getChartColors(count)
+  return count
 })
 
-// Watcher that updates existing chart instead of recreating
+// React to in-place data changes and wait for ChartCard's conditional canvas.
 watch(
-  [() => props.stats, () => props.monthsLabels, () => props.visitsCounts],
-  () => {
-    if (chartInstance && hasData.value) {
-      // Update existing chart datasets and labels
-      const labels = chartLabels.value
-      const data = chartData.value
-      const c = colors.value
-      chartInstance.data.labels = labels
-      chartInstance.data.datasets[0].data = data
-      chartInstance.data.datasets[0].backgroundColor = c
-      chartInstance.data.datasets[0].borderColor = props.chartDef.type === 'line' ? c[0] : undefined
-      chartInstance.update()
-    } else if (!chartInstance && hasData.value) {
-      create()
-    } else if (chartInstance && !hasData.value) {
-      destroyChart(chartInstance)
-      chartInstance = null
-    }
+  [canvasRef, chartLabels, chartData, colorCount, () => props.chartDef, presentationVersion],
+  async () => {
+    const generation = ++renderGeneration
+    destroy()
+    const canvas = canvasRef.value
+    if (!canvas || !hasData.value) return
+    const chart = await createChart(canvas, buildConfig())
+    if (generation !== renderGeneration || canvas !== canvasRef.value) destroyChart(chart)
+    else chartInstance = chart
   },
-  { deep: false }  // Avoid deep watch; react to new objects by reference or via computed keys
+  { deep: true, flush: 'post', immediate: true },
 )
 
-async function create() {
-  if (!canvasRef.value || !hasData.value) return
-  destroy()
-  const config = buildConfig()
-  chartInstance = await createChart(canvasRef.value, config)
-}
-
 function destroy() {
-  if (chartInstance) {
-    destroyChart(chartInstance)
-    chartInstance = null
-  }
+  destroyChart(chartInstance)
+  chartInstance = null
 }
 
 function buildConfig() {
   const type = props.chartDef.type
-  const labels = chartLabels.value
-  const data = chartData.value
-  const c = colors.value
+  const labels = [...(chartLabels.value || [])]
+  const data = [...(chartData.value || [])]
+  const c = getChartColors(colorCount.value, canvasRef.value || document.body)
 
   const config = {
     type,
@@ -120,11 +103,11 @@ function buildConfig() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
-      scales: (type === 'bar' || type === 'line') ? { y: { beginAtZero: true, stepSize: 1 } } : undefined,
+      maintainAspectRatio: false,
+      scales: (type === 'bar' || type === 'line') ? { y: { beginAtZero: true, ticks: { stepSize: 1 } } } : undefined,
       plugins: {
         legend: props.chartDef.options?.legend !== false
-          ? { position: 'right', labels: { font: { size: 11 }, boxWidth: 10, padding: 12 } }
+          ? { labels: { font: { family: 'Cairo', size: 11 }, boxWidth: 10, padding: 12 } }
           : { display: false },
         tooltip: {}
       },
@@ -135,6 +118,7 @@ function buildConfig() {
 }
 
 onBeforeUnmount(() => {
+  renderGeneration++
   destroy()
 })
 </script>

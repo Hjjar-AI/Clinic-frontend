@@ -34,6 +34,7 @@
       <Transition name="dropdown">
         <div
           v-if="open"
+          ref="panelRef"
           class="context-menu"
           :style="positionStyle"
           @focusout="onFocusOut"
@@ -71,12 +72,15 @@ const props = defineProps({
 
 const emit = defineEmits(['action'])
 
-const { triggerRef, open, positionStyle, toggle, close, observeTrigger } = useDropdown()
+const { triggerRef, panelRef, open, positionStyle, toggle, close, observeTrigger } = useDropdown()
 
 const sizeClass = props.size === 'xs' ? 'btn--xs' : props.size === 'lg' ? 'btn--lg' : 'btn--sm'
 
 function executeAction(action) { close(); if (action.onClick) action.onClick(); emit('action', action) }
-function onFocusOut(e) { if (triggerRef.value && !triggerRef.value.contains(e.relatedTarget)) close() }
+function onFocusOut(e) {
+  const trigger = triggerRef.value?.$el || triggerRef.value
+  if (!trigger?.contains(e.relatedTarget) && !panelRef.value?.contains(e.relatedTarget)) close()
+}
 
 onMounted(() => { observeTrigger() })
 </script>

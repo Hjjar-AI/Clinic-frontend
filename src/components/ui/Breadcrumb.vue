@@ -48,30 +48,4 @@ const localCrumbs = computed(() => {
 })
 </script>
 
-<style scoped>
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-4);
-}
-.breadcrumb__link {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-.breadcrumb__link:hover {
-  text-decoration: underline;
-}
-.breadcrumb__separator {
-  color: var(--color-border-strong);
-  font-size: var(--text-base);
-  margin: 0 var(--space-1);
-}
-.breadcrumb__current {
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text);
-  cursor: default;
-}
-</style>
+<style scoped src="../../styles/components/ui/breadcrumb.css"></style>

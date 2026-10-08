@@ -1,144 +1,113 @@
-// frontend/src/composables/useChart.js
-import { onBeforeUnmount,ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { useFormatters } from '@/composables/useFormatters'
 
-let ChartModule = null
-const instances = new Set()
+let chartModulePromise = null
+const fallbackColors = [
+  '#3c6e71', '#b84c3c', '#c49a2b', '#4a7c59', '#5a7a9e', '#7a5a8c',
+  '#8b5a3c', '#284b63', '#4a7a72', '#944a38', '#9e7a1e', '#526b32',
+]
 
-function resolveCssVar(value) {
-  if (typeof value !== 'string' || !value.startsWith('var(')) return value
-  const style = getComputedStyle(document.documentElement)
-  const match = value.match(/var\(([^,)]+)/)
-  if (!match) return value
-  const varName = match[1].trim()
-  const resolved = style.getPropertyValue(varName).trim()
-  return resolved || value
+function color(name, element = document.body) {
+  return getComputedStyle(element).getPropertyValue(name).trim()
 }
 
-const defaultTooltipStyles = {
-  backgroundColor: resolveCssVar('var(--color-surface)'),
-  titleColor: resolveCssVar('var(--color-text)'),
-  bodyColor: resolveCssVar('var(--color-text-soft)'),
-  borderColor: resolveCssVar('var(--color-border)'),
-  borderWidth: 1,
-  cornerRadius: 8,
-  padding: 12,
-  boxShadow: resolveCssVar('var(--shadow-tooltip)'),
-  titleFont: { family: 'Cairo', size: 13, weight: '600' },
-  bodyFont: { family: 'Cairo', size: 12 },
-  rtl: true,
-  displayColors: true,
-  boxWidth: 10,
-  boxHeight: 10,
-}
-
-const defaultLegendStyles = {
-  labels: {
-    boxWidth: 10,
-    boxHeight: 10,
-    padding: 16,
-    font: { family: 'Cairo', size: 11 },
-    color: resolveCssVar('var(--color-text-soft)'),
-    usePointStyle: false,
-    boxStrokeWidth: 0,
-    borderRadius: 2,
-  }
-}
-
-export function getChartColors(count = 12) {
-  const style = getComputedStyle(document.documentElement)
-  const colors = []
-  for (let i = 0; i < count; i++) {
-    const varName = `--chart-color-${i + 1}`
-    let color = style.getPropertyValue(varName).trim()
-    if (!color) {
-      const fallback = [
-        '#3c6e71', '#b84c3c', '#c49a2b', '#4a7c59', '#5a7a9e', '#7a5a8c',
-        '#8b5a3c', '#284b63', '#4a7a72', '#944a38', '#9e7a1e', '#526b32'
-      ]
-      color = fallback[i % fallback.length]
-    }
-    colors.push(color)
-  }
-  return colors
+export function getChartColors(count = 12, element = document.body) {
+  return Array.from({ length: count }, (_, index) =>
+    color(`--chart-color-${index % 12 + 1}`, element) || fallbackColors[index % fallbackColors.length])
 }
 
 export function useChart() {
   const loading = ref(false)
+  const presentationVersion = ref(0)
+  const instances = new Set()
   const { toArabicNumerals } = useFormatters()
+  let disposed = false
+  let observer = null
+  let compact = window.innerWidth <= 600
 
   async function loadChartJs() {
-    if (ChartModule) return ChartModule
     loading.value = true
-    try {
-      ChartModule = await import('chart.js/auto')
-    } catch {
-      ChartModule = null
-    } finally {
-      loading.value = false
+    if (!chartModulePromise) {
+      chartModulePromise = import('chart.js/auto').catch(error => { chartModulePromise = null; throw error })
     }
-    return ChartModule
+    try { return await chartModulePromise }
+    finally { loading.value = false }
   }
 
   async function createChart(canvas, config) {
-    const { default: Chart } = await loadChartJs()
-    if (!Chart) return null
-
-    const mergedConfig = {
+    let module
+    try { module = await loadChartJs() }
+    catch { return null }
+    if (disposed || !canvas?.isConnected) return null
+    const rtl = getComputedStyle(canvas).direction === 'rtl'
+    const tooltip = {
+      backgroundColor: color('--color-surface', canvas),
+      titleColor: color('--color-text', canvas),
+      bodyColor: color('--color-text-soft', canvas),
+      borderColor: color('--color-border', canvas),
+      borderWidth: 1, cornerRadius: 8, padding: 12,
+      titleFont: { family: 'Cairo', size: 13, weight: '600' },
+      bodyFont: { family: 'Cairo', size: 12 },
+      rtl, textDirection: rtl ? 'rtl' : 'ltr',
+      boxWidth: 10, boxHeight: 10,
+      ...config.options?.plugins?.tooltip,
+    }
+    const legend = {
+      rtl, textDirection: rtl ? 'rtl' : 'ltr',
+      position: compact ? 'bottom' : (rtl ? 'right' : 'left'),
+      ...config.options?.plugins?.legend,
+      labels: {
+        boxWidth: 10, boxHeight: 10, padding: 12,
+        font: { family: 'Cairo', size: 11 },
+        color: color('--color-text-soft', canvas),
+        ...config.options?.plugins?.legend?.labels,
+      },
+    }
+    const scales = Object.fromEntries(Object.entries(config.options?.scales || {}).map(([key, axis]) => [key, {
+      ...axis,
+      ticks: {
+        color: color('--color-text-muted', canvas),
+        ...(key === 'y' ? { callback: value => toArabicNumerals(value) } : {}),
+        ...axis.ticks,
+      },
+      grid: { color: color('--color-border-subtle', canvas), ...axis.grid },
+    }]))
+    for (const owned of [...instances]) {
+      if (owned.canvas === canvas) destroyChart(owned)
+    }
+    const chart = new module.default(canvas, {
       ...config,
       options: {
         ...config.options,
-        plugins: {
-          ...config.options?.plugins,
-          tooltip: {
-            ...defaultTooltipStyles,
-            ...config.options?.plugins?.tooltip,
-          },
-          legend: {
-            ...defaultLegendStyles,
-            ...config.options?.plugins?.legend,
-            labels: {
-              ...defaultLegendStyles.labels,
-              ...config.options?.plugins?.legend?.labels,
-            }
-          }
-        },
-        scales: {
-          ...config.options?.scales,
-        }
-      }
-    }
-
-    if (mergedConfig.options?.scales) {
-      for (const key in mergedConfig.options.scales) {
-        const axis = mergedConfig.options.scales[key]
-        if (axis.ticks) {
-          axis.ticks.callback = (value) => toArabicNumerals(value)
-        }
-      }
-    }
-
-    const chart = new Chart(canvas, mergedConfig)
+        plugins: { ...config.options?.plugins, tooltip, legend },
+        ...(Object.keys(scales).length ? { scales } : {}),
+      },
+    })
     instances.add(chart)
     return chart
   }
 
   function destroyChart(chart) {
-    if (chart) {
-      chart.destroy()
-      instances.delete(chart)
-    }
+    if (chart && instances.delete(chart)) chart.destroy()
   }
-
-  function destroyAll() {
-    for (const chart of instances) chart.destroy()
-    instances.clear()
+  function destroyAll() { for (const chart of [...instances]) destroyChart(chart) }
+  function updatePresentation() { presentationVersion.value++ }
+  function onResize() {
+    const next = window.innerWidth <= 600
+    if (next !== compact) { compact = next; updatePresentation() }
   }
-
+  onMounted(() => {
+    observer = new MutationObserver(updatePresentation)
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'style'] })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'dir'] })
+    window.addEventListener('resize', onResize, { passive: true })
+  })
   onBeforeUnmount(() => {
+    disposed = true
+    observer?.disconnect()
+    window.removeEventListener('resize', onResize)
     destroyAll()
   })
-
-  return { loading, loadChartJs, createChart, destroyChart, destroyAll }
+  return { loading, presentationVersion, loadChartJs, createChart, destroyChart, destroyAll }
 }

@@ -21,13 +21,14 @@
 
     <div
       v-if="open"
+      ref="panelRef"
       class="notification-center__dropdown"
       :style="positionStyle"
       @click.stop
     >
       <div class="notification-center__header">
         <h3>الإشعارات</h3>
-        <div class="flex flex--gap-2">
+        <div class="flex gap-2">
           <BaseButton
             variant="ghost"
             size="xs"
@@ -124,7 +125,7 @@ const notificationStore = useNotificationStore()
 const { unreadCount } = useUnreadCount(180000)
 const authStore = useAuthStore()
 const hasNew = ref(false)
-const { triggerRef, open, positionStyle, toggle, close, observeTrigger } = useDropdown()
+const { triggerRef, panelRef, open, positionStyle, toggle, close, observeTrigger } = useDropdown()
 const { toISODate } = useDate()
 
 watch(() => authStore.isAuthenticated, (authenticated) => {
@@ -196,113 +197,4 @@ const groupedNotifications = computed(() => {
 })
 </script>
 
-<style scoped>
-.notification-center {
-  position: relative;
-}
-.notification-wrapper {
-  cursor: pointer;
-}
-.notification-badge--new {
-  animation: notificationBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@keyframes notificationBounce {
-  0%   { transform: scale(1); }
-  30%  { transform: scale(1.6); }
-  60%  { transform: scale(0.9); }
-  100% { transform: scale(1); }
-}
-.notification-center__dropdown {
-  background: var(--color-surface);
-  border: var(--border-width-1) solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-dropdown);
-  max-height: 400px;
-  overflow-y: auto;
-  max-width: 360px;
-  width: calc(100vw - var(--space-4));
-}
-.notification-center__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-3) var(--space-4);
-  border-bottom: var(--border-width-1) solid var(--color-border-subtle);
-}
-.notification-center__list {
-  padding: 0;
-}
-.notification-group-header {
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-surface-soft);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  border-bottom: var(--border-width-1) solid var(--color-border-subtle);
-}
-.notification-center__item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: var(--border-width-1) solid var(--color-border-subtle);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-.notification-center__item:hover {
-  background: var(--color-surface-soft);
-}
-.notification-center__item--unread {
-  background: var(--color-primary-light);
-  border-inline-start: var(--border-width-3) solid var(--color-primary);
-}
-.notification-center__icon {
-  width: var(--space-8);
-  height: var(--space-8);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: var(--text-lg);
-}
-.notification-center__icon--info {
-  background: var(--color-info-light);
-  color: var(--color-info);
-}
-.notification-center__icon--success {
-  background: var(--color-success-light);
-  color: var(--color-success);
-}
-.notification-center__icon--danger {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-}
-.notification-center__icon--warning {
-  background: var(--color-warning-light);
-  color: var(--color-warning);
-}
-.notification-center__content {
-  flex: 1;
-}
-.notification-center__item-title {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-0-5);
-}
-.notification-center__item-message {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-.notification-center__item-time {
-  font-size: var(--text-xs);
-  color: var(--color-text-light);
-  margin-top: var(--space-0-5);
-}
-.notification-center__item-actions {
-  display: flex;
-  gap: var(--space-1);
-  flex-shrink: 0;
-  align-items: center;
-}
-</style>
+<style scoped src="../../../styles/features/notifications/components/notification-center.css"></style>

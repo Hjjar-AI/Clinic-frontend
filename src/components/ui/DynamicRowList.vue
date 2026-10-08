@@ -3,7 +3,7 @@
     <div
       v-for="(row, idx) in modelValue"
       :key="row._key || row.id || idx"
-      class="dynamic-row flex flex--gap-2 mb-2"
+      class="dynamic-row flex gap-2 mb-2"
     >
       <template
         v-for="field in fields"

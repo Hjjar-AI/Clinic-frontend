@@ -9,7 +9,7 @@
       :action-url="''"
     >
       <template #actions>
-        <div class="flex flex--gap-2 flex--justify-center">
+        <div class="flex gap-2 flex--justify-center">
           <BaseButton
             variant="primary"
             to="/dashboard"

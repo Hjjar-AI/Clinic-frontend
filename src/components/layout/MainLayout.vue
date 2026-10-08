@@ -7,26 +7,34 @@
     >تخطي إلى المحتوى الرئيسي</a>
 
     <AppNavigation
-      :collapsed="uiStore.sidebarCollapsed"
+      :collapsed="!isMobile && uiStore.sidebarCollapsed"
       :mobile-open="mobileOpen"
-      @toggle="uiStore.toggleSidebar"
-      @close-mobile="mobileOpen = false"
+      :inert="isMobile && !mobileOpen"
+      :role="isMobile ? 'dialog' : undefined"
+      :aria-modal="mobileOpen ? 'true' : undefined"
+      @toggle="toggleNavigation"
+      @close-mobile="closeNavigation"
     />
 
-    <div
+    <button
       v-if="mobileOpen"
       class="sidebar-backdrop"
-      @click="mobileOpen = false"
+      tabindex="-1"
+      aria-label="إغلاق القائمة"
+      @click="closeNavigation"
     />
 
-    <div class="app-content">
+    <div class="app-content" :inert="mobileOpen">
       <header class="app-topbar">
         <div class="app-topbar__left">
           <BaseButton
+            ref="navigationToggle"
             variant="ghost"
             class="sidebar-toggle"
             aria-label="تبديل القائمة"
-            @click="uiStore.toggleSidebar"
+            aria-controls="app-navigation"
+            :aria-expanded="isMobile ? mobileOpen : !uiStore.sidebarCollapsed"
+            @click="toggleNavigation"
           >
             <Icon icon="bars" />
           </BaseButton>
@@ -69,6 +77,7 @@
             to="/change-password"
             class="navbar__link"
             title="تغيير كلمة المرور"
+            aria-label="تغيير كلمة المرور"
           >
             <Icon icon="key" />
           </router-link>
@@ -99,7 +108,7 @@
 
 <script setup>
 // frontend/src/components/layout/MainLayout.vue
-import { onMounted, ref } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import ScrollToTop from '@/components/common/ScrollToTop.vue';
@@ -129,6 +138,59 @@ const { darkIcon } = useAppTheme();
 const refreshStore = useRefreshStore();
 const settingsStore = useSettingsStore();
 const mobileOpen = ref(false);
+const navigationToggle = ref(null);
+let savedOverflow = null;
+let restoreFocus = null;
+
+function toggleNavigation() {
+  if (isMobile.value) mobileOpen.value = !mobileOpen.value;
+  else uiStore.toggleSidebar();
+}
+
+function closeNavigation() { mobileOpen.value = false; }
+
+function handleDrawerKey(event) {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeNavigation();
+  } else if (event.key === 'Tab') {
+    const drawer = document.getElementById('app-navigation');
+    const controls = Array.from(drawer?.querySelectorAll('a[href], button:not([disabled]), [tabindex="0"]') || [])
+      .filter(element => element.getClientRects().length);
+    const first = controls[0];
+    const last = controls.at(-1);
+    if (!first) { event.preventDefault(); return; }
+    if (event.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+      event.preventDefault(); first.focus();
+    }
+  }
+}
+
+watch(mobileOpen, async open => {
+  if (open) {
+    restoreFocus = document.activeElement;
+    savedOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleDrawerKey);
+    await nextTick();
+    if (mobileOpen.value) document.querySelector('#app-navigation button, #app-navigation a')?.focus();
+  } else {
+    document.removeEventListener('keydown', handleDrawerKey);
+    if (savedOverflow !== null) document.body.style.overflow = savedOverflow;
+    savedOverflow = null;
+    await nextTick();
+    if (!mobileOpen.value && isMobile.value) (restoreFocus || navigationToggle.value?.$el)?.focus();
+    restoreFocus = null;
+  }
+});
+watch(isMobile, mobile => { if (!mobile) closeNavigation(); });
+watch(() => router.currentRoute.value.fullPath, closeNavigation);
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleDrawerKey);
+  if (savedOverflow !== null) document.body.style.overflow = savedOverflow;
+});
 
 onMounted(() => {
   settingsStore.fetchSettings();
@@ -166,20 +228,3 @@ function goToItem(item) {
   }
 }
 </script>
-
-<style scoped>
-/* FIX: rgba(0,0,0,0.35) → var(--color-bg-overlay) */
-.sidebar-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: var(--color-bg-overlay);
-  z-index: var(--z-sidebar);
-}
-/* FIX: var(--breakpoint-md) → 768px */
-@media (max-width: 768px) {
-  .sidebar-backdrop {
-    display: block;
-  }
-}
-</style>

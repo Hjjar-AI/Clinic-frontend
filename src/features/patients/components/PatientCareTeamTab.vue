@@ -38,7 +38,7 @@
     />
 
     <!-- Add form -->
-    <div class="mt-3 flex flex--gap-2 flex--align-end">
+    <div class="mt-3 flex gap-2 flex--end">
       <ApiSelect
         v-model="newUserId"
         url="/auth/users/doctors/"
@@ -50,8 +50,8 @@
       />
       <select
         v-model="newRole"
-        class="form-control form-control--select"
-        style="max-width:150px;"
+        class="form-control form-control--select care-team-role-select"
+
         aria-label="دور عضو فريق الرعاية"
       >
         <option value="doctor">

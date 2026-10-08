@@ -31,8 +31,7 @@
         ref="svgRef"
         viewBox="0 0 300 100"
         preserveAspectRatio="none"
-        style="width:100%;height:100%;pointer-events:none;"
-        :style="`stroke: ${strokeColor}`"
+        class="signature-preview"
       >
         <path
           v-if="pathData"
@@ -50,7 +49,7 @@
     >
       <Icon icon="exclamation-circle" /> التوقيع مطلوب
     </small>
-    <div class="flex flex--gap-1 mt-2">
+    <div class="flex gap-1 mt-2">
       <button
         type="button"
         class="btn btn--secondary btn--small"
@@ -70,7 +69,7 @@
 </template>
 
 <script setup>
-import { computed,ref } from 'vue'
+import { ref } from 'vue'
 
 import Icon from '@/components/ui/Icon.vue'
 
@@ -88,10 +87,6 @@ const hasDrawn = ref(false)
 const drawing = ref(false)
 const points = ref([])
 const keyboardPenPos = ref({ x: 150, y: 50 }) // Starting point for keyboard drawing
-
-const strokeColor = computed(() =>
-  getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim() || '#000000'
-)
 
 function getPos(e) {
   const rect = padRef.value.getBoundingClientRect()
@@ -192,31 +187,4 @@ function save() {
 }
 </script>
 
-<style scoped>
-.signature-pad-container {
-  display: flex;
-  flex-direction: column;
-}
-.signature-canvas {
-  border: var(--border-width-2) dashed var(--color-primary);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  width: 100%;
-  max-width: 300px;
-  height: 100px;
-  touch-action: none;
-  position: relative;
-  cursor: crosshair;
-}
-.signature-canvas:focus-visible {
-  outline: var(--interact-focus-ring-width) solid var(--interact-focus-ring-color);
-  outline-offset: var(--interact-focus-ring-offset);
-  box-shadow: var(--shadow-focus-ring);
-}
-.signature-canvas--required {
-  border-color: var(--color-warning);
-}
-.signature-canvas--error {
-  border-color: var(--color-danger);
-}
-</style>
+<style scoped src="../../styles/components/ui/signature-pad.css"></style>

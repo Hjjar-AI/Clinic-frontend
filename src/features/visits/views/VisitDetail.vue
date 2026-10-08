@@ -8,7 +8,7 @@
       title="تفاصيل الزيارة"
       :subtitle="patientName"
     >
-      <div class="flex flex--gap-2 flex--wrap">
+      <div class="flex gap-2 flex--wrap">
         <BaseButton
           v-if="authStore.can('edit_visit') && ['draft', 'amended'].includes(visit?.status)"
           variant="secondary"

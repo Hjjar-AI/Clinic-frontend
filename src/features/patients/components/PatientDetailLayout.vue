@@ -56,7 +56,7 @@
             :patient="patient"
             :latest-visit="latestVisit"
           />
-          <main class="profile-main">
+          <div class="profile-main">
             <!-- Health tab content -->
             <div v-if="activeTab === 'health'">
               <DetailItem
@@ -103,7 +103,7 @@
                 type="appointments"
                 title="لا توجد مواعيد"
               />
-              <div class="mt-3 flex flex--gap-2">
+              <div class="mt-3 flex gap-2">
                 <BaseButton
                   v-if="authStore.can('manage_appointments')"
                   variant="primary"
@@ -133,7 +133,7 @@
               :formatted-meds="formattedMeds"
               @export-visit-pdf="$emit('export-visit-pdf', $event)"
             />
-          </main>
+          </div>
         </div>
       </div>
     </div>

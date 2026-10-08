@@ -11,6 +11,7 @@
       :id="computedId"
       v-model="modelValue"
       :type="type"
+      :dir="controlDirection"
       class="form-control"
       :class="{
         'is-invalid': !!error,
@@ -34,6 +35,7 @@ import FormField from './FormField.vue'
 
 const props = defineProps({
   type: { type: String, default: 'text' },
+  direction: { type: String, default: undefined, validator: value => ['rtl', 'ltr', 'auto'].includes(value) },
   placeholder: { type: String, default: '' },
   autocomplete: { type: String, default: undefined },
   inputmode: { type: String, default: undefined },
@@ -46,6 +48,7 @@ const props = defineProps({
   valid: { type: Boolean, default: false }
 })
 
+const controlDirection = computed(() => props.direction || (['tel', 'email', 'url', 'number'].includes(props.type) ? 'ltr' : undefined))
 const fallbackId = `input-${useId()}`
 const computedId = computed(() => props.fieldId || fallbackId)
 

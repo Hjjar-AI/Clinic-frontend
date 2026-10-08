@@ -1,0 +1,81 @@
+/* ===== Controlled Substance Card ===== */
+.controlled-card {
+    border: 2px dashed var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    background: var(--color-danger-light);
+}
+.controlled-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-3);
+}
+.controlled-card__title {
+    margin: 0;
+    font-size: var(--text-lg);
+    color: var(--color-danger-dark);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+.controlled-card__icon {
+    font-size: var(--icon-lg);
+}
+.controlled-card__body {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+}
+.controlled-card__detail {
+    margin-bottom: var(--space-1);
+}
+.controlled-card__stamp {
+    background: var(--color-surface);
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+}
+
+/* ===== Lab Result ===== */
+.lab-result {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 120px;
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+    font-size: var(--text-sm);
+}
+.lab-result:last-child {
+    border-bottom: none;
+}
+.lab-result--danger {
+    background: var(--color-danger-light);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+}
+.lab-result--warning {
+    background: var(--color-warning-light);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+}
+.lab-result__name {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+.lab-result__value {
+    font-weight: var(--font-weight-bold);
+}
+.lab-result__ref {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+}
+.lab-result__flag {
+    text-align: center;
+}
+

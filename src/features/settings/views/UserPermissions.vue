@@ -42,7 +42,7 @@
             </template>
           </DataTable>
 
-          <div class="flex flex--gap-2 mt-3">
+          <div class="flex gap-2 mt-3">
             <BaseButton
               type="submit"
               variant="primary"

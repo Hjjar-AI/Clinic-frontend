@@ -83,30 +83,4 @@ const formatArabic = (value) => {
 }
 </script>
 
-<style scoped>
-.score-input__current {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary);
-  min-width: 3ch;
-  text-align: center;
-  background: var(--color-primary-light);
-  border-radius: var(--radius-sm);
-  padding: var(--space-0) var(--space-2);
-}
-.score-input__max {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-.scale-slider__value {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary);
-  background: var(--color-primary-light);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-3);
-  min-width: 3rem;
-  text-align: center;
-  flex-shrink: 0;
-}
-</style>
+<style scoped src="../../styles/components/ui/score-input.css"></style>

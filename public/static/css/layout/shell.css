@@ -1,0 +1,108 @@
+/* ================================================================
+   layout/shell.css – Sidebar-aware layout, grid, spacing, flex helpers
+                with logical properties
+   ================================================================ */
+
+.app-layout { display: flex; min-height: 100vh; }
+
+.app-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  transition: width var(--transition-base);
+  background: var(--color-surface-strong);
+  border-inline-end: var(--border-width-1) solid var(--color-border);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  z-index: var(--z-sidebar);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+@media (width > 768px) {
+  .app-sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+  }
+}
+
+.app-content {
+  flex: 1;
+  min-inline-size: 0;
+  margin-inline-start: var(--sidebar-width);
+  margin-top: var(--topbar-height);
+  padding: var(--spacing-page-padding);
+  transition: margin-inline-start var(--transition-base);
+  min-height: calc(100vh - var(--topbar-height));
+  background: var(--color-surface-soft);
+}
+
+@media (width > 768px) {
+  .app-sidebar.collapsed ~ .app-content {
+    margin-inline-start: var(--sidebar-collapsed-width);
+  }
+}
+
+/* Topbar */
+.app-topbar {
+  position: fixed;
+  top: 0;
+  inset-inline-start: var(--sidebar-width);
+  inset-inline-end: 0;
+  height: var(--topbar-height);
+  background: var(--color-surface);
+  border-bottom: var(--border-width-1) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  z-index: var(--z-topbar);
+  transition: inset-inline-start var(--transition-base);
+}
+
+@media (width > 768px) {
+  .app-sidebar.collapsed ~ .app-content .app-topbar {
+    inset-inline-start: var(--sidebar-collapsed-width);
+  }
+}
+
+/* Main content */
+.app-main {
+  min-height: calc(100vh - var(--topbar-height) - var(--bottom-nav-height));
+  padding-bottom: var(--space-6);
+}
+
+/* Mobile adjustments
+   FIX: var(--breakpoint-md) → 768px; hardcoded rgba(0,0,0,0.35) → var(--color-bg-overlay) */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 0;
+    visibility: hidden;
+    overflow: hidden;
+    z-index: var(--z-drawer);
+  }
+  .app-sidebar.mobile-open {
+    width: min(var(--sidebar-width), calc(100vw - var(--space-8)));
+    visibility: visible;
+    overflow-y: auto;
+    box-shadow: var(--shadow-elevation-5);
+  }
+  .app-topbar {
+    inset-inline-start: 0;
+  }
+  .app-content {
+    margin-inline-start: 0;
+    padding: var(--space-4);
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + var(--space-4));
+  }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: var(--color-bg-overlay);
+    z-index: var(--z-drawer-backdrop);
+    border: 0;
+  }
+}
+

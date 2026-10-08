@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrapper page-wrapper--padded">
+  <div class="page-wrapper" :class="`page-wrapper--${width}`">
     <div
       v-if="status === 'loading'"
       class="page-wrapper__skeleton"
@@ -56,12 +56,12 @@
       </div>
     </div>
 
-    <main
+    <div
       v-else
       class="page-content"
     >
       <slot />
-    </main>
+    </div>
   </div>
 </template>
 
@@ -71,6 +71,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import Icon from '@/components/ui/Icon.vue'
 
 defineProps({
+  width: { type: String, default: 'standard', validator: value => ['standard', 'wide', 'form'].includes(value) },
   status: { type: String, default: 'loading', validator: (v) => ['loading', 'empty', 'error', 'content'].includes(v) },
   emptyTitle: { type: String, default: '' },
   emptyDescription: { type: String, default: '' },

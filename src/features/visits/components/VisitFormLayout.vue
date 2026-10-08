@@ -21,8 +21,8 @@
     <PageHeader :title="isEdit ? 'تعديل الزيارة' : 'توثيق زيارة جديدة'">
       <p
         v-if="patient"
-        class="text-sm m-0 mt-1"
-        style="color: var(--color-text-inverse); opacity: 0.9;"
+        class="text-sm m-0 mt-1 visit-patient-info__meta"
+
       >
         المريض: <strong>{{ fullName }}</strong>
       </p>

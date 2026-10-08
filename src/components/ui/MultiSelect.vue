@@ -11,7 +11,7 @@
     >
       <!-- Inline search mode -->
       <template v-if="mode === 'inline'">
-        <div class="flex flex--gap-2 mb-2">
+        <div class="flex gap-2 mb-2">
           <div class="flex--grow relative">
             <input
               :value="searchQuery"
@@ -142,8 +142,7 @@
             @click="toggleItem(getOptionKey(opt))"
           >
             <span
-              class="checkbox"
-              style="width:100%;"
+              class="checkbox w-100"
             >
               <input
                 type="checkbox"

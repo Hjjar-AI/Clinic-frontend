@@ -38,7 +38,7 @@
     <div
       v-for="(goal, idx) in (form.goals || [])"
       :key="idx"
-      class="flex flex--gap-2 mb-2"
+      class="flex gap-2 mb-2"
     >
       <input
         v-model="goal.title"

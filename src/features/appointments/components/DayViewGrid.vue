@@ -11,8 +11,8 @@
         </h3>
       </div>
       <div
-        class="card__body p-0"
-        style="position:relative;"
+        class="card__body p-0 position-relative"
+
       >
         <div
           v-if="!loading"
@@ -29,7 +29,7 @@
             <span class="font-bold text-primary">{{ slot }}</span>
             <div
               v-if="appointmentForSlot(slot)"
-              class="flex flex--gap-2 flex--center day-slot__appointment"
+              class="flex gap-2 flex--center day-slot__appointment"
             >
               <AppointmentBlock
                 :appointment="appointmentForSlot(slot)"

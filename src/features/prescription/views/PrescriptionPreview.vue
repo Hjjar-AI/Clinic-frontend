@@ -63,9 +63,7 @@
           >
             <img
               :src="stampPreview"
-              alt="معاينة الختم"
-              style="max-height:80px;"
-            >
+              alt="معاينة الختم" class="prescription-signature">
             <BaseButton
               variant="danger"
               size="sm"
@@ -85,7 +83,7 @@
             />
           </div>
 
-          <div class="mt-3 flex flex--gap-2">
+          <div class="mt-3 flex gap-2">
             <BaseButton
               variant="primary"
               :loading="generating"

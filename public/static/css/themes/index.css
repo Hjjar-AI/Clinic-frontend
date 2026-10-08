@@ -1,0 +1,10 @@
+/* Theme palettes, then dark-mode semantic overrides. */
+@import './default.css';
+@import './prussian-orange.css';
+@import './vanilla-tangerine.css';
+@import './ink-wheat-burnt.css';
+@import './deep-space-strawberry.css';
+@import './ocean-cerulean.css';
+@import './rosewood-crimson.css';
+@import './dusk-dusty-rosewood.css';
+@import './dark-mode.css';

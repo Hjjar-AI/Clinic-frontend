@@ -73,20 +73,4 @@ onMounted(associateControl)
 onUpdated(associateControl)
 </script>
 
-<style scoped>
-.form-group { margin-bottom: var(--spacing-form-group); }
-.form-group__label {
-  display: block; font-weight: var(--font-weight-semibold);
-  font-size: var(--text-sm); margin-bottom: var(--space-1);
-  color: var(--color-text-soft);
-}
-.required-asterisk { color: var(--color-danger); margin-inline-start: var(--space-0-5); font-weight: var(--font-weight-bold); }
-.form-help { display: block; margin-top: var(--space-1); font-size: var(--text-xs); color: var(--color-text-soft); line-height: var(--line-height-normal); }
-.has-error .form-group__label { color: var(--color-danger); }
-.has-success .form-group__label { color: var(--color-success); }
-.form-success {
-  display: flex; align-items: center; gap: var(--space-1);
-  margin-top: var(--space-1); font-size: var(--text-xs); color: var(--color-success);
-}
-.form-success-icon { font-size: var(--text-xs); }
-</style>
+<style scoped src="../../styles/components/ui/form-field.css"></style>

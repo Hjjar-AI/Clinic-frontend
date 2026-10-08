@@ -1,5 +1,5 @@
 <template>
-  <div class="avail-grid">
+  <div class="avail-grid" :style="{ '--doctor-columns': Math.max(1, doctors.length) }">
     <div class="avail-grid__row avail-grid__header">
       <div class="avail-grid__time" />
       <div

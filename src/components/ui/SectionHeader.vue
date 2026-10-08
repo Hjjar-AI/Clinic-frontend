@@ -12,7 +12,7 @@
         {{ subtitle }}
       </p>
     </div>
-    <div class="flex flex--gap-2 flex--wrap">
+    <div class="page-header-new__actions flex gap-2 flex--wrap">
       <slot name="actions">
         <slot />
       </slot>

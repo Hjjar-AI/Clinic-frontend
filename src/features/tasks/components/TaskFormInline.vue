@@ -22,7 +22,7 @@
           label="تاريخ الاستحقاق"
           required
         />
-        <div class="form-group m-0 flex flex--align-end">
+        <div class="form-group m-0 flex flex--end">
           <BaseButton
             type="submit"
             variant="success"

@@ -5,7 +5,7 @@
     class="bulk-actions-bar card p-3 mb-3 flex flex--justify-between flex--center"
   >
     <span><strong>{{ count }}</strong> مريض محدد</span>
-    <div class="flex flex--gap-2">
+    <div class="flex gap-2">
       <button
         class="btn btn--pdf btn--sm"
         @click="$emit('export-pdf')"

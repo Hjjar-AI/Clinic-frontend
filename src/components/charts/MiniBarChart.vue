@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount,onMounted, ref } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 
 import ChartCard from '@/components/ui/ChartCard.vue'
 import { getChartColors,useChart } from '@/composables/useChart'
@@ -21,24 +21,29 @@ import { getChartColors,useChart } from '@/composables/useChart'
 const props = defineProps({ labels: Array, values: Array })
 
 const chartCanvas = ref(null)
-const { createChart, destroyChart } = useChart()
+const { createChart, destroyChart, presentationVersion } = useChart()
 let chartInstance = null
+let renderGeneration = 0
 
-onMounted(async () => {
-  if (!chartCanvas.value) return
-  const colors = getChartColors(props.labels.length)
-  chartInstance = await createChart(chartCanvas.value, {
+watch([chartCanvas, () => props.labels, () => props.values, presentationVersion], async () => {
+  const generation = ++renderGeneration
+  destroyChart(chartInstance)
+  chartInstance = null
+  const canvas = chartCanvas.value
+  if (!canvas || !props.labels?.length) return
+  const colors = getChartColors(props.labels.length, canvas)
+  const chart = await createChart(canvas, {
     type: 'bar',
     data: {
-      labels: props.labels,
+      labels: [...props.labels],
       datasets: [{
-        data: props.values,
+        data: [...(props.values || [])],
         backgroundColor: colors,
         borderWidth: 0
       }]
     },
     options: {
-      responsive: false,
+      responsive: true,
       maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { enabled: false } },
       scales: {
@@ -47,9 +52,12 @@ onMounted(async () => {
       }
     }
   })
-})
+  if (generation !== renderGeneration || canvas !== chartCanvas.value) destroyChart(chart)
+  else chartInstance = chart
+}, { deep: true, flush: 'post', immediate: true })
 
 onBeforeUnmount(() => {
+  renderGeneration++
   if (chartInstance) destroyChart(chartInstance)
 })
 </script>

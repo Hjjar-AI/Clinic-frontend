@@ -6,7 +6,7 @@
   >
     <span>{{ displayName }}</span>
     <span>|</span>
-    <span><strong>ر.و:</strong> {{ nationalIdDisplay }}</span>
+    <span><strong>ر.و:</strong> <bdi dir="ltr">{{ nationalIdDisplay }}</bdi></span>
     <span>|</span>
     <span><strong>س.م:</strong> {{ dobYear || NOT_SPECIFIED }}</span>
     <span v-if="age">|</span>
@@ -14,9 +14,9 @@
     <span>|</span>
     <span><strong>الجنس:</strong> {{ gender || NOT_SPECIFIED }}</span>
     <span>|</span>
-    <span><strong>📞</strong> {{ phoneDisplay }}</span>
+    <span><strong>📞</strong> <bdi dir="ltr">{{ phoneDisplay }}</bdi></span>
     <span>|</span>
-    <span><strong>تاريخ الإضافة:</strong> {{ normalizedAdmission }}</span>
+    <span><strong>تاريخ الإضافة:</strong> <bdi dir="ltr">{{ normalizedAdmission }}</bdi></span>
   </div>
   <div
     v-else
@@ -24,12 +24,12 @@
   >
     <div class="card__body">
       <div
-        class="flex flex--justify-between flex--center flex--wrap"
-        style="gap: var(--space-4)"
+        class="flex flex--justify-between flex--center flex--wrap gap-4"
+
       >
         <div
-          class="flex flex--align-center"
-          style="gap: var(--space-4)"
+          class="flex flex--center gap-4"
+
         >
           <Avatar
             size="lg"
@@ -41,21 +41,21 @@
               {{ displayName }}
             </h2>
             <p class="text-xs text-muted">
-              رقم الملف: #{{ patientId }}
+              رقم الملف: <bdi dir="ltr">#{{ patientId }}</bdi>
             </p>
             <div class="flex flex--wrap gap-2 mt-2 text-xs text-soft">
-              <span><strong>الهاتف:</strong> {{ phoneDisplay }}</span>
-              <span><strong>الرقم الوطني:</strong> {{ nationalIdDisplay }}</span>
+              <span><strong>الهاتف:</strong> <bdi dir="ltr">{{ phoneDisplay }}</bdi></span>
+              <span><strong>الرقم الوطني:</strong> <bdi dir="ltr">{{ nationalIdDisplay }}</bdi></span>
               <span><strong>س.م:</strong> {{ dobYear || NOT_SPECIFIED }}</span>
               <span v-if="age"><strong>العمر:</strong> {{ age }} سنة</span>
               <span><strong>الجنس:</strong> {{ gender || NOT_SPECIFIED }}</span>
-              <span><strong>تاريخ الإضافة:</strong> {{ normalizedAdmission }}</span>
+              <span><strong>تاريخ الإضافة:</strong> <bdi dir="ltr">{{ normalizedAdmission }}</bdi></span>
             </div>
           </div>
         </div>
         <div
-          class="flex flex--gap-2 flex--wrap"
-          style="gap: var(--space-1)"
+          class="flex flex--wrap gap-1"
+
         >
           <BaseButton
             v-if="authStore.can('add_visit')"
@@ -124,16 +124,4 @@ const age = computed(() => {
 });
 </script>
 
-<style scoped>
-.visit-patient-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
-  margin-top: var(--space-1);
-  font-size: var(--text-xs);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  border-inline-start: var(--border-width-3) solid var(--color-primary);
-  align-items: center;
-}
-</style>
+<style scoped src="../../../styles/features/patients/components/patient-identity.css"></style>

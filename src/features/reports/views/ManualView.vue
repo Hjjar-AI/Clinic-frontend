@@ -22,9 +22,4 @@
 import PageHeader from '@/components/ui/PageHeader.vue'
 </script>
 
-<style scoped>
-/* FIX: var(--breakpoint-sm) → 600px */
-@media (max-width: 600px) {
-  .prose { padding: var(--space-2); }
-}
-</style>
+<style scoped src="../../../styles/features/reports/views/manual-view.css"></style>

@@ -4,6 +4,7 @@
     <span
       class="detail-item__value"
       :class="{ 'text-mono numeric': numeric }"
+      :dir="numeric ? 'ltr' : 'auto'"
     >
       <slot>{{ value }}</slot>
     </span>

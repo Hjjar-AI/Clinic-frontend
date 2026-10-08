@@ -1,0 +1,104 @@
+/* ================================================================
+   forms/controls.css – Basic form controls, checkbox, radio, toggle
+   ================================================================ */
+
+.form-control {
+    width: 100%;
+    height: var(--control-height-md);
+    padding: var(--control-padding-y) var(--control-padding-x);
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-input);
+    background-color: var(--color-surface);
+    font-size: var(--control-font-size);
+    font-family: inherit;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    color: var(--color-text);
+}
+
+.form-control:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus-ring);
+}
+
+.form-control::placeholder { color: var(--color-placeholder); }
+
+.form-control.is-valid,
+.form-control--success {
+    border-color: var(--color-success);
+}
+.form-control.is-valid:focus-visible,
+.form-control--success:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-success-light);
+}
+
+.form-control.is-invalid,
+.form-control--error {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-light);
+}
+.form-control.is-invalid:focus-visible,
+.form-control--error:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-danger-light);
+}
+
+.form-control.is-warning,
+.form-control--warning {
+    border-color: var(--color-warning);
+}
+.form-control.is-warning:focus-visible,
+.form-control--warning:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-warning-light);
+}
+
+.form-control.is-dirty {
+    border-color: var(--color-warning);
+    background-color: var(--color-warning-light);
+}
+
+.form-control.is-readonly,
+.form-control--readonly {
+    background-color: var(--color-surface-soft);
+    cursor: default;
+}
+
+/* FIX: arrow position was `left 0.75rem` unconditionally. That happens to
+   land on the inline-end side in RTL, but breaks in LTR. Now positioned
+   explicitly per direction. */
+.form-control--select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7a7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    padding-inline-end: 2.5rem;
+}
+
+[dir="rtl"] .form-control--select {
+    background-position: left 0.75rem center;
+}
+
+.form-control--textarea {
+    height: auto;
+    resize: vertical;
+    min-height: var(--control-height-md);
+}
+
+.form-control--sm { height: var(--control-height-sm); font-size: var(--text-xs); }
+.form-control--lg { height: var(--control-height-lg); font-size: var(--text-base); }
+
+.form-group {
+    margin-bottom: var(--spacing-form-group);
+}
+.form-group__label {
+    display: block;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-1);
+    color: var(--color-text-soft);
+}
+
+.form-group.has-error .form-group__label { color: var(--color-danger); }
+.form-group.has-success .form-group__label { color: var(--color-success); }
+.form-group.has-warning .form-group__label { color: var(--color-warning); }
+

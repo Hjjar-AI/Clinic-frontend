@@ -20,19 +20,19 @@
       class="queue-table__row"
       :class="{ 'queue-table__row--active': item.active }"
     >
-      <div class="queue-table__cell numeric">
+      <div data-label="الدور" class="queue-table__cell numeric">
         {{ item.token }}
       </div>
-      <div class="queue-table__cell">
+      <div data-label="اسم المريض" class="queue-table__cell">
         {{ item.patientName }}
       </div>
       <div
-        class="queue-table__cell"
+        data-label="نوع الفحص" class="queue-table__cell"
         :class="{ 'priority-high': item.priority === 'high' }"
       >
         {{ item.examType }}
       </div>
-      <div class="queue-table__cell">
+      <div data-label="الحالة" class="queue-table__cell">
         <button
           class="btn btn--dark btn--xs"
           @click="$emit('enter', item)"

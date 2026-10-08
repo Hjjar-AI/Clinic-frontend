@@ -15,7 +15,7 @@
       >
         <span
           class="theme-swatch__color"
-          :style="themeColors[t.value] ? { backgroundColor: themeColors[t.value] } : {}"
+          :class="`theme-swatch--${t.value}`"
         />
         <span class="theme-swatch__label">{{ t.label }}</span>
       </button>
@@ -24,8 +24,6 @@
 </template>
 
 <script setup>
-import { onMounted,reactive } from 'vue'
-
 defineProps({
   // Current theme id, e.g. 'default' or 'ocean-cerulean'.
   // This component is now a controlled input; the parent (Settings.vue)
@@ -45,29 +43,6 @@ const themes = [
   { value: 'rosewood-crimson', label: 'روزوود قرمزي' },
   { value: 'dusk-dusty-rosewood', label: 'غسق وردي مغبر' },
 ]
-
-const themeColors = reactive({})
-
-/**
- * Read each theme's `--color-primary` directly from CSS by temporarily
- * applying the theme class to <body> and reading the resolved custom
- * property. This keeps the theme CSS files as the single source of truth
- * for color values.
- */
-function sampleThemeColors() {
-  const body = document.body
-  const savedClass = body.className
-  for (const t of themes) {
-    body.className = `theme-${t.value}`
-    const color = getComputedStyle(body).getPropertyValue('--color-primary').trim()
-    themeColors[t.value] = color || ''
-  }
-  body.className = savedClass
-}
-
-onMounted(() => {
-  sampleThemeColors()
-})
 
 function applyTheme(theme) {
   emit('update:modelValue', theme)

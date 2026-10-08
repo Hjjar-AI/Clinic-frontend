@@ -43,6 +43,10 @@
       />
       <FormInput
         v-model="form.phone"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        direction="ltr"
         label="رقم الجوال (إن وجد)"
         :error="errors.phone"
         :valid="fieldStates.phone === 'valid'"

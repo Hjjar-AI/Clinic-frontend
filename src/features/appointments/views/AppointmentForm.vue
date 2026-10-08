@@ -66,7 +66,7 @@
     </FormField>
 
     <FormField label="المدة (دقائق)">
-      <div class="flex flex--align-center gap-2">
+      <div class="flex flex--center gap-2">
         <input
           id="appointment-duration"
           v-model.number="form.duration_minutes"

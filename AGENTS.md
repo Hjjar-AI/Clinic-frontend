@@ -12,3 +12,5 @@
 - Use the shared API client and feature services. Preserve session credentials, login CSRF bootstrap, response envelopes, opening resource versions/`If-Match`, and operation keys across uncertain retries.
 - Keep permission-aware navigation, conflict refresh behavior, import/restore previews and scope confirmations, and signed-visit document issuance. Backend authorization remains authoritative.
 - Never put secrets in `VITE_*` variables, commit `.env.local`, or expose patient data in debugging output. Browser and PDF behavior must not be claimed verified from parser-only checks.
+- Keep static styling in external CSS: shared styles in `public/static/css/`, component styles in `src/styles/` via scoped style sources. Keep inline bindings only for runtime geometry/data and preserve component scoping.
+- Follow `docs/css-organization.md`: shared entry point `public/static/css/app.css`, kebab-case files grouped by responsibility; preserve cascade order and prefer coherent modules around 50–200 lines (review above 250 lines or 12 KiB).

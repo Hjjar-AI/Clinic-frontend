@@ -36,13 +36,13 @@
               >
             </FormField>
 
-            <div class="flex flex--gap-2 mb-2">
+            <div class="flex gap-2 mb-2">
               <FormField
                 label="طريقة الدمج"
                 field-id="diagMode"
                 class="flex--1"
               >
-                <div class="flex flex--gap-3">
+                <div class="flex gap-3">
                   <label class="radio">
                     <input
                       v-model="diagMode"
@@ -294,7 +294,7 @@
             field-id="medMergeMode"
             class="mt-3"
           >
-            <div class="flex flex--gap-3">
+            <div class="flex gap-3">
               <label class="radio">
                 <input
                   v-model="medMergeMode"

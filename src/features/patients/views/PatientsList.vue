@@ -13,7 +13,7 @@
         title="سجلات المرضى"
         subtitle="إدارة ملفات المرضى والزيارات والعلامات السريرية"
       >
-        <div class="flex flex--gap-2">
+        <div class="flex gap-2">
           <BaseButton
             v-if="authStore.can('export_reports')"
             variant="secondary"
@@ -90,7 +90,7 @@
           </template>
 
           <template #national_id="{ item }">
-            <div class="flex flex--align-center gap-1">
+            <div class="flex flex--center gap-1">
               <span>{{ item.national_id || '-' }}</span>
               <BaseButton
                 v-if="item.national_id"
@@ -108,7 +108,7 @@
           </template>
 
           <template #phone="{ item }">
-            <div class="flex flex--align-center gap-1">
+            <div class="flex flex--center gap-1">
               <span>{{ item.phone || '-' }}</span>
               <BaseButton
                 v-if="item.phone"

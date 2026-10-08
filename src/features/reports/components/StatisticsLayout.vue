@@ -5,7 +5,7 @@
       title="لوحة الإحصائيات"
       subtitle="مؤشرات الأداء الرئيسية والتحليلات البيانية."
     >
-      <div class="flex flex--gap-2">
+      <div class="flex gap-2">
         <BaseButton
           v-if="authStore.user?.role === 'admin'"
           variant="secondary"
@@ -54,12 +54,7 @@
       :cols="4"
     />
 
-    <div class="grid-2 mb-4">
-      <KpiGrid
-        :items="secondKpiItems"
-        :cols="4"
-      />
-    </div>
+    <KpiGrid :items="secondKpiItems" :cols="4" />
 
     <div class="grid-2 mb-4">
       <StatisticsChart
@@ -143,14 +138,4 @@ const excelExportUrl = computed(() => {
 })
 </script>
 
-<style scoped>
-.statistics-view {
-  padding: 0;
-}
-/* FIX: var(--breakpoint-sm) → 600px */
-@media (max-width: 600px) {
-  :deep(.chart-card__body) {
-    min-height: 180px;
-  }
-}
-</style>
+<style scoped src="../../../styles/features/reports/components/statistics-layout.css"></style>

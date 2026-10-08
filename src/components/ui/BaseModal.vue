@@ -25,7 +25,7 @@
               aria-hidden="true"
             />
             <header :class="headerVariantClass">
-              <div style="display:flex; align-items:center; gap:var(--space-2);">
+              <div class="flex flex--center gap-2">
                 <Icon
                   v-if="headerIcon"
                   :icon="headerIcon"
@@ -33,7 +33,7 @@
                 />
                 <h2
                   :id="titleId"
-                  style="margin:0; font-size:inherit;"
+                  class="modal-heading"
                 >
                   {{ title }}
                 </h2>
@@ -52,8 +52,7 @@
           <div
             v-if="$slots.default"
             :id="descriptionId"
-            class="modal__body"
-            style="position:relative;"
+            class="modal__body position-relative"
           >
             <slot />
             <div
@@ -132,7 +131,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize)
   document.removeEventListener('keydown', globalKeydown)
 })
-const isMobile = computed(() => windowWidth.value < 768)
+const isMobile = computed(() => windowWidth.value <= 768)
 
 const nested = ref(false)
 
@@ -182,45 +181,4 @@ function trapFocus() {
 function close() { emit('update:modelValue', false) }
 </script>
 
-<style scoped>
-.modal__handle {
-  width: var(--space-6);
-  height: var(--space-0-5);
-  background: var(--color-border-strong);
-  border-radius: var(--radius-full);
-  margin: var(--space-2) auto 0;
-}
-.modal__header-icon {
-  font-size: var(--text-xl);
-}
-.modal__close {
-  color: inherit;
-  font-size: var(--text-xl);
-  padding: var(--space-1) var(--space-3);
-  min-width: 44px;
-  min-height: 44px;
-  opacity: 0.8;
-  border-radius: var(--radius-sm);
-}
-/* FIX: rgba(255,255,255,0.15) → var(--color-bg-overlay-inverse) */
-.modal__close:hover {
-  opacity: 1;
-  background: var(--color-bg-overlay-inverse);
-}
-.modal-body-loading {
-  position: absolute;
-  inset: 0;
-  background: var(--color-bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-base);
-  border-radius: inherit;
-}
-/* FIX: var(--breakpoint-md) → 768px */
-@media (max-width: 768px) {
-  .modal__handle {
-    width: var(--space-8);
-  }
-}
-</style>
+<style scoped src="../../styles/components/ui/base-modal.css"></style>

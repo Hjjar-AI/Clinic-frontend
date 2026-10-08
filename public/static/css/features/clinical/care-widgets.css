@@ -1,0 +1,109 @@
+/* ===== Trigger List ===== */
+.trigger-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+.trigger-item {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+}
+.trigger-item__dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+.trigger-item__title {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+.trigger-item__desc {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin: var(--space-1) 0 0 0;
+    line-height: var(--line-height-relaxed);
+}
+
+/* ===== Severity Pills ===== */
+.severity-pills {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+.severity-pills__label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-soft);
+}
+.severity-pills__row {
+    display: flex;
+    gap: var(--space-1);
+    flex-wrap: wrap;
+}
+
+/* ===== Additions from Phase 2 ===== */
+
+/* Audit Log */
+.badge-action {
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+}
+.action-view {
+  background: var(--color-info-light);
+  color: var(--color-info-dark);
+}
+.action-delete {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+.action-edit {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+.font-mono {
+  font-family: 'Courier New', monospace;
+}
+
+/* Progress Goal */
+.progress-goal {
+  margin-bottom: var(--space-4);
+}
+.progress-goal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+.progress-goal__title {
+  color: var(--color-text);
+}
+.progress-goal__percent {
+  color: var(--color-primary);
+}
+.progress-bar {
+  width: 100%;
+  height: var(--progress-height);
+  background: var(--progress-bg);
+  border-radius: var(--progress-radius);
+  overflow: hidden;
+}
+.progress-bar__fill {
+  height: 100%;
+  background: var(--progress-fill);
+  border-radius: var(--progress-radius);
+  transition: var(--progress-transition);
+}
+.progress-goal__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0 0;
+}.trigger-item__dot--high { background-color: var(--color-danger); }
+.trigger-item__dot--medium { background-color: var(--color-warning); }

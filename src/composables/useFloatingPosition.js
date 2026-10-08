@@ -1,103 +1,83 @@
-// frontend/src/composables/useFloatingPosition.js
-import { nextTick, onBeforeUnmount, onMounted, ref, unref } from 'vue'
+import { nextTick, onBeforeUnmount, ref, unref, watch } from 'vue'
 
-/**
- * Computes a `position: fixed` style for a floating element (tooltip,
- * dropdown, context menu) anchored to a trigger.
- *
- * The same logic previously lived verbatim in two places:
- *   - `components/ui/Tooltip.vue`
- *   - `composables/useDropdown.js`
- *
- * Both copies drifted apart over time. This composable is the single
- * source of truth.
- *
- * @param {import('vue').Ref<HTMLElement|import('vue').ComponentPublicInstance|null>} triggerRef
- * @param {Object} [options]
- * @param {number} [options.maxWidth=360]      Viewport clamp for the panel.
- * @param {number} [options.gap=4]             Space between trigger and panel.
- * @param {number} [options.estimatedHeight=200] Used to decide whether to
- *                                             flip above the trigger.
- * @returns {{
- *   positionStyle: import('vue').Ref<Record<string, string>>,
- *   recalculate: () => void,
- *   observeTrigger: () => Promise<void>,
- *   cleanup: () => void,
- * }}
- */
+// Fixed coordinates are runtime geometry; visual styling lives in CSS.
 export function useFloatingPosition(triggerRef, options = {}) {
-  const {
-    maxWidth = 360,
-    gap = 4,
-    estimatedHeight = 200,
-  } = options
-
-  const positionStyle = ref({
-    position: 'fixed',
-    zIndex: 'var(--z-tooltip)',
-  })
-
-  let resizeObserver = null
-
-  function getTriggerElement() {
-    const t = unref(triggerRef)
-    if (!t) return null
-    // Vue component instance -> its root element.
-    return t.$el || t
-  }
+  const { maxWidth = 360, maxHeight = 400, gap = 4, placement = 'start', active = true } = options
+  const panelRef = ref(null)
+  const positionStyle = ref({})
+  let observer = null
+  let frame = null
+  let listening = false
+  let disposed = false
+  const element = value => unref(value)?.$el || unref(value)
 
   function recalculate() {
-    const trigger = getTriggerElement()
-    if (!trigger || typeof trigger.getBoundingClientRect !== 'function') return
-
+    const trigger = element(triggerRef)
+    const panel = element(panelRef)
+    if (!trigger?.getBoundingClientRect || !panel?.getBoundingClientRect) return
+    const viewport = window.visualViewport
+    const originX = viewport?.offsetLeft || 0
+    const originY = viewport?.offsetTop || 0
+    const vw = viewport?.width || window.innerWidth
+    const vh = viewport?.height || window.innerHeight
+    const margin = 8
     const rect = trigger.getBoundingClientRect()
-    const vw = window.innerWidth
-    const vh = window.innerHeight
-
-    // Default: below the trigger, right-aligned to its right edge.
-    let top = Math.min(rect.bottom + gap, vh - 10)
-    let right = vw - rect.right
-
-    // Flip above when there is not enough room below.
-    if (rect.bottom + estimatedHeight > vh) {
-      top = Math.max(rect.top - estimatedHeight - gap, 4)
-    }
-
-    // Clamp horizontally so the panel stays on-screen.
-    if (right + maxWidth > vw) right = vw - maxWidth - 8
-    if (right < 0) right = 4
-
+    const bounds = panel.getBoundingClientRect()
+    const widthLimit = Math.max(0, Math.min(maxWidth, vw - margin * 2))
+    const width = Math.min(bounds.width, widthLimit)
+    const rtl = getComputedStyle(trigger).direction === 'rtl'
+    const alignRight = placement === 'end' ? !rtl : rtl
+    const desiredLeft = alignRight ? rect.right - width : rect.left
+    const left = Math.max(originX + margin, Math.min(desiredLeft, originX + vw - width - margin))
+    const below = Math.max(0, originY + vh - rect.bottom - gap - margin)
+    const above = Math.max(0, rect.top - originY - gap - margin)
+    const naturalHeight = Math.min(maxHeight, Math.max(bounds.height, panel.scrollHeight))
+    const flip = naturalHeight > below && above > below
+    const available = Math.min(maxHeight, flip ? above : below)
+    const height = Math.min(naturalHeight, available)
+    const top = Math.max(originY + margin, flip ? rect.top - gap - height : rect.bottom + gap)
     positionStyle.value = {
-      position: 'fixed',
-      top: `${top}px`,
-      right: `${right}px`,
-      zIndex: 'var(--z-tooltip)',
+      top: `${top}px`, left: `${left}px`,
+      maxWidth: `${widthLimit}px`, maxHeight: `${available}px`,
     }
+  }
+
+  function schedule() {
+    if (frame !== null) return
+    frame = requestAnimationFrame(() => { frame = null; recalculate() })
+  }
+
+  function cleanup() {
+    observer?.disconnect()
+    observer = null
+    if (frame !== null) cancelAnimationFrame(frame)
+    frame = null
+    if (!listening) return
+    window.removeEventListener('resize', schedule)
+    document.removeEventListener('scroll', schedule, true)
+    window.visualViewport?.removeEventListener('resize', schedule)
+    window.visualViewport?.removeEventListener('scroll', schedule)
+    listening = false
   }
 
   async function observeTrigger() {
     await nextTick()
-    const trigger = getTriggerElement()
-    if (!trigger || !window.ResizeObserver) return
-    if (resizeObserver) resizeObserver.disconnect()
-    resizeObserver = new ResizeObserver(() => recalculate())
-    resizeObserver.observe(trigger)
-  }
-
-  function cleanup() {
-    if (resizeObserver) {
-      resizeObserver.disconnect()
-      resizeObserver = null
-    }
-  }
-
-  onMounted(() => {
-    observeTrigger()
-  })
-
-  onBeforeUnmount(() => {
     cleanup()
-  })
+    if (disposed || !unref(active) || !element(triggerRef) || !element(panelRef)) return
+    recalculate()
+    if (window.ResizeObserver) {
+      observer = new ResizeObserver(schedule)
+      observer.observe(element(triggerRef))
+      observer.observe(element(panelRef))
+    }
+    window.addEventListener('resize', schedule, { passive: true })
+    document.addEventListener('scroll', schedule, { capture: true, passive: true })
+    window.visualViewport?.addEventListener('resize', schedule, { passive: true })
+    window.visualViewport?.addEventListener('scroll', schedule, { passive: true })
+    listening = true
+  }
 
-  return { positionStyle, recalculate, observeTrigger, cleanup }
+  watch([() => unref(active), panelRef], observeTrigger, { flush: 'post', immediate: true })
+  onBeforeUnmount(() => { disposed = true; cleanup() })
+  return { panelRef, positionStyle, recalculate, observeTrigger, cleanup }
 }

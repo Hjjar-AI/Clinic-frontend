@@ -166,9 +166,4 @@ async function handleLogin() {
 }
 </script>
 
-<style scoped>
-.login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: var(--space-4); background: var(--color-surface-soft); }
-.login-card { max-width: var(--modal-width-sm); width: 100%; box-shadow: var(--shadow-elevation-4); }
-.relative { position: relative; }
-.password-toggle { position: absolute; inset-inline-end: var(--space-2); top: 50%; transform: translateY(-50%); }
-</style>
+<style scoped src="../../../styles/features/auth/views/login.css"></style>

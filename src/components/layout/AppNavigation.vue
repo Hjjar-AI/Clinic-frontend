@@ -1,8 +1,13 @@
 <template>
   <aside
+    id="app-navigation"
+    aria-label="القائمة الرئيسية"
     class="app-sidebar"
     :class="{ collapsed: collapsed, 'mobile-open': mobileOpen }"
   >
+    <BaseButton v-if="mobileOpen" variant="ghost" class="sidebar-mobile-close" aria-label="إغلاق القائمة" @click="$emit('close-mobile')">
+      <Icon icon="xmark" /> إغلاق
+    </BaseButton>
     <router-link
       :to="{ name: 'Dashboard' }"
       class="sidebar-brand"
@@ -17,6 +22,8 @@
         v-for="item in navItems"
         :key="item.to.name"
         :to="item.to"
+        :aria-label="item.label"
+        :title="collapsed ? item.label : undefined"
         class="sidebar-link"
         active-class="router-link-active"
         @click="$emit('close-mobile')"
@@ -33,7 +40,7 @@
       </router-link>
     </nav>
 
-    <div class="sidebar-footer">
+    <div v-if="!mobileOpen" class="sidebar-footer">
       <BaseButton
         class="sidebar-link sidebar-collapse-btn"
         :aria-label="collapsed ? 'توسيع القائمة' : 'طي القائمة'"
@@ -41,7 +48,7 @@
       >
         <Icon
           icon="chevron-right"
-          :style="{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.3s' }"
+          class="sidebar-collapse-icon"
         />
         <span>طي القائمة</span>
       </BaseButton>

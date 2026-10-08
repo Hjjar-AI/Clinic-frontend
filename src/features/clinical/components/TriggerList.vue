@@ -7,7 +7,7 @@
     >
       <span
         class="trigger-item__dot"
-        :style="{ backgroundColor: item.severity === 'high' ? 'var(--color-danger)' : 'var(--color-warning)' }"
+        :class="item.severity === 'high' ? 'trigger-item__dot--high' : 'trigger-item__dot--medium'"
       />
       <div>
         <strong class="trigger-item__title">{{ item.title }}</strong>

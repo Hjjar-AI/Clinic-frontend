@@ -20,7 +20,6 @@
           v-for="j in 4"
           :key="j"
           class="skeleton-cell"
-          :style="{ width: `${20 + Math.random()*20}%` }"
         />
       </div>
     </template>

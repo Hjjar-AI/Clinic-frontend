@@ -63,12 +63,17 @@ src/
   router/         Routes and authentication/permission guards
   bootstrap/      Application integration and event handlers
   utils/          Validation, formatting, downloads, and request helpers
+  styles/         External component CSS, loaded through scoped style sources
   main.js         Application startup and stylesheet imports
 public/           Static resources, including shared CSS
 vite.config.js    Asset base, aliases, plugins, and API proxy
 ```
 
 Use `@/` for imports from `src/`. Vue, router, and Pinia helpers are auto-imported; components directly inside `src/components/ui` and `src/components/common` are registered through the component plugin. Deeper component directories need explicit imports.
+
+Keep static styling in external CSS. Shared tokens/layouts/utilities live in `public/static/css/`; component-specific CSS lives in `src/styles/` and is referenced with `<style scoped src="...">` to preserve scoping. Inline bindings are reserved for runtime values such as measured coordinates, progress widths, and data-driven column counts. The shell owns page gutters; `PageContainer` supports `standard`, `wide`, and `form` width variants.
+
+Shared CSS loads through `public/static/css/app.css`, with files grouped by responsibility and kebab-case names. Preserve its cascade order. See [CSS organization](docs/css-organization.md) for module ownership, size guidelines, and scoped-style conventions.
 
 ## Backend integration
 

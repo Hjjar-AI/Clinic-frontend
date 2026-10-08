@@ -15,7 +15,7 @@
       <p class="text-muted text-sm mb-3">
         {{ friendlyMessage }}
       </p>
-      <div class="flex flex--gap-2 flex--justify-center">
+      <div class="flex gap-2 flex--justify-center">
         <BaseButton
           variant="primary"
           @click="retry"

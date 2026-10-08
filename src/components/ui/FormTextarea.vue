@@ -79,9 +79,4 @@ function autoResize() {
 }
 </script>
 
-<style scoped>
-.char-counter {
-  display: block;
-  margin-top: var(--space-1);
-}
-</style>
+<style scoped src="../../styles/components/ui/form-textarea.css"></style>

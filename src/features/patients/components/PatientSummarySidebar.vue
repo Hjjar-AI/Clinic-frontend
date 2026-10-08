@@ -31,7 +31,7 @@
           class="flex flex--column gap-1"
         >
           <span class="text-xs text-muted">تقييم المخاطر</span>
-          <div class="flex flex--gap-2">
+          <div class="flex gap-2">
             <RiskLevelBadge :level="latestRisk.suicide_risk_level" />
             <RiskLevelBadge
               :level="latestRisk.violence_risk_level"
@@ -84,18 +84,4 @@ const latestRisk = computed(() => {
 })
 </script>
 
-<style scoped>
-.patient-summary-sidebar {
-  position: sticky;
-  top: calc(var(--topbar-height) + var(--space-4));
-  width: 260px;
-  flex-shrink: 0;
-}
-/* FIX: var(--breakpoint-lg) → 900px */
-@media (max-width: 900px) {
-  .patient-summary-sidebar {
-    position: static;
-    width: 100%;
-  }
-}
-</style>
+<style scoped src="../../../styles/features/patients/components/patient-summary-sidebar.css"></style>

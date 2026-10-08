@@ -1,8 +1,7 @@
 <template>
   <small
     v-if="error"
-    class="field-error"
-    style="display:flex; align-items:center; gap:var(--space-1);"
+    class="field-error field-error-content"
   >
     <Icon icon="exclamation-circle" />
     {{ error }}

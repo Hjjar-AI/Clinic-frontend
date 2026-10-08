@@ -1,0 +1,121 @@
+/* ApiSelect & AsyncSelect */
+.api-select-wrapper {
+    position: relative;
+}
+.api-select-spinner {
+    position: absolute;
+    inset-inline-end: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-primary);
+    font-size: var(--text-sm);
+    pointer-events: none;
+}
+.async-select-spinner {
+    position: absolute;
+    inset-inline-end: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Search Input */
+.searchable-select {
+    position: relative;
+}
+.input-clear-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.input-clear-wrapper .form-control {
+    padding-inline-end: 2.5rem;
+}
+.input-clear-btn {
+    position: absolute;
+    inset-inline-end: var(--space-2);
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    background: var(--color-surface);
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: var(--shadow-dropdown);
+    list-style: none;
+    padding: var(--space-2);
+    margin: 2px 0 0 0;
+}
+.search-result-item {
+    padding: var(--space-2);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    width: 100%;
+    /* FIX: was `text-align: right` — physical, wrong in LTR. */
+    text-align: start;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+.search-result-item:hover {
+    background: var(--color-primary-light);
+}
+.navbar__search {
+    position: relative;
+}
+.navbar__search-input {
+    padding-inline-start: var(--space-8);
+}
+.navbar__search-results {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    background: var(--color-surface);
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: var(--z-dropdown);
+    list-style: none;
+    padding: var(--space-2);
+}
+.navbar__search-result-button {
+    padding: var(--space-2);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    width: 100%;
+    /* FIX: was `text-align: right` — physical, wrong in LTR. */
+    text-align: start;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+.navbar__search-result-button:hover {
+    background: var(--color-primary-light);
+}
+.no-results {
+    padding: var(--space-2);
+}
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+    transition: opacity 0.2s;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+    opacity: 0;
+}
+.search-spinner {
+    position: absolute;
+    inset-inline-end: var(--space-2);
+    top: 50%;
+    transform: translateY(-50%);
+}
+

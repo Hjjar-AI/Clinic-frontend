@@ -3,7 +3,7 @@
     :label="field.placeholder || ''"
     :field-id="`filter-${field.key}`"
   >
-    <div class="flex flex--gap-2">
+    <div class="flex gap-2">
       <DatePicker
         :model-value="startDate"
         label=""

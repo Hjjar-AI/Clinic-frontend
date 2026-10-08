@@ -15,7 +15,6 @@
     <div
       ref="wrapper"
       class="table-wrapper"
-      @scroll="updateScrollClasses"
     >
       <table
         class="table"
@@ -23,7 +22,6 @@
       >
         <thead
           class="table--sticky-header"
-          style="z-index: var(--z-sticky);"
         >
           <tr>
             <th
@@ -198,8 +196,11 @@ function onFilterUpdate(newFilters) {
 function updateScrollClasses() {
   const el = wrapper.value
   if (!el) return
-  const hasLeftScroll = el.scrollLeft > 2
-  const hasRightScroll = el.scrollLeft < el.scrollWidth - el.clientWidth - 2
+  const rtl = getComputedStyle(el).direction === 'rtl'
+  const offset = Math.abs(el.scrollLeft)
+  const remaining = el.scrollWidth - el.clientWidth - offset
+  const hasLeftScroll = rtl ? remaining > 2 : offset > 2
+  const hasRightScroll = rtl ? offset > 2 : remaining > 2
   hasLeftScroll ? el.classList.add('scrollable-left') : el.classList.remove('scrollable-left')
   hasRightScroll ? el.classList.add('scrollable-right') : el.classList.remove('scrollable-right')
 }

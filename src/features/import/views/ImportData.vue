@@ -59,7 +59,7 @@
               </option>
             </select>
           </FormField>
-          <div class="flex flex--gap-2 mt-3">
+          <div class="flex gap-2 mt-3">
             <BaseButton
               type="submit"
               variant="primary"
@@ -109,7 +109,7 @@
             :errors="previewResult.warnings"
           />
         </div>
-        <div class="flex flex--gap-2 mt-3">
+        <div class="flex gap-2 mt-3">
           <BaseButton
             variant="primary"
             :loading="importing"

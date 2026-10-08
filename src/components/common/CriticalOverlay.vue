@@ -27,7 +27,7 @@
           >
             سيتم تسجيل خروجك تلقائياً خلال {{ secondsRemaining }} ثانية.
           </p>
-          <div class="flex flex--gap-2 justify-center">
+          <div class="flex gap-2 flex--justify-center">
             <BaseButton
               v-if="type === 'timeout'"
               variant="primary"

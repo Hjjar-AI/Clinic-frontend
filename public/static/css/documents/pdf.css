@@ -1,0 +1,103 @@
+/* =================================================================
+   documents/pdf.css — SINGLE SOURCE OF TRUTH for all @media print rules.
+   Component-level print styles should be removed and consolidated here.
+   ================================================================= */
+
+@page {
+    margin: 1.5cm 1.2cm;
+    size: A4;
+    @bottom-center {
+        content: "صفحة " counter(page) " من " counter(pages);
+        font-size: 8pt;
+        color: var(--color-text-muted);
+        font-family: 'Cairo', sans-serif;
+    }
+}
+
+@media print {
+    * {
+        box-sizing: border-box;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body {
+        background: var(--color-surface) !important;
+        color: var(--color-text) !important;
+        font-family: 'Cairo', 'Noto Naskh Arabic', sans-serif !important;
+        font-size: 11pt !important;
+        line-height: 1.6 !important;
+        direction: rtl !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .navbar, .sidenav, .bottom-nav, .footer, .btn, .no-print,
+    .toast-container, .modal, .skeleton, .loading-overlay, .scroll-top-btn,
+    .context-menu, .skip-link, .offline-banner, .route-progress-bar,
+    .copy-btn, .column-visibility-panel, .filter-bar, .quick-actions,
+    .fab-container, .notification-badge, .timeout-warning-overlay,
+    .phi-blur-overlay, .bulk-actions-bar { display: none !important; }
+
+    :focus, :focus-visible { outline: none !important; box-shadow: none !important; }
+
+    .page-break { page-break-before: always; }
+    .page-break-after { page-break-after: always; }
+    .card, table tr, .visit-card, .kpi, .section-heading { page-break-inside: avoid; }
+
+    .print-header {
+        text-align: center; border-bottom: var(--border-width-3) solid var(--color-primary-dark);
+        padding-bottom: 10px; margin-bottom: 20px;
+    }
+    .print-header .clinic-name { font-size: 20pt; font-weight: 700; color: var(--color-primary-dark); }
+    .print-header .clinic-info { font-size: 10pt; color: var(--color-text-soft); margin-top: 2px; }
+    .print-header .report-title { font-size: 14pt; font-weight: 600; color: var(--color-primary-dark); margin-top: 6px; }
+
+    .print-footer {
+        text-align: center; font-size: 8pt; color: var(--color-text-muted);
+        border-top: var(--border-width-1) solid var(--color-border); padding-top: 8px; margin-top: 20px;
+    }
+
+    .card {
+        box-shadow: none !important; border: var(--border-width-1) solid #ddd !important;
+        border-radius: var(--radius-sm) !important; margin-bottom: 16px !important; background: var(--color-surface) !important;
+    }
+    .card__header {
+        background: var(--color-surface-soft) !important; color: var(--color-text) !important;
+        border-bottom: var(--border-width-2) solid var(--color-primary-dark) !important;
+        padding: 10px 16px !important; font-weight: 600 !important;
+    }
+    .card__body { padding: 16px !important; background: var(--color-surface) !important; }
+
+    .table { width: 100% !important; border-collapse: collapse !important; font-size: 9.5pt !important; }
+    .table th {
+        background: var(--color-surface-strong) !important; color: var(--color-text) !important; font-weight: 700 !important;
+        padding: 6px 10px !important; border: var(--border-width-1) solid #ddd !important;
+        text-align: start !important;
+    }
+    .table td { padding: 6px 10px !important; border: var(--border-width-1) solid #ddd !important; color: var(--color-text) !important; }
+    .table tr:nth-child(even) { background: var(--color-surface-soft) !important; }
+
+    .tag, .badge {
+        padding: 1px 8px !important; border-radius: 12px !important;
+        font-size: 8pt !important; font-weight: 600 !important; display: inline-block !important;
+    }
+    .tag--danger, .tag--danger-soft { background: var(--color-danger) !important; color: var(--color-text-inverse) !important; }
+    .tag--success, .tag--success-soft { background: var(--color-success) !important; color: var(--color-text-inverse) !important; }
+    .tag--warning, .tag--warning-soft { background: var(--color-warning) !important; color: var(--color-text-inverse) !important; }
+
+    .grid-2 { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr !important; gap: 12px !important; }
+
+    .kpi { border-top: var(--border-width-3) solid var(--color-primary-dark) !important; padding: 12px !important; }
+    .kpi__number { font-size: 18pt !important; color: var(--color-text) !important; }
+
+    .visit-card {
+        border-inline-start: var(--border-width-3) solid var(--color-primary-dark) !important;
+        padding: 8px 12px !important;
+    }
+
+    .form-control { border: var(--border-width-1) solid #ddd !important; background: transparent !important; color: var(--color-text) !important; }
+
+    a { color: var(--color-text) !important; text-decoration: none !important; }
+}

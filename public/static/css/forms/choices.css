@@ -1,0 +1,138 @@
+/* Checkbox & Radio */
+.checkbox, .radio {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    min-height: 44px;
+    user-select: none;
+}
+
+.checkbox__input, .radio__input {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: var(--border-width-2) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    transition: all var(--transition-fast);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.radio__input { border-radius: 50%; }
+
+.checkbox__input:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    animation: checkboxPop var(--transition-bounce) forwards;
+}
+.checkbox__input:checked::after {
+    content: '✓';
+    color: var(--color-text-inverse);
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+.radio__input:checked {
+    border-color: var(--color-primary);
+    animation: radioPop var(--transition-bounce) forwards;
+}
+.radio__input:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--space-2);
+    height: var(--space-2);
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+/* Unify animation language with tokens/motion.css */
+@keyframes checkboxPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+@keyframes radioPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    user-select: none;
+    min-height: 44px;
+    font-size: var(--text-sm);
+}
+
+.toggle-switch__track {
+    width: 44px;
+    height: 24px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: background var(--transition-fast);
+}
+
+.toggle-switch__thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--color-surface);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    inset-inline-start: 3px;
+    transition: transform var(--transition-fast);
+    box-shadow: var(--shadow-elevation-1);
+}
+
+.toggle-switch input:checked + .toggle-switch__track {
+    background: var(--color-primary);
+}
+.toggle-switch input:checked + .toggle-switch__track .toggle-switch__thumb {
+    transform: translateX(20px);
+}
+
+/* FIX: `translateX` is not flipped by the browser in RTL, so the checked
+   thumb was moving 20px further right — off the track — whenever the page
+   was RTL. Mirror the offset in the RTL direction. Track width is 44px,
+   thumb is 18px, both-side gap is 3px, so the offset is 44 - 18 - 3*2 = 20px. */
+[dir="rtl"] .toggle-switch input:checked + .toggle-switch__track .toggle-switch__thumb {
+    transform: translateX(-20px);
+}
+
+.form-control:disabled,
+.form-control--disabled {
+    background-color: var(--color-disabled-bg);
+    color: var(--color-disabled-text);
+    border-color: var(--color-disabled-border);
+    cursor: not-allowed;
+    opacity: var(--opacity-disabled);
+}
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-sm);
+    color: var(--color-primary-dark);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-2);
+}
+

@@ -4,7 +4,7 @@
     v-if="visible"
     class="card card--compact mb-3 p-3"
   >
-    <div class="flex flex--gap-3 flex--wrap">
+    <div class="flex gap-3 flex--wrap">
       <label
         v-for="col in columns"
         :key="col.key"

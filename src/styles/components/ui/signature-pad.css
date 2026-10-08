@@ -1,0 +1,26 @@
+.signature-pad-container {
+  display: flex;
+  flex-direction: column;
+}
+.signature-canvas {
+  border: var(--border-width-2) dashed var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  width: 100%;
+  max-width: 300px;
+  height: 100px;
+  touch-action: none;
+  position: relative;
+  cursor: crosshair;
+}
+.signature-canvas:focus-visible {
+  outline: var(--interact-focus-ring-width) solid var(--interact-focus-ring-color);
+  outline-offset: var(--interact-focus-ring-offset);
+  box-shadow: var(--shadow-focus-ring);
+}
+.signature-canvas--required {
+  border-color: var(--color-warning);
+}
+.signature-canvas--error {
+  border-color: var(--color-danger);
+}

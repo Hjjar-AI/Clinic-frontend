@@ -176,6 +176,4 @@ function getPatientRiskLevel(patient) {
 }
 </script>
 
-<style scoped>
-.dashboard-content { padding: 0; }
-</style>
+<style scoped src="../../../styles/features/dashboard/components/dashboard-layout.css"></style>

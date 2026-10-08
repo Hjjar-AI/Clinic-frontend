@@ -13,7 +13,7 @@
       />
       <div class="card__body">
         <form
-          class="flex flex--gap-3 flex--align-end"
+          class="flex gap-3 flex--end"
           @submit.prevent="$emit('create-backup', backupType)"
         >
           <!-- Replaced raw select with FormField -->

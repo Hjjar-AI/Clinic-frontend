@@ -28,7 +28,7 @@
               <RelativeDate :date="n.created_at" />
             </div>
           </button>
-          <div class="flex flex--gap-1">
+          <div class="flex gap-1">
             <BaseButton
               v-if="!n.is_read"
               variant="primary"
@@ -82,16 +82,4 @@ async function openNotification(notification) {
 onMounted(() => notificationStore.fetchNotifications())
 </script>
 
-<style scoped>
-.notification-content {
-  appearance: none;
-  background: none;
-  border: 0;
-  color: inherit;
-  cursor: default;
-  flex: 1;
-  font: inherit;
-  padding: 0;
-}
-.notification-content--linked { cursor: pointer; }
-</style>
+<style scoped src="../../../styles/features/notifications/views/notifications.css"></style>

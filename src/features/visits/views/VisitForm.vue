@@ -22,8 +22,8 @@
     <PageHeader :title="isEdit ? 'تعديل الزيارة' : 'توثيق زيارة جديدة'">
       <p
         v-if="patient"
-        class="text-sm m-0 mt-1"
-        style="color: var(--color-text-inverse); opacity: 0.9;"
+        class="text-sm m-0 mt-1 visit-patient-info__meta"
+
       >
         المريض: <strong>{{ fullName(patient) }}</strong>
       </p>
@@ -244,18 +244,4 @@ function removeGoal(index) {
 }
 </script>
 
-<style scoped>
-.visit-layout {
-  display: flex;
-  gap: var(--space-4);
-  align-items: flex-start;
-}
-.visit-card-main {
-  flex: 1;
-  min-width: 0;
-}
-/* FIX: var(--breakpoint-lg) → 900px */
-@media (max-width: 900px) {
-  .visit-layout { flex-direction: column; }
-}
-</style>
+<style scoped src="../../../styles/features/visits/views/visit-form.css"></style>

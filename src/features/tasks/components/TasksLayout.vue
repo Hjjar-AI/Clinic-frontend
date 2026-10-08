@@ -18,7 +18,7 @@
       class="card mb-4 p-3"
     >
       <form @submit.prevent="$emit('add-task', newTaskTitle, newTaskDueDate)">
-        <div class="flex flex--gap-3 flex--align-end">
+        <div class="flex gap-3 flex--end">
           <FormField
             label="عنوان المهمة"
             required
@@ -165,6 +165,4 @@ function statusLabel(status) {
 }
 </script>
 
-<style scoped>
-.line-through { text-decoration: line-through; }
-</style>
+<style scoped src="../../../styles/features/tasks/components/tasks-layout.css"></style>

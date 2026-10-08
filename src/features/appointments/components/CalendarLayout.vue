@@ -5,12 +5,11 @@
       title="مفكرة المواعيد"
       subtitle="استعراض وإدارة الحجوزات والجلسات"
     >
-      <div class="flex flex--gap-2">
+      <div class="flex gap-2">
         <select
           :value="view"
-          class="form-control form-control--select"
+          class="form-control form-control--select calendar-view-select"
           aria-label="طريقة عرض التقويم"
-          style="width:160px;"
           @change="$emit('view-change', $event.target.value)"
         >
           <option value="day">

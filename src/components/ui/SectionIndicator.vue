@@ -21,16 +21,4 @@ const tooltip = computed(() => ({
 }[props.state]))
 </script>
 
-<style scoped>
-.section-indicator {
-  display: inline-block;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  margin-inline-end: var(--space-2);
-  vertical-align: middle;
-}
-
-.section-indicator--complete { background: var(--color-success); }
-.section-indicator--warning  { background: var(--color-warning); }
-.section-indicator--incomplete { background: var(--color-border-strong); }
-</style>
+<style scoped src="../../styles/components/ui/section-indicator.css"></style>

@@ -2,7 +2,7 @@
 import { useBreakpoints } from '@vueuse/core'
 
 /**
- * Tracks whether the viewport is mobile‑sized (< 768px).
+ * Tracks the same inclusive mobile boundary as the styles (<= 768px).
  * Uses VueUse's useBreakpoints.
  * @returns {{ isMobile: import('vue').Ref<boolean> }}
  */
@@ -11,7 +11,7 @@ export function useViewport() {
     mobile: 768,
   })
 
-  const isMobile = breakpoints.smaller('mobile')
+  const isMobile = breakpoints.smallerOrEqual('mobile')
 
   return { isMobile }
 }

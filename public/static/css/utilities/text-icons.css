@@ -1,0 +1,99 @@
+/* Keyboard key */
+.kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: var(--space-0) var(--space-1);
+    background: var(--color-surface-strong);
+    border: var(--border-width-1) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    font-family: 'Courier New', monospace;
+    font-size: var(--text-xs); font-weight: var(--font-weight-medium);
+    color: var(--color-text-soft); line-height: 1.5;
+    box-shadow: 0 1px 0 var(--color-border);
+}
+.kbd--dark { background: var(--color-surface-inverse); color: var(--color-text-inverse); border-color: var(--color-surface-inverse); }
+
+/* RTL chevron flipping */
+[dir="rtl"] .fa-chevron-right, [dir="rtl"] .fa-arrow-right,
+[dir="rtl"] .fa-chevron-left, [dir="rtl"] .fa-arrow-left { transform: scaleX(-1); }
+
+/* Consistent letter‑spacing for English micro‑labels */
+.text-eng-label {
+    font-family: var(--font-family-en);
+    letter-spacing: var(--letter-spacing-wide);
+    text-transform: uppercase;
+    font-size: var(--text-xs);
+}
+
+/* Pulse utility */
+.pulse { animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+/* Shake animation for form error */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+.shake { animation: shake var(--motion-duration-button) ease; }
+
+/* Badge vertical alignment */
+.badge-align {
+    vertical-align: middle; display: inline-flex; align-items: center; line-height: 1;
+}
+
+/* Card title / subtitle standard */
+.card__title {
+    font-weight: var(--font-weight-semibold); color: var(--color-text);
+}
+.card__subtitle {
+    font-weight: var(--font-weight-regular); color: var(--color-text-muted); font-size: var(--text-xs);
+}
+
+/* Badge consistent gap */
+.badge-gap { gap: var(--space-1); }
+
+/* “New” indicator style */
+.new-indicator {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    background: var(--color-primary-light); color: var(--color-primary-dark);
+    padding: 1px 8px; border-radius: var(--radius-full);
+    font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
+}
+.new-indicator::after {
+    content: '•'; margin-inline-start: var(--space-1); color: var(--color-primary);
+}
+
+/* Icon vertical alignment with text */
+.icon-align {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+/* ===== Icon utilities ===== */
+.icon--xs  { font-size: var(--icon-xs);  }
+.icon--sm  { font-size: var(--icon-sm);  }
+.icon--md  { font-size: var(--icon-md);  }
+.icon--lg  { font-size: var(--icon-lg);  }
+.icon--xl  { font-size: var(--icon-xl);  }
+.icon--2xl { font-size: var(--icon-2xl); }
+
+.fas {
+  font-size: 1.125em;
+  vertical-align: -0.125em;
+}
+
+/* Text colour utilities (consolidated) */
+.text-primary   { color: var(--color-primary);   }
+.text-secondary { color: var(--color-secondary); }
+.text-success   { color: var(--color-success);   }
+.text-danger    { color: var(--color-danger);    }
+.text-warning   { color: var(--color-warning);   }
+.text-info      { color: var(--color-info);      }
+.text-purple    { color: var(--color-purple);    }
+.text-muted     { color: var(--color-text-muted);}
+.text-inverse   { color: var(--color-text-inverse);}bdi, .detail-item__value { unicode-bidi: isolate; }
+.bidi-ltr { direction: ltr; unicode-bidi: isolate; }

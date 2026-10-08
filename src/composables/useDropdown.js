@@ -1,47 +1,36 @@
-// frontend/src/composables/useDropdown.js
-import { onBeforeUnmount,onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { useFloatingPosition } from '@/composables/useFloatingPosition'
 
-/**
- * Minimal dropdown controller: tracks an open flag, computes the panel's
- * fixed position from a trigger element, and closes on outside-click.
- *
- * Positioning is delegated to `useFloatingPosition` — the same composable
- * used by `Tooltip.vue`. Previously both files duplicated the calculation
- * and drifted.
- */
 export function useDropdown() {
   const triggerRef = ref(null)
   const open = ref(false)
-  const { positionStyle, recalculate, observeTrigger } = useFloatingPosition(triggerRef)
+  const { panelRef, positionStyle, recalculate, observeTrigger } = useFloatingPosition(triggerRef, { active: open })
+  const element = value => value?.$el || value
 
-  function toggle() {
-    open.value = !open.value
-    if (open.value) recalculate()
+  function toggle() { open.value = !open.value }
+  function close() { open.value = false }
+  function handleOutside(event) {
+    if (!element(triggerRef.value)?.contains(event.target) && !element(panelRef.value)?.contains(event.target)) close()
   }
-
-  function close() {
-    open.value = false
+  async function handleKey(event) {
+    if (event.key !== 'Escape') return
+    event.preventDefault()
+    close()
+    await nextTick()
+    element(triggerRef.value)?.querySelector('button, [href], [tabindex="0"]')?.focus()
   }
-
-  function handleClickOutside(event) {
-    const trigger = triggerRef.value?.$el || triggerRef.value
-    if (trigger && !trigger.contains(event.target)) {
-      close()
+  function cleanup() {
+    document.removeEventListener('pointerdown', handleOutside)
+    document.removeEventListener('keydown', handleKey)
+  }
+  watch(open, value => {
+    cleanup()
+    if (value) {
+      document.addEventListener('pointerdown', handleOutside)
+      document.addEventListener('keydown', handleKey)
     }
-  }
-
-  onMounted(() => document.addEventListener('click', handleClickOutside))
-  onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
-
-  return {
-    triggerRef,
-    open,
-    positionStyle,
-    toggle,
-    close,
-    recalculate,
-    observeTrigger,
-  }
+  })
+  onBeforeUnmount(cleanup)
+  return { triggerRef, panelRef, open, positionStyle, toggle, close, recalculate, observeTrigger }
 }

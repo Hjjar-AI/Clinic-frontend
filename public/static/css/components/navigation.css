@@ -1,0 +1,170 @@
+/* =================================================================
+   components/navigation.css – Sidebar & Topbar visual styling.
+   See layout.css for structural sidebar rules (width, collapse, etc.)
+   ================================================================= */
+.app-sidebar {
+  background: var(--color-surface-strong);
+  border-inline-end: var(--border-width-1) solid var(--color-border);
+  padding: var(--space-4) 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text);
+}
+
+.sidebar-brand {
+  padding: 0 var(--space-4) var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-brand i { font-size: var(--icon-xl); }
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-soft);
+  text-decoration: none;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  min-height: 44px; /* touch target */
+}
+
+.sidebar-link i { width: var(--icon-md); text-align: center; }
+
+.sidebar-link:hover,
+.sidebar-link.router-link-active {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.sidebar-link.router-link-active {
+  font-weight: var(--font-weight-semibold);
+  border-inline-start: var(--border-width-3) solid var(--color-primary);
+}
+
+.sidebar-footer {
+  padding: var(--space-4) var(--space-2);
+  border-top: var(--border-width-1) solid var(--color-border-subtle);
+}
+
+.app-sidebar.collapsed .sidebar-brand span,
+.app-sidebar.collapsed .sidebar-link span {
+  display: none;
+}
+
+.app-sidebar.collapsed .sidebar-link {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.app-sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+  padding: 0 var(--space-2) var(--space-6);
+}
+
+/* FIX: `linear-gradient(to inline-start, …)` is not a valid CSS value —
+   `linear-gradient` only accepts `to left|right|top|bottom` and corner
+   values, so the whole declaration was being dropped and the topbar was
+   rendering without its brand gradient. Now LTR-default plus an explicit
+   RTL override. */
+.app-topbar {
+  background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary));
+  border-bottom: var(--border-width-1) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  color: var(--color-text-inverse);
+}
+
+[dir="rtl"] .app-topbar {
+  background: linear-gradient(to left, var(--color-primary-dark), var(--color-primary));
+}
+
+.app-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+}
+
+.app-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: var(--icon-lg);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+}
+.sidebar-toggle:focus-visible {
+  outline: var(--interact-focus-ring-width) solid var(--interact-focus-ring-color);
+  outline-offset: var(--interact-focus-ring-offset);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.app-topbar .navbar__link,
+.app-topbar .sidebar-toggle {
+  color: var(--color-text-inverse);
+}
+.app-topbar .navbar__link:hover,
+.app-topbar .sidebar-toggle:hover {
+  color: var(--color-text);
+}
+.navbar__search-input {
+  padding-inline-start: var(--space-8);
+}
+
+.sidebar-mobile-close { align-self: flex-end; margin-inline: var(--space-2); }
+.sidebar-collapse-icon { transform: rotate(180deg); transition: transform var(--transition-base); }
+.collapsed .sidebar-collapse-icon { transform: rotate(0deg); }
+.app-topbar { gap: var(--space-3); }
+.navbar__search { flex: 1 1 auto; min-inline-size: 0; max-inline-size: 32rem; }
+.app-topbar__right { flex-shrink: 0; }
+.navbar__link { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1); min-inline-size: 44px; min-block-size: 44px; }
+@media (max-width: 1024px) { .topbar-refresh { display: none; } }
+@media (max-width: 768px) {
+  :root { --topbar-height: 112px; }
+  .app-topbar { flex-wrap: wrap; align-content: center; gap: 0 var(--space-2); padding-inline: var(--space-3); }
+  .app-topbar__left { flex: 1 1 100%; gap: var(--space-2); }
+  .app-topbar__right { flex: 1 1 100%; justify-content: flex-end; gap: var(--space-1); }
+  .navbar__search { max-inline-size: none; }
+}
