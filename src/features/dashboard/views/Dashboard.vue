@@ -11,6 +11,7 @@
     :high-risk-patients="highRiskPatients"
     :today-appointments="todayAppointments"
     :pending-tasks="pendingTasksList"
+    :follow-ups="followUps"
     @refresh="refreshAll"
     @mark-all-overdue="markAllOverdue"
   />
@@ -35,6 +36,7 @@ const { confirm } = useConfirmDialog()
 const { notify } = useNotify()
 const refreshStore = useRefreshStore()
 
+const followUps = computed(() => [...(analyticsStore.dashboard.overdue_followups || []), ...(analyticsStore.dashboard.upcoming_followups || [])])
 const recentPatients = computed(() => analyticsStore.dashboard.recent_patients || [])
 const highRiskPatients = computed(() => analyticsStore.dashboard.high_risk_patients || [])
 const todayAppointments = computed(() => analyticsStore.dashboard.today_appointments || [])

@@ -25,8 +25,8 @@
         placeholder="10-12 أرقام"
       />
       <FormDate
-        v-model="form.admission_date"
-        label="تاريخ الإضافة (اختياري)"
+        v-model="form.registration_date"
+        label="تاريخ التسجيل (اختياري)"
       />
     </div>
   </div>

@@ -139,6 +139,13 @@
       </BaseCard>
     </div>
 
+    <BaseCard v-if="authStore.can('view_visits')" header-title="إجراءات المتابعة" header-icon="calendar-check" :loading="loading" class="mb-4">
+      <p v-if="!followUps.length">لا توجد إجراءات متابعة قريبة أو متأخرة.</p>
+      <div v-for="action in followUps" :key="action.id" class="p-2 border-bottom">
+        <router-link :to="{name:'PatientDetail',params:{id:action.patient_id},query:{tab:'records',kind:'follow-ups'}}">{{ action.patient_name }} · {{ action.title }}</router-link>
+        <p class="text-muted">{{ action.due_date }} · {{ action.owner_name || 'غير مسند' }}</p>
+      </div>
+    </BaseCard>
     <EditableNotes :user-id="authStore.user?.id" />
   </div>
 </template>
@@ -160,6 +167,7 @@ defineProps({
   highRiskPatients: { type: Array, required: true },
   todayAppointments: { type: Array, required: true },
   pendingTasks: { type: Array, required: true },
+  followUps: { type: Array, default: () => [] },
 })
 
 defineEmits(['refresh', 'mark-all-overdue'])

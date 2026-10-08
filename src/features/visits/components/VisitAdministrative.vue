@@ -24,20 +24,9 @@
         label-key="full_name"
         label="المُوقِع"
       />
-      <div class="flex flex--column gap-1">
-        <label class="checkbox"><input
-          v-model="form.diagnosis_discussed"
-          type="checkbox"
-          class="checkbox__input"
-          aria-label="نوقش التشخيص"
-        > نوقش التشخيص</label>
-        <label class="checkbox"><input
-          v-model="form.plan_discussed"
-          type="checkbox"
-          class="checkbox__input"
-          aria-label="نوقشت الخطة"
-        > نوقشت الخطة</label>
-      </div>
+      <FormField label="نوقش التشخيص"><select v-model="form.diagnosis_discussed" class="form-control"><option :value="null">غير مسجل</option><option :value="true">نعم</option><option :value="false">لا</option></select></FormField>
+      <FormField label="نوقشت الخطة"><select v-model="form.plan_discussed" class="form-control"><option :value="null">غير مسجل</option><option :value="true">نعم</option><option :value="false">لا</option></select></FormField>
+
     </div>
   </CollapsibleSection>
 </template>
@@ -45,6 +34,7 @@
 <script setup>
 import ApiSelect from '@/components/ui/ApiSelect.vue'
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
+import FormField from '@/components/ui/FormField.vue'
 import FormDate from '@/components/ui/FormDate.vue'
 
 defineProps({ form: Object })

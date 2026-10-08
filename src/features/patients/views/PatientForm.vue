@@ -30,9 +30,10 @@
       :field-states="fieldStates"
     />
     <PatientFormMedical :form="form" />
+    <PatientProfileFields :form="form" :is-edit="isEdit" />
 
     <AlertBar
-      v-if="potentialDuplicates.length"
+      v-if="potentialDuplicates.length && !duplicatesDismissed"
       severity="warning"
       title="وجدنا ملفات قد تخص المريض نفسه"
       class="mt-3"
@@ -42,32 +43,14 @@
           v-for="match in potentialDuplicates"
           :key="match.id"
         >
-          {{ match.full_name }} — {{ match.national_id || match.phone || `ملف #${match.id}` }}
+          {{ match.full_name }} — {{ match.patient_number }} · {{ match.is_active ? 'نشط' : 'مؤرشف' }}
         </li>
       </ul>
-      <ConfirmCheckbox
-        v-model="duplicateOverride"
-        label="راجعت النتائج وأريد إنشاء ملف مستقل"
-        variant="warning"
-      />
+      <p>يمكنك حفظ ملف مستقل دون تغيير رقم الهوية أو دمج أي ملف.</p>
+      <BaseButton variant="secondary" size="sm" @click="duplicatesDismissed=true">تجاهل التنبيه</BaseButton>
     </AlertBar>
 
-    <!-- Doctor selection for receptionist -->
-    <div
-      v-if="authStore.user?.role === 'receptionist'"
-      class="mt-4"
-    >
-      <ApiSelect
-        v-model="form.doctor_id"
-        url="/auth/users/doctors/"
-        value-key="id"
-        label-key="full_name"
-        label="الطبيب المسؤول"
-        required
-        placeholder="اختر الطبيب"
-        :error="errors.doctor_id"
-      />
-    </div>
+    <MultiSelect v-if="!isEdit" v-model="form.care_team_ids" :options="teamCandidates" :option-key="user => user.id" :option-label="user => user.full_name" label="فريق الرعاية الأولي (اختياري)" />
   </FormWrapper>
 </template>
 
@@ -76,9 +59,9 @@ import { computed, onBeforeUnmount,onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AlertBar from '@/components/ui/AlertBar.vue'
-import ApiSelect from '@/components/ui/ApiSelect.vue'
+import MultiSelect from '@/components/ui/MultiSelect.vue'
+import PatientProfileFields from '@/features/patients/components/PatientProfileFields.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
-import ConfirmCheckbox from '@/components/ui/ConfirmCheckbox.vue'
 import FormWrapper from '@/components/ui/FormWrapper.vue'
 import { useApi } from '@/composables/useApi'
 import { useDate } from '@/composables/useDate'
@@ -114,7 +97,10 @@ const {
 } = useValidator()
 const { draft, restoreDraftToForm, pauseDraft, resumeDraft, clearDraft } = useFormDraft()
 const potentialDuplicates = ref([])
-const duplicateOverride = ref(false)
+const duplicatesDismissed = ref(false)
+const teamCandidates = ref([])
+let duplicateTimer = null
+let duplicateGeneration = 0
 
 const genderOptions = [{ value: 'ذكر', label: 'ذكر' }, { value: 'أنثى', label: 'أنثى' }]
 const currentYear = new Date().getFullYear()
@@ -125,7 +111,7 @@ const yearOptions = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => {
 
 const maritalStatusOptions = computed(() => {
   const gender = form.gender
-  if (!gender) return []
+  if (!gender) return [...new Set([...(constantsStore.data.marital_status_male || []), ...(constantsStore.data.marital_status_female || [])])].map(status => ({value:status,label:status}))
   const list = gender === 'ذكر'
     ? constantsStore.data.marital_status_male
     : constantsStore.data.marital_status_female
@@ -135,15 +121,17 @@ const maritalStatusOptions = computed(() => {
 const initialFormData = {
   first_name: '', surname: '', father_name: '', mother_name: '',
   gender: '', dob_year: '', phone: '', marital_status: '',
-  occupation: '', address: '', national_id: '', admission_date: '',
-  family_history: '', important_notes: '', doctor_id: null, version: 1,
+  occupation: '', address: '', national_id: '', registration_date: '',
+  family_history: '', important_notes: '', care_team_ids: [], version: 1,
+  identity_verification: 'reported', preferred_language: '', preferred_contact_channel: '', communication_restrictions: '',
+  allergy_status: 'unknown', medication_status: 'unknown', correction_reason: '',
 }
 
 const schema = [
   firstNameRule(),
   surnameRule(),
-  genderRule(),
-  dobYearRule(),
+  { ...genderRule(), required: false },
+  { ...dobYearRule(), required: false },
   phoneRule('phone', validateConfiguredPhone),
   nationalIdRule('national_id', validateConfiguredNationalId)
 ]
@@ -171,24 +159,22 @@ const { execute } = useApi(async () => {
     phone: phone || '',
     occupation: form.occupation || '',
     permanent_address: form.address || '',
-    admission_date: form.admission_date || '',
+    registration_date: form.registration_date || '',
     family_history: form.family_history || '',
     important_notes: form.important_notes || '',
-    doctor_id: form.doctor_id || undefined,
-  }, ['admission_date'])
+    care_team_ids: !isEdit ? form.care_team_ids : undefined,
+    correction_reason: form.correction_reason,
+    identity_verification: form.identity_verification === 'verified' && !['doctor','admin'].includes(authStore.user?.role) ? undefined : form.identity_verification,
+    preferred_language: form.preferred_language, preferred_contact_channel: form.preferred_contact_channel,
+    communication_restrictions: form.communication_restrictions,
+    ...(authStore.can('edit_visit') ? {allergy_status:form.allergy_status,medication_status:form.medication_status} : {}),
+  }, ['registration_date'])
 
   if (isEdit) {
     payload.version = form.version
     await patientStore.updatePatient(route.params.id, payload)
     router.push({ name: 'PatientDetail', params: { id: route.params.id } })
   } else {
-    if (!duplicateOverride.value) {
-      const duplicateResult = await patientService.findDuplicates(payload)
-      potentialDuplicates.value = duplicateResult?.matches || []
-      if (potentialDuplicates.value.length) {
-        throw new Error('راجع الملفات المتشابهة قبل إنشاء ملف جديد.')
-      }
-    }
     const newPatient = await patientStore.createPatient(payload)
     router.push({ name: 'PatientDetail', params: { id: newPatient.id } })
   }
@@ -200,6 +186,7 @@ let stopDraftWatcher = null
 
 onMounted(async () => {
   await constantsStore.fetch()
+  if (!isEdit) { try { teamCandidates.value = await patientService.getTeamCandidates() } catch { notify('تعذر تحميل أعضاء الفريق؛ يمكنك إضافتهم بعد حفظ الملف', 'warning') } }
   if (isEdit) {
     try {
       const data = await patientStore.fetchPatient(route.params.id)
@@ -215,10 +202,12 @@ onMounted(async () => {
         occupation: data.occupation || '',
         address: data.permanent_address || '',
         national_id: data.national_id || '',
-        admission_date: data.admission_date || '',
+        registration_date: data.registration_date || '',
         family_history: data.family_history || '',
         important_notes: data.important_notes || '',
-        doctor_id: data.doctor_id_output || data.doctor || null,
+        identity_verification: data.identity_verification || 'reported', preferred_language:data.preferred_language || '',
+        preferred_contact_channel:data.preferred_contact_channel || '', communication_restrictions:data.communication_restrictions || '',
+        allergy_status:data.allergy_status || 'unknown', medication_status:data.medication_status || 'unknown',
         version: data.version || 1,
       })
       // Clear dirty after hydration: the loaded values are the new baseline.
@@ -240,7 +229,22 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  clearTimeout(duplicateTimer)
+  duplicateGeneration++
   if (stopDraftWatcher) stopDraftWatcher()
+})
+
+watch(() => [form.first_name, form.surname, form.national_id, form.phone, form.dob_year], () => {
+  clearTimeout(duplicateTimer)
+  const current = ++duplicateGeneration
+  duplicateTimer = setTimeout(async () => {
+    try {
+      const result = await patientService.findDuplicates({...form, dob_year: parseInt(form.dob_year) || null, exclude_id: isEdit ? Number(route.params.id) : undefined})
+      if (current !== duplicateGeneration) return
+      potentialDuplicates.value = result.matches || []
+      duplicatesDismissed.value = false
+    } catch { /* Duplicate checks are optional and never prevent registration. */ }
+  }, 500)
 })
 
 async function handleSubmit() {

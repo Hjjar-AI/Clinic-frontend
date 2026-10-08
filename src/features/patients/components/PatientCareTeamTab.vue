@@ -11,7 +11,8 @@
         class="flex flex--justify-between flex--center p-2 border-bottom"
       >
         <div>
-          <span class="font-semibold">{{ member.user_name }}</span>
+          <span class="font-semibold">{{ member.user_name }}
+          <span v-if="member.ended_at" class="text-muted"> · عضوية سابقة: {{ member.removal_reason }}</span></span>
           <Badge
             :status="member.user_role"
             status-type="user"
@@ -19,15 +20,16 @@
             variant="soft"
             class="mr-2"
           />
+          <p class="text-xs text-muted">الدور: {{ roleLabels[member.role] || member.role }} · أضافه: {{ member.assigned_by_name || 'غير مسجل' }} · بدء العضوية: {{ member.started_at }}<span v-if="member.ended_at"> · انتهت: {{ member.ended_at }} · أنهاها: {{ member.ended_by_name || 'غير مسجل' }}</span></p>
         </div>
         <BaseButton
+          v-if="!member.ended_at && authStore.can('manage_users')"
           variant="ghost"
           size="xs"
           icon="trash"
           title="إزالة"
           aria-label="إزالة العضو من فريق الرعاية"
-          confirm-message="هل أنت متأكد من إزالة هذا العضو؟"
-          @confirmed="$emit('remove', member.user)"
+          @click="$emit('remove', member.user)"
         />
       </div>
     </div>
@@ -38,16 +40,11 @@
     />
 
     <!-- Add form -->
-    <div class="care-team-add-row mt-3 flex gap-2 flex--end">
-      <ApiSelect
-        v-model="newUserId"
-        url="/auth/users/doctors/"
-        value-key="id"
-        label-key="full_name"
-        label=""
-        placeholder="اختر مستخدم"
-        class="flex--1"
-      />
+    <div v-if="authStore.can('manage_users')" class="care-team-add-row mt-3 flex gap-2 flex--end">
+      <select v-model="newUserId" class="form-control" aria-label="عضو فريق الرعاية">
+        <option :value="null">اختر عضو الفريق</option>
+        <option v-for="user in candidates" :key="user.id" :value="user.id">{{ user.full_name }}</option>
+      </select>
       <select
         v-model="newRole"
         class="form-control form-control--select care-team-role-select"
@@ -63,6 +60,7 @@
         <option value="therapist">
           معالج
         </option>
+        <option value="coordinator">منسق</option>
         <option value="assistant">
           مساعد
         </option>
@@ -80,9 +78,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
-import ApiSelect from '@/components/ui/ApiSelect.vue'
+import { useAuthStore } from '@/features/auth/stores/auth'
 import Badge from '@/components/ui/Badge.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import { useNotify } from '@/composables/useNotify'
@@ -94,10 +92,15 @@ const props = defineProps({
   members: { type: Array, default: () => [] },
 })
 
+const authStore = useAuthStore()
+const candidates = ref([])
+onMounted(async () => { if (authStore.can('manage_users')) candidates.value = await patientService.getTeamCandidates() })
+
 const emit = defineEmits(['remove', 'added'])
 
 const { notify } = useNotify()
 const newUserId = ref(null)
+const roleLabels = {doctor:'طبيب',nurse:'ممرض',therapist:'معالج',assistant:'مساعد',coordinator:'منسق'}
 const newRole = ref('doctor')
 
 async function addMember() {

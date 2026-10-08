@@ -18,6 +18,7 @@
 - Vue/Vite: features in `src/features/`, shared UI in `src/components/`, state in `src/stores/`, API integration in `src/services/`. Use `@/` imports and established Arabic UI patterns.
 - Vite: `5173`; `/api` proxies to Django at `5019`. Browser API: `/api/v1`; assets: `/static/`; router history: `/`.
 - Use the shared API client/feature services. Preserve session credentials, login CSRF bootstrap, response envelopes, opening resource versions/`If-Match`, and operation keys across uncertain retries.
+- Patient UI/API: [schema and retention](../backend/docs/patient-record-schema.md); keep optional year-only birth, unchanged IDs/nonblocking duplicate review, explicit optional merge/access confirmation, clinical unknowns, dated team history, and opening parent versions for longitudinal records.
 - Preserve permission-aware navigation, conflict refresh, import/restore previews/scope confirmations, and signed-visit document issuance. Backend authorization remains authoritative.
 
 ## CSS, layout, and RTL

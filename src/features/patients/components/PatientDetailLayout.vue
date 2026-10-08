@@ -22,7 +22,8 @@
           :national-id="patient.national_id"
           :dob-year="patient.dob_year"
           :gender="patient.gender"
-          :admission-date="patient.admission_date"
+          :admission-date="patient.registration_date"
+          :patient-number="patient.patient_number"
           @export-pdf="$emit('export-pdf', patient.id)"
           @export-word="$emit('export-word', patient.id)"
         />
@@ -31,6 +32,10 @@
         </p>
         <!-- Tabs -->
         <AppTabs v-model="activeTab">
+          <AppTabPanel id="records" label="السجلات المستمرة" icon="address-card" />
+          <AppTabPanel v-if="authStore.can('manage_patient_documents')" id="documents" label="المستندات" icon="file" />
+          <AppTabPanel v-if="authStore.can('edit_patient')" id="duplicates" label="الملفات المتشابهة" icon="users" />
+          <AppTabPanel id="history" label="تاريخ التصحيح" icon="history" />
           <AppTabPanel
             id="health"
             label="ملخص الصحة"
@@ -42,7 +47,6 @@
             icon="calendar-check"
           />
           <AppTabPanel
-            v-if="authStore.can('manage_users')"
             id="team"
             label="فريق الرعاية"
             icon="user-md"
@@ -58,6 +62,10 @@
             :latest-visit="latestVisit"
           />
           <div class="profile-main">
+            <PatientRecordsPanel v-if="activeTab === 'records'" :patient="patient" :visits="visits" :appointments="appointments" :members="careTeamMembers" @changed="(...args) => $emit('record-changed', ...args)" />
+            <PatientDocumentsPanel v-if="activeTab === 'documents' && authStore.can('manage_patient_documents')" :patient="patient" />
+            <PatientDuplicatePanel v-if="activeTab === 'duplicates' && authStore.can('edit_patient')" :patient="patient" @changed="(...args) => $emit('record-changed', ...args)" />
+            <PatientHistoryPanel v-if="activeTab === 'history'" :patient-id="patient.id" />
             <!-- Health tab content -->
             <div v-if="activeTab === 'health'">
               <DetailItem
@@ -118,7 +126,6 @@
             <!-- Team tab content -->
             <div v-if="activeTab === 'team'">
               <PatientCareTeamTab
-                v-if="authStore.can('manage_users')"
                 :patient-id="patient.id"
                 :version="patient.version"
                 :members="careTeamMembers"
@@ -144,6 +151,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import PageContainer from '@/components/layout/PageContainer.vue'
 import AppTabPanel from '@/components/ui/AppTabPanel.vue'
@@ -154,6 +162,10 @@ import DetailItem from '@/components/ui/DetailItem.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import RelativeDate from '@/components/ui/RelativeDate.vue'
 import { useAuthStore } from '@/features/auth/stores/auth'
+import PatientRecordsPanel from '@/features/patients/components/PatientRecordsPanel.vue'
+import PatientDocumentsPanel from '@/features/patients/components/PatientDocumentsPanel.vue'
+import PatientDuplicatePanel from '@/features/patients/components/PatientDuplicatePanel.vue'
+import PatientHistoryPanel from '@/features/patients/components/PatientHistoryPanel.vue'
 import PatientCareTeamTab from '@/features/patients/components/PatientCareTeamTab.vue'
 import PatientIdentity from '@/features/patients/components/PatientIdentity.vue'
 import PatientSidebar from '@/features/patients/components/PatientSidebar.vue'
@@ -172,10 +184,11 @@ defineProps({
 })
 
 defineEmits([
-  'retry', 'export-pdf', 'export-word', 'edit-appointment',
+  'record-changed', 'retry', 'export-pdf', 'export-word', 'edit-appointment',
   'remove-care-team-member', 'refresh-care-team', 'export-visit-pdf'
 ])
 
-const activeTab = ref('health')  // default tab
+const route = useRoute()
+const activeTab = ref(['health','appointments','team','records','documents','duplicates','history'].includes(route.query.tab) ? route.query.tab : 'health')  // default tab
 const authStore = useAuthStore()
 </script>

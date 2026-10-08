@@ -123,7 +123,7 @@
         <div class="card__body">
           <p><strong>خطر الانتحار:</strong> {{ riskLabel(visit.suicide_risk_level) }}</p>
           <p><strong>خطر العنف:</strong> {{ riskLabel(visit.violence_risk_level) }}</p>
-          <p><strong>الوصول إلى سلاح:</strong> {{ visit.firearm_access ? 'نعم' : 'لا' }}</p>
+          <p><strong>الوصول إلى سلاح:</strong> {{ visit.firearm_access === null || visit.firearm_access === undefined ? 'غير مقيم' : visit.firearm_access ? 'نعم' : 'لا' }}</p>
           <p v-if="visit.clinical_data?.risk_notes">
             <strong>ملاحظات:</strong> {{ visit.clinical_data.risk_notes }}
           </p>

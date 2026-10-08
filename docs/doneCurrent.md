@@ -2,6 +2,8 @@
 
 Updated: 2026-10-08.
 
+- Patient expansion: Arabic profile preferences/year-only birth, optional current team assignment, nonblocking duplicate warnings, structured records with opening patient versions/history, separate documents/corrections/duplicates/team tabs, optional admin merge preview/confirmation, tri-state clinical facts, care-basis separation, action dashboard and configurable completeness. 23 scripts parsed; 196 isolated source/import/schema assertions passed; browser checks pending. [Schema/API](../../backend/docs/patient-record-schema.md), [verification](../../backend/docs/patient-record-verification.md).
+
 - Shell/layout implementation: fixed all 11 findings and three responsive risks; shared overlay ownership, viewport/banner/guest/print layout, retry, shortcuts, RTL controls and responsive forms. Consolidated duplicate clinical geometry. 23 scripts parsed, 18 template structures checked, 129 isolated assertions and 10 existing API version assertions passed; browser verification pending. See [implementation](shell-layout-fixes.md).
 
 - Original deep shell/layout/container review: 11 source findings, three rendering risks and ownership recommendations; 15 source/handler assertions passed, including drawer/modal focus conflict reproduction. Review-stage application sources unchanged; implementation now complete above; browser checks pending. See [review](shell-layout-review.md).

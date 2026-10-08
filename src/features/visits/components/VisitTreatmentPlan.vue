@@ -71,8 +71,7 @@
     </h5>
     <div class="grid-2">
       <FormField
-        label="خطر الانتحار"
-        required
+        label="خطر الانتحار (غير مقيم عند عدم الاختيار)"
         :error="errors.suicide_risk_level"
       >
         <SegmentedControl
@@ -81,8 +80,7 @@
         />
       </FormField>
       <FormField
-        label="خطر العنف"
-        required
+        label="خطر العنف (غير مقيم عند عدم الاختيار)"
         :error="errors.violence_risk_level"
       >
         <SegmentedControl
@@ -91,13 +89,9 @@
         />
       </FormField>
     </div>
-    <label class="checkbox mt-2"><input
-      v-model="form.firearm_access"
-      type="checkbox"
-      class="checkbox__input"
-      aria-label="حيازة سلاح ناري"
-    > حيازة سلاح ناري</label>
-
+    <FormField label="الوصول إلى سلاح ناري">
+      <select v-model="form.firearm_access" class="form-control"><option :value="null">لم يُقيّم / غير معروف</option><option :value="true">نعم</option><option :value="false">لا</option></select>
+    </FormField>
     <div class="grid-2 mt-3">
       <FormField label="مستوى الرعاية">
         <select
@@ -109,8 +103,11 @@
           </option>
           <option>Outpatient</option><option>IOP</option><option>PHP</option>
           <option>Inpatient</option><option>Residential</option>
-          <option>Voluntary</option><option>Involuntary</option>
+
         </select>
+      </FormField>
+      <FormField label="أساس المشاركة في الرعاية">
+        <select v-model="form.care_basis" class="form-control"><option value="unknown">غير معروف</option><option value="voluntary">طوعي</option><option value="involuntary">غير طوعي</option></select>
       </FormField>
       <FormField label="نوع المتابعة">
         <select

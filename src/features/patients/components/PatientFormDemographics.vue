@@ -25,8 +25,7 @@
     <div class="grid-3 gap-3 mb-4">
       <FormSelect
         v-model="form.gender"
-        label="الجنس"
-        required
+        label="الجنس (إن كان معروفاً)"
         :error="errors.gender"
         :valid="fieldStates.gender === 'valid'"
         :options="genderOptions"
@@ -34,8 +33,7 @@
       />
       <FormSelect
         v-model="form.dob_year"
-        label="سنة الميلاد"
-        required
+        label="سنة الميلاد (إن كانت معروفة)"
         :error="errors.dob_year"
         :valid="fieldStates.dob_year === 'valid'"
         :options="yearOptions"

@@ -100,3 +100,5 @@ Before edits: [AGENTS.md](AGENTS.md), [current work](docs/workCurrent.md), [comp
 Login failures: check Django, proxy, cookies, CSRF bootstrap. Stale edits: refresh before retrying. Deployment refresh errors: check SPA history fallback and `/static/` paths.
 
 References: [documentation index](../backend/docs/README.md), [backend implementation notes](../backend/docs/backend-fixes-implementation.md). Unverified: browser workflows, PDF/Arabic rendering, production database concurrency.
+
+Patient record design: [schema, API, duplicates and retention](../backend/docs/patient-record-schema.md).

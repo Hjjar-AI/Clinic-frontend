@@ -90,3 +90,8 @@
   .grid--profile { grid-template-columns: minmax(0, 1fr); }
   .patient-summary-sidebar { position: static; width: 100%; }
 }
+
+.patient-record-values { display: grid; grid-template-columns: minmax(7rem, 1fr) minmax(0, 2fr); gap: var(--space-2); }
+.patient-record-values dt { font-weight: var(--font-weight-semibold); }
+.patient-record-values dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+@container (max-width: 400px) { .patient-record-values { grid-template-columns: minmax(0, 1fr); } }

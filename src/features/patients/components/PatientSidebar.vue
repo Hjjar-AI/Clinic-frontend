@@ -8,7 +8,7 @@
       <CardHeader
         variant="warning"
         icon="exclamation-circle"
-        title="ملف غير مكتمل"
+        title="بيانات موصى باستكمالها"
       />
       <div class="card__body">
         <p class="text-sm mb-1">
@@ -27,7 +27,7 @@
       />
       <div class="card__body">
         <p class="text-sm">
-          {{ patient.family_history || 'لا يوجد' }}
+          {{ patient.family_history || 'غير مسجل' }}
         </p>
       </div>
     </div>
@@ -39,7 +39,7 @@
       />
       <div class="card__body">
         <p class="text-sm">
-          {{ patient.important_notes || 'لا يوجد' }}
+          {{ patient.important_notes || 'غير مسجل' }}
         </p>
       </div>
     </div>
@@ -92,8 +92,8 @@ const missingFields = computed(() => {
     gender: 'الجنس',
     national_id: 'الرقم الوطني',
     phone: 'الهاتف',
-    doctor: 'الطبيب المسؤول',
-    admission_date: 'تاريخ الإضافة',
+    care_team: 'فريق الرعاية', preferred_language: 'اللغة المفضلة',
+    registration_date: 'تاريخ التسجيل',
   }
   return (props.patient.completeness?.missing_fields || [])
     .map((field) => labels[field] || field)

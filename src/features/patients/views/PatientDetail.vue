@@ -2,6 +2,7 @@
   <PatientDetailLayout
     :status="pageStatus"
     @retry="loadPatient"
+    @record-changed="handleRecordChanged"
     :patient="patient"
     :full-name="fullName(patient)"
     :latest-visit="latestVisit"
@@ -25,6 +26,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { useDate } from '@/composables/useDate'
 import { useFormatters } from '@/composables/useFormatters'
+import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useNotify } from '@/composables/useNotify'
 import { usePageStatus } from '@/composables/usePageStatus'
 import appointmentService from '@/features/appointments/services/appointmentService'
@@ -42,6 +44,7 @@ const patientStore = usePatientStore()
 const { formatDate, parseDate } = useDate()
 const { toArabicNumerals: toArabic } = useFormatters()
 const { notify } = useNotify()
+const { prompt } = useConfirmDialog()
 
 const {
   status: pageStatus,
@@ -149,10 +152,18 @@ async function fetchCareTeam() {
   }
 }
 
+async function handleRecordChanged(version, refresh = false) {
+  if (!patient.value) return
+  if (version) patient.value.version = version
+  if (refresh) patient.value = await patientStore.fetchPatient(patient.value.id)
+}
+
 async function handleRemoveCareTeamMember(userId) {
   if (!patient.value) return
   try {
-    await patientService.removeCareTeamMember(patient.value.id, userId, patient.value.version)
+    const reason = await prompt('سبب إنهاء عضوية فريق الرعاية؟')
+    if (!reason) return
+    await patientService.removeCareTeamMember(patient.value.id, userId, patient.value.version, reason)
     notify('تمت إزالة العضو', 'success')
     fetchCareTeam()
   } catch {

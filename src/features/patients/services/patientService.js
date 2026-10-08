@@ -71,8 +71,19 @@ export default {
     })
     return unwrapResponse(res)
   },
-  async removeCareTeamMember(patientId, userId, version) {
-    const res = await apiClient.delete(`/patients/${patientId}/care-team/${userId}/`, { data: { version } })
+  async removeCareTeamMember(patientId, userId, version, reason) {
+    const res = await apiClient.delete(`/patients/${patientId}/care-team/${userId}/`, { data: { version, reason } })
     return unwrapResponse(res)
   },
+  async getTeamCandidates() { return unwrapResponse(await apiClient.get('/patients/team_candidates/')) },
+  async getRecords(id, kind, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/records/`, { params: { kind, offset } })) },
+  async saveRecord(id, payload) { return unwrapResponse(await apiClient.post(`/patients/${id}/records/`, payload)) },
+  async getCorrections(id, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/corrections/`, { params: { offset } })) },
+  async reviewDuplicate(id, payload) { return unwrapResponse(await apiClient.post(`/patients/${id}/duplicate_review/`, payload)) },
+  async previewMerge(id, targetId) { return unwrapResponse(await apiClient.post(`/patients/${id}/merge_preview/`, { target_id: targetId })) },
+  async mergePatient(id, payload) { return unwrapResponse(await apiClient.post(`/patients/${id}/merge/`, payload)) },
+  async updateDocument(id, documentId, payload) { return unwrapResponse(await apiClient.patch(`/patients/${id}/documents/${documentId}/`, payload)) },
+  async archiveDocument(id, documentId, version) { return apiClient.delete(`/patients/${id}/documents/${documentId}/`, { data: { version } }) },
+  async downloadDocument(id, documentId) { const response = await apiClient.get(`/patients/${id}/documents/${documentId}/download/`, { responseType: 'blob' }); return response.data },
+
 }

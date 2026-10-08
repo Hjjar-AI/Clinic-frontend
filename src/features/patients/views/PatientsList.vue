@@ -126,11 +126,11 @@
           </template>
 
           <template #doctor="{ item }">
-            {{ item.doctor_name || '-' }}
+            {{ item.care_team_names?.join('، ') || '-' }}
           </template>
 
-          <template #admission_date="{ item }">
-            <DateCell :date="item.admission_date" />
+          <template #registration_date="{ item }">
+            <DateCell :date="item.registration_date" />
           </template>
 
           <template #completeness="{ item }">
@@ -257,16 +257,17 @@ const columnVisibility = ref({
   national_id: true,
   phone: true,
   doctor: true,
-  admission_date: true,
+  registration_date: true,
   completeness: true,
 })
 
 const allColumns = computed(() => [
+  { key: 'patient_number', label: 'رقم الملف', visible: true },
   { key: 'name', label: 'الاسم' },
   { key: 'national_id', label: 'الرقم الوطني', visible: columnVisibility.value.national_id },
   { key: 'phone', label: 'الهاتف', visible: columnVisibility.value.phone },
-  { key: 'doctor', label: 'الطبيب المسؤول', visible: columnVisibility.value.doctor && authStore.can('view_patients') },
-  { key: 'admission_date', label: 'تاريخ الإضافة', visible: columnVisibility.value.admission_date },
+  { key: 'doctor', label: 'فريق الرعاية', visible: columnVisibility.value.doctor && authStore.can('view_patients') },
+  { key: 'registration_date', label: 'تاريخ التسجيل', visible: columnVisibility.value.registration_date },
   { key: 'completeness', label: 'اكتمال الملف', visible: columnVisibility.value.completeness },
 ])
 
@@ -276,11 +277,11 @@ const configurableColumns = computed(() => allColumns.value
   .map((column) => ({ ...column, visible: columnVisibility.value[column.key] !== false })))
 
 const exportFields = computed(() => visibleColumns.value.map((column) => ({
-  name: 'full_name',
+  name: 'full_name', patient_number: 'patient_number',
   national_id: 'national_id',
   phone: 'phone',
   doctor: 'doctor',
-  admission_date: 'admission_date',
+  registration_date: 'registration_date',
   completeness: 'completeness',
 }[column.key])).filter(Boolean))
 
@@ -319,7 +320,7 @@ const tableFilters = computed(() => [
     placeholder: 'الفرز حسب',
     options: [
       { value: 'name', label: 'الاسم' },
-      { value: 'admission_date', label: 'تاريخ الإضافة' },
+      { value: 'registration_date', label: 'تاريخ التسجيل' },
       { value: 'updated_at', label: 'آخر تحديث' },
     ],
   },
@@ -405,8 +406,8 @@ function missingFieldsLabel(fields = []) {
     gender: 'الجنس',
     national_id: 'الرقم الوطني',
     phone: 'الهاتف',
-    doctor: 'الطبيب المسؤول',
-    admission_date: 'تاريخ الإضافة',
+    doctor: 'فريق الرعاية',
+    registration_date: 'تاريخ التسجيل',
   }
   return fields.length ? `الحقول الناقصة: ${fields.map((field) => labels[field] || field).join('، ')}` : 'الملف مكتمل'
 }

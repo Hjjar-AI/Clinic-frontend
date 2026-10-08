@@ -10,13 +10,13 @@
     <span>|</span>
     <span><strong>س.م:</strong> {{ dobYear || NOT_SPECIFIED }}</span>
     <span v-if="age">|</span>
-    <span v-if="age"><strong>العمر:</strong> {{ age }} سنة</span>
+    <span v-if="age"><strong>العمر التقريبي:</strong> {{ age }} سنة</span>
     <span>|</span>
     <span><strong>الجنس:</strong> {{ gender || NOT_SPECIFIED }}</span>
     <span>|</span>
     <span><strong>📞</strong> <bdi dir="ltr">{{ phoneDisplay }}</bdi></span>
     <span>|</span>
-    <span><strong>تاريخ الإضافة:</strong> <bdi dir="ltr">{{ normalizedAdmission }}</bdi></span>
+    <span><strong>تاريخ التسجيل:</strong> <bdi dir="ltr">{{ normalizedAdmission }}</bdi></span>
   </div>
   <div
     v-else
@@ -41,15 +41,15 @@
               {{ displayName }}
             </h2>
             <p class="text-xs text-muted">
-              رقم الملف: <bdi dir="ltr">#{{ patientId }}</bdi>
+              رقم الملف: <bdi dir="ltr">{{ patientNumber || patientId }}</bdi>
             </p>
             <div class="flex flex--wrap gap-2 mt-2 text-xs text-soft">
               <span><strong>الهاتف:</strong> <bdi dir="ltr">{{ phoneDisplay }}</bdi></span>
               <span><strong>الرقم الوطني:</strong> <bdi dir="ltr">{{ nationalIdDisplay }}</bdi></span>
               <span><strong>س.م:</strong> {{ dobYear || NOT_SPECIFIED }}</span>
-              <span v-if="age"><strong>العمر:</strong> {{ age }} سنة</span>
+              <span v-if="age"><strong>العمر التقريبي:</strong> {{ age }} سنة</span>
               <span><strong>الجنس:</strong> {{ gender || NOT_SPECIFIED }}</span>
-              <span><strong>تاريخ الإضافة:</strong> <bdi dir="ltr">{{ normalizedAdmission }}</bdi></span>
+              <span><strong>تاريخ التسجيل:</strong> <bdi dir="ltr">{{ normalizedAdmission }}</bdi></span>
             </div>
           </div>
         </div>
@@ -96,6 +96,7 @@ import { fullName } from '@/utils/normalize';
 
 const props = defineProps({
   patientId: [Number, String],
+  patientNumber: String,
   firstName: String,
   surname: String,
   phone: String,

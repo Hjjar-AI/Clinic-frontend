@@ -35,6 +35,10 @@
           </div>
         </CollapsibleSection>
 
+        <CollapsibleSection title="البيانات الموصى باستكمالها" icon="user">
+          <p>اختيار هذه البيانات يحسب اكتمال الملف فقط؛ لا يجعلها إلزامية عند التسجيل.</p>
+          <MultiSelect v-model="form.patient_completeness_fields" :options="completenessOptions" />
+        </CollapsibleSection>
         <CollapsibleSection
           title="الإشعارات والتذكيرات"
           icon="bell"
@@ -161,6 +165,7 @@ import { onMounted, ref, watch } from 'vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
 import FormField from '@/components/ui/FormField.vue'
+import MultiSelect from '@/components/ui/MultiSelect.vue'
 import FormInput from '@/components/ui/FormInput.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
@@ -178,6 +183,7 @@ const authStore = useAuthStore()
 const { notify } = useNotify()
 const { confirm } = useConfirmDialog()
 
+const completenessOptions = [{value:'dob_year',label:'سنة الميلاد'},{value:'gender',label:'الجنس'},{value:'registration_date',label:'تاريخ التسجيل'},{value:'national_id',label:'الرقم الوطني'},{value:'phone',label:'الهاتف'},{value:'care_team',label:'فريق الرعاية'},{value:'preferred_language',label:'اللغة المفضلة'}]
 const allowDemoData = ref(false)
 const form = ref({
   clinic_name: '',
@@ -186,6 +192,7 @@ const form = ref({
   appointment_reminder_days: 1,
   appointment_reminder_hours: 1,
   task_reminder_days: 1,
+  patient_completeness_fields: ['dob_year','gender','registration_date'],
 })
 const isDirty = ref(false)
 
