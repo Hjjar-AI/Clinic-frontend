@@ -102,6 +102,7 @@ test('operational pages render with the real API in light and dark themes', asyn
   test.setTimeout(120000)
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
+  page.on('console', message => { if (message.type() === 'error' && message.text().includes('[ErrorBoundary]')) errors.push(message.text()) })
   await login(page)
   for (const path of ['/patients', '/visits', '/appointments', '/tasks', '/diagnoses', '/medications', '/scales', '/invoices', '/templates', '/users', '/reports/statistics', '/settings', '/backup', '/import']) {
     await page.goto(path)
@@ -109,7 +110,8 @@ test('operational pages render with the real API in light and dark themes', asyn
     await expect(page.locator('#main-content')).toBeVisible()
     await expect(page.getByRole('button', { name: 'تبديل الوضع الداكن' })).toBeVisible()
     await expect(page.locator('.page-wrapper__skeleton')).toHaveCount(0)
-    await expect(page.locator('.error-state-card')).toHaveCount(0)
+    await expect(page.locator('.error-state-card, .error-boundary-card')).toHaveCount(0)
+    await expect(page.locator('table .skeleton')).toHaveCount(0)
     await expect(page.getByText('[object Object]', { exact: true })).toHaveCount(0)
     expect(errors, path).toEqual([])
   }
@@ -122,8 +124,8 @@ test('new users and templates save without an unsaved-changes prompt', async ({ 
   await login(page)
   await page.goto('/users/new')
   await page.getByRole('textbox', { name: 'اسم المستخدم', exact: true }).fill(`synthetic_${testInfo.project.name}`)
-  await page.getByLabel('كلمة المرور', { exact: false }).first().fill(password)
-  await page.getByLabel('تأكيد كلمة المرور', { exact: false }).fill(password)
+  await page.locator('form input[type="password"]').nth(0).fill(password)
+  await page.locator('form input[type="password"]').nth(1).fill(password)
   await page.getByRole('button', { name: 'حفظ', exact: true }).click()
   await expect(page).toHaveURL(/\/users$/)
   await expect(page.getByRole('dialog')).toHaveCount(0)

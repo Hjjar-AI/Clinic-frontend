@@ -21,7 +21,7 @@
       >
         <template #patient_name="{ item }">
           <router-link
-            :to="{ name: 'PatientDetail', params: { id: item.patient_id } }"
+            :to="{ name: 'PatientDetail', params: { id: item.patient?.id ?? item.patient_id } }"
             class="text-primary font-semibold"
           >
             {{ item.patient?.full_name || item.patient_name }}

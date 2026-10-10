@@ -160,3 +160,8 @@ describe('modal ownership', () => {
     expect(wrapper.emitted('update:modelValue')[0]).toEqual([false])
   })
 })
+
+it('table accepts the shared selection Set and marks row/header selections', () => {
+  const wrapper = mount(DataTable, { props: { columns: [{ key: 'name', label: 'Name' }], items: [{ id: 1, name: 'Synthetic' }], selectable: true, selectedIds: new Set([1]) } })
+  expect(wrapper.findAll('input[type=checkbox]').every(input => input.element.checked)).toBe(true)
+})

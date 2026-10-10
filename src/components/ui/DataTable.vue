@@ -149,7 +149,7 @@ const props = defineProps({
   loading: Boolean,
   loadingMore: Boolean,
   selectable: Boolean,
-  selectedIds: { type: Array, default: () => [] },
+  selectedIds: { type: [Array, Set], default: () => [] },
   selectedId: { type: [Number, String], default: null },
   skeletonRows: { type: Number, default: 3 },
   emptyType: { type: String, default: 'default' },
@@ -182,11 +182,11 @@ const totalColumns = computed(() => {
 })
 
 const allSelected = computed(() => {
-  return safeItems.value.length > 0 && safeItems.value.every(item => props.selectedIds.includes(item.id))
+  return safeItems.value.length > 0 && safeItems.value.every(item => isSelected(item.id))
 })
 
 function isSelected(id) {
-  return props.selectedIds.includes(id)
+  return props.selectedIds instanceof Set ? props.selectedIds.has(id) : props.selectedIds.includes(id)
 }
 
 function onFilterUpdate(newFilters) {
