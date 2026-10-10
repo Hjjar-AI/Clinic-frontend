@@ -1,6 +1,8 @@
 # Completed work
 
-Updated: 2026-10-08.
+Updated: 2026-10-11.
+
+- Automated test suite (2026-10-11): **110 Node tests**, **33 Vue DOM/import checks** (all 36 feature views resolve), and **21 Chromium browser cases** across desktop/tablet/mobile passed. Actual session/API tests cover patient creation/reload/unknowns, signing, permissions, stale writes/replay, user/template saves, 14 operational pages and dark-mode switching. Fixed evidenced multipart/search/unread-count/auth/form/dirty-save/locale/statistics/visit-link/selection regressions. Existing application/dependency versions and direct resolutions preserved; added test tooling/lock entries explicitly authorized. No production build. [Commands, matrix and limits](testing.md). Historical shell findings and untested interactions remain separately tracked.
 
 - Shell/navigation interaction review: 8 additional findings (floating width growth, search races/empty-state geometry, notification state/polling/closure, section highlighting, background loading, persistent patient-name history), three responsive risks and fluidity recommendations. 16 isolated assertions/9 script parses; no application changes or browser rendering. [Review](shell-navigation-review.md).
 
