@@ -136,7 +136,7 @@ export function useDate() {
       FlatpickrModule = await import('flatpickr')
       try {
         const arModule = await import('flatpickr/dist/l10n/ar.js')
-        ArabicLocale = arModule.default || arModule
+        ArabicLocale = arModule.Arabic || arModule.default?.Arabic || arModule.default?.ar || arModule.default?.default?.ar || null
       } catch {
         ArabicLocale = null
       }
@@ -147,7 +147,7 @@ export function useDate() {
   }
 
   function getFlatpickrDefaults(overrides = {}) {
-    const locale = ArabicLocale ? 'ar' : undefined
+    const locale = ArabicLocale || 'default'
     return {
       dateFormat: 'd/m/Y',
       disableMobile: true,

@@ -43,7 +43,7 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     try {
       const data = await authService.getMe()
-      if (data?.user) {
+      if (data?.user && (data.user.id || data.user.username)) {
         user.value = data.user
       } else {
         user.value = null

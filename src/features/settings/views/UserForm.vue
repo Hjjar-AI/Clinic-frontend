@@ -143,6 +143,7 @@ const { execute: execSubmit } = useApi(
       await userService.create(payload)
     }
 
+    markClean()
     router.push({ name: 'Users' })
   },
   { silent: true }

@@ -24,9 +24,9 @@ test('protected routes redirect guests; password visibility and rejected login',
 test('admin creates a patient with unknown demographics and can reopen the record', async ({ page }, testInfo) => {
   await login(page)
   await page.goto('/patients/new')
-  await page.getByLabel('الاسم الأول', { exact: true }).fill('اصطناعي')
+  await page.getByRole('textbox', { name: 'الاسم الأول', exact: true }).fill('اصطناعي')
   const surname = `متصفح ${testInfo.project.name}`
-  await page.getByLabel('اسم العائلة / الكنية', { exact: true }).fill(surname)
+  await page.getByRole('textbox', { name: 'اسم العائلة / الكنية', exact: true }).fill(surname)
   await page.getByRole('button', { name: 'حفظ وإنشاء الملف' }).click()
   await expect(page).toHaveURL(/\/patients\/\d+$/)
   await expect(page.getByText(surname, { exact: false }).first()).toBeVisible()
@@ -57,15 +57,79 @@ test('real API preserves CSRF, idempotency replay, and optimistic concurrency', 
   const replay = await page.request.post('/api/v1/patients/', { data, headers })
   expect(await replay.json()).toEqual(body)
   const missing = await page.request.patch(`/api/v1/patients/${patient.id}/`, {
-    data: { surname: 'تغيير' }, headers: { 'X-CSRFToken': csrf, 'X-Idempotency-Key': `missing-${Date.now()}` },
+    data: { occupation: 'Synthetic job' }, headers: { 'X-CSRFToken': csrf, 'X-Idempotency-Key': `missing-${Date.now()}` },
   })
-  expect(missing.status()).toBe(428)
+  expect(missing.status()).toBe(400)
+  expect((await missing.json()).error.errors.version).toBeDefined()
   const updated = await page.request.patch(`/api/v1/patients/${patient.id}/`, {
-    data: { surname: 'تغيير' }, headers: { 'X-CSRFToken': csrf, 'X-Idempotency-Key': `update-${Date.now()}`, 'If-Match': String(patient.version) },
+    data: { occupation: 'Synthetic job' }, headers: { 'X-CSRFToken': csrf, 'X-Idempotency-Key': `update-${Date.now()}`, 'If-Match': String(patient.version) },
   })
   expect(updated.status()).toBe(200)
   const stale = await page.request.patch(`/api/v1/patients/${patient.id}/`, {
-    data: { surname: 'قديم' }, headers: { 'X-CSRFToken': csrf, 'X-Idempotency-Key': `stale-${Date.now()}`, 'If-Match': String(patient.version) },
+    data: { occupation: 'Stale job' }, headers: { 'X-CSRFToken': csrf, 'X-Idempotency-Key': `stale-${Date.now()}`, 'If-Match': String(patient.version) },
   })
   expect(stale.status()).toBe(409)
+})
+
+test('visit signing requires confirmation and locks the ordinary edit action', async ({ page }) => {
+  await login(page)
+  const csrf = (await page.context().cookies()).find(cookie => cookie.name === 'csrftoken').value
+  const writeHeaders = () => ({ 'X-CSRFToken': csrf, 'X-Idempotency-Key': crypto.randomUUID() })
+  const response = await page.request.post('/api/v1/patients/', {
+    data: { first_name: 'زيارة', surname: 'اصطناعية' }, headers: writeHeaders(),
+  })
+  expect(response.status()).toBe(201)
+  const patient = (await response.json()).data
+  const created = await page.request.post(`/api/v1/patients/${patient.id}/visits/`, {
+    data: { visit_date: '2026-10-11', main_complaints: 'Synthetic browser complaint' }, headers: writeHeaders(),
+  })
+  expect(created.status()).toBe(201)
+  const visit = (await created.json()).data
+  await page.goto(`/visits/${visit.id}`)
+  await page.getByRole('button', { name: 'اعتماد الزيارة', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'نعم', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'اعتماد الزيارة', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'فتح تعديل موثق', exact: true })).toBeVisible()
+  const signed = await page.request.get(`/api/v1/visits/${visit.id}/`)
+  expect((await signed.json()).data.status).toBe('final')
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'فتح تعديل موثق', exact: true })).toBeVisible()
+})
+
+test('operational pages render with the real API in light and dark themes', async ({ page }) => {
+  test.setTimeout(120000)
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  await login(page)
+  for (const path of ['/patients', '/visits', '/appointments', '/tasks', '/diagnoses', '/medications', '/scales', '/invoices', '/templates', '/users', '/reports/statistics', '/settings', '/backup', '/import']) {
+    await page.goto(path)
+    await expect(page).toHaveURL(new RegExp(`${path}$`))
+    await expect(page.locator('#main-content')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'تبديل الوضع الداكن' })).toBeVisible()
+    await expect(page.locator('.page-wrapper__skeleton')).toHaveCount(0)
+    await expect(page.locator('.error-state-card')).toHaveCount(0)
+    await expect(page.getByText('[object Object]', { exact: true })).toHaveCount(0)
+    expect(errors, path).toEqual([])
+  }
+  await page.getByRole('button', { name: 'تبديل الوضع الداكن' }).click()
+  await expect(page.locator('body')).toHaveClass(/dark-mode/)
+  expect(errors).toEqual([])
+})
+
+test('new users and templates save without an unsaved-changes prompt', async ({ page }, testInfo) => {
+  await login(page)
+  await page.goto('/users/new')
+  await page.getByRole('textbox', { name: 'اسم المستخدم', exact: true }).fill(`synthetic_${testInfo.project.name}`)
+  await page.getByLabel('كلمة المرور', { exact: false }).first().fill(password)
+  await page.getByLabel('تأكيد كلمة المرور', { exact: false }).fill(password)
+  await page.getByRole('button', { name: 'حفظ', exact: true }).click()
+  await expect(page).toHaveURL(/\/users$/)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.goto('/templates/new')
+  await page.getByRole('textbox', { name: 'اسم القالب', exact: true }).fill(`قالب ${testInfo.project.name}`)
+  await page.getByRole('button', { name: 'حفظ القالب' }).click()
+  await expect(page).toHaveURL(/\/templates$/)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
 })

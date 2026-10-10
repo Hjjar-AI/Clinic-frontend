@@ -168,6 +168,7 @@ const { execute: execSubmit } = useApi(
       await templateService.create(payload)
     }
 
+    markClean()
     router.push({ name: 'Templates' })
   },
   { silent: true }

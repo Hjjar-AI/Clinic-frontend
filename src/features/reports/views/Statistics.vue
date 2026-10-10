@@ -53,8 +53,8 @@ const kpiItems = computed(() => [
 const secondKpiItems = computed(() => [
   { icon: 'stethoscope', label: 'إجمالي الزيارات', value: toArabic(stats.total_visits), type: 'visits' },
   { icon: 'calendar-alt', label: 'المواعيد', value: toArabic(stats.total_appointments), type: 'appointments' },
-  { icon: 'pills', label: 'أكثر دواء', value: toArabic(topMedicationCount), subtitle: topMedicationName, type: 'warning' },
-  { icon: 'diagnoses', label: 'أكثر تشخيص', value: toArabic(topDiagnosisCount), subtitle: topDiagnosisName, type: 'danger' },
+  { icon: 'pills', label: 'أكثر دواء', value: toArabic(topMedicationCount.value), subtitle: topMedicationName.value, type: 'warning' },
+  { icon: 'diagnoses', label: 'أكثر تشخيص', value: toArabic(topDiagnosisCount.value), subtitle: topDiagnosisName.value, type: 'danger' },
 ])
 
 const topMedication = computed(() => {

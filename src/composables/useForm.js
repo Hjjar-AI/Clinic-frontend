@@ -83,10 +83,10 @@ function buildYupSchema(schemaRules) {
 
     if (rule.custom) {
       const msg = rule.message || 'قيمة غير صالحة'
-      fieldSchema = fieldSchema.test('custom', msg, (value) => {
+      fieldSchema = fieldSchema.test('custom', msg, (value, context) => {
         const result = rule.custom(value)
         if (typeof result === 'string' && result.length > 0) {
-          return new yup.ValidationError(result)
+          return context.createError({ message: result })
         }
         return true
       })
@@ -175,7 +175,7 @@ export function useForm(initialData, { schema = null, validateOn = 'blur' } = {}
   function clearErrors() {
     for (const key of Object.keys(fieldErrors)) fieldErrors[key] = ''
     for (const key of Object.keys(fieldStates)) fieldStates[key] = ''
-    veeForm.setErrors({})
+    for (const key of Object.keys(veeForm.errors.value)) veeForm.setFieldError(key, undefined)
   }
 
   function scrollToFirstError() {

@@ -174,6 +174,7 @@ const { execute: execSubmit } = useApi(
       await invoiceService.create(payload)
     }
 
+    markClean()
     router.push({ name: 'InvoicesList' })
   },
   { silent: true }

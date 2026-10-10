@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { defineComponent, nextTick } from 'vue'
+import { useDate } from '@/composables/useDate'
 import { useForm } from '@/composables/useForm'
 import { firstNameRule, surnameRule, phoneRule, nationalIdRule } from '@/utils/validationRules'
 import PatientFormDemographics from '@/features/patients/components/PatientFormDemographics.vue'
@@ -79,4 +80,18 @@ describe('overlay ownership', () => {
       expect(hasActiveOverlay()).toBe(false)
     } finally { releaseHigh(); releaseLow() }
   })
+})
+
+it('date picker uses an explicit Arabic locale without relying on global registration', async () => {
+  const date = useDate()
+  await date.loadFlatpickr()
+  const defaults = date.getFlatpickrDefaults()
+  expect(defaults.locale.weekdays.longhand[0]).toBe('الأحد')
+  const input = document.createElement('input'); document.body.append(input)
+  const picker = await date.initDatePicker(input)
+  try {
+    expect(picker.l10n.weekdays.longhand[0]).toBe('الأحد')
+    picker.setDate('11/10/2026')
+    expect(input.value).toBe('11/10/2026')
+  } finally { picker?.destroy() }
 })

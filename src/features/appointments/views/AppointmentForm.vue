@@ -220,6 +220,7 @@ const { execute: execSubmit } = useApi(
       await appointmentStore.createAppointment(payload)
     }
 
+    isDirty.value = false
     router.push('/appointments')
   },
   { silent: true }

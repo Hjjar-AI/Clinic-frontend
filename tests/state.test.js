@@ -222,3 +222,11 @@ test('notification mutations keep unread count aligned with actual unread rows',
   assert.equal(store.unreadCount, 0)
   store.stopPolling()
 })
+
+test('session restore rejects anonymous-looking user payloads', async () => {
+  respond({ data: { user: { id: null, username: '', permissions: [] } } })
+  const auth = useAuthStore()
+  await auth.fetchMe()
+  assert.equal(auth.isAuthenticated, false)
+  assert.equal(auth.sessionChecked, true)
+})

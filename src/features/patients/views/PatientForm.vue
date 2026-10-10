@@ -173,9 +173,11 @@ const { execute } = useApi(async () => {
   if (isEdit) {
     payload.version = form.version
     await patientStore.updatePatient(route.params.id, payload)
+    markClean()
     router.push({ name: 'PatientDetail', params: { id: route.params.id } })
   } else {
     const newPatient = await patientStore.createPatient(payload)
+    markClean()
     router.push({ name: 'PatientDetail', params: { id: newPatient.id } })
   }
 }, { silent: true })
