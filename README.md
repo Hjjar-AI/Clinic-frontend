@@ -102,3 +102,8 @@ Login failures: check Django, proxy, cookies, CSRF bootstrap. Stale edits: refre
 References: [documentation index](../backend/docs/README.md), [backend implementation notes](../backend/docs/backend-fixes-implementation.md). Unverified: browser workflows, PDF/Arabic rendering, production database concurrency.
 
 Patient record design: [schema, API, duplicates and retention](../backend/docs/patient-record-schema.md).
+
+
+## Automated tests
+
+Repeatable commands, isolation, coverage and verification limits: [test suite guide](docs/testing.md).
