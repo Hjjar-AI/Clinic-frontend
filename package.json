@@ -12,7 +12,13 @@
     "format": "prettier --write .",
     "bump:patch": "pnpm version patch",
     "bump:minor": "pnpm version minor",
-    "bump:major": "pnpm version major"
+    "bump:major": "pnpm version major",
+    "test": "pnpm test:unit && pnpm test:components",
+    "test:coverage": "node --import ./tests/setup.js --experimental-test-coverage --test --test-isolation=none --test-coverage-include=\"src/**/*.js\" tests/*.test.js",
+    "test:unit": "node --import ./tests/setup.js --test --test-isolation=none tests/*.test.js",
+    "test:components": "vitest run",
+    "test:e2e": "playwright test",
+    "test:all": "pnpm test && pnpm test:e2e"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.3.0",
@@ -33,16 +39,20 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.0",
     "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.5.1",
     "eslint": "^10.10.0",
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-vue": "^10.10.0",
     "eslint-plugin-vuejs-accessibility": "^2.6.0",
     "globals": "^17.12.0",
+    "jsdom": "^30.1.2",
     "prettier": "^3.9.6",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^32.1.0",
     "vite": "^8.0.16",
+    "vitest": "^5.0.3",
     "vue-eslint-parser": "^10.3.0"
   },
   "engines": {

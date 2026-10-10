@@ -85,7 +85,7 @@ export const useNotificationStore = defineStore('notifications', () => {
   async function markRead(id) {
     await notificationService.markRead(id)
     const idx = notifications.value.findIndex(n => n.id === id)
-    if (idx > -1) {
+    if (idx > -1 && !notifications.value[idx].is_read) {
       notifications.value[idx].is_read = true
       unreadCount.value = Math.max(0, unreadCount.value - 1)
     }

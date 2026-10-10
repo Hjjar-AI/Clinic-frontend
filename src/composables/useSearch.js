@@ -1,7 +1,6 @@
 // frontend/src/composables/useSearch.js
-import { ref } from 'vue'
+import { getCurrentScope, onScopeDispose, ref } from 'vue'
 
-import { debounce } from '@/utils'
 
 /**
  * Unified search composable with optional debounce.
@@ -18,14 +17,14 @@ export function useSearch(searchFn, { delay = 300, minLength = 2 } = {}) {
   const loading = ref(false)
   const error = ref(null)
   let seq = 0
+  let pendingTimer = null
 
-  const performSearch = async () => {
-    const currentQuery = query.value.trim()
+  const performSearch = async (currentQuery, currentSeq) => {
+    if (currentSeq !== seq) return
     if (currentQuery.length < minLength) {
       results.value = []
       return
     }
-    const currentSeq = ++seq
     loading.value = true
     error.value = null
     try {
@@ -45,19 +44,31 @@ export function useSearch(searchFn, { delay = 300, minLength = 2 } = {}) {
     }
   }
 
-  const debouncedPerform = delay > 0 ? debounce(performSearch, delay) : performSearch
-
   function onInput(value) {
     query.value = value
-    debouncedPerform()
+    const currentSeq = ++seq
+    clearTimeout(pendingTimer)
+    const currentQuery = value.trim()
+    loading.value = false
+    error.value = null
+    if (currentQuery.length < minLength) {
+      results.value = []
+      return
+    }
+    if (delay > 0) pendingTimer = setTimeout(() => performSearch(currentQuery, currentSeq), delay)
+    else performSearch(currentQuery, currentSeq)
   }
 
   function clear() {
+    seq++
+    clearTimeout(pendingTimer)
     query.value = ''
     results.value = []
     loading.value = false
     error.value = null
   }
+
+  if (getCurrentScope()) onScopeDispose(clear)
 
   return { query, results, loading, error, onInput, clear }
 }

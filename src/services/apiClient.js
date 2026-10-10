@@ -112,6 +112,9 @@ apiClient.isCancel = axios.isCancel
 // Interceptor to ensure trailing slash, convert limit→per_page,
 // and optionally add idempotency key if provided by caller.
 apiClient.interceptors.request.use(config => {
+  // Keep multipart bodies intact; Axios supplies the browser boundary.
+  if (config.data instanceof FormData) config.headers.delete('Content-Type')
+
   // Append trailing slash to path if not already present, but preserve query string
   if (config.url) {
     const [pathPart, queryPart] = config.url.split('?')
