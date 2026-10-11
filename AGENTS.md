@@ -18,18 +18,18 @@
 - Vue/Vite: features in `src/features/`, shared UI in `src/components/`, state in `src/stores/`, API integration in `src/services/`. Use `@/` imports and established Arabic UI patterns.
 - Vite: `5173`; `/api` proxies to Django at `5019`. Browser API: `/api/v1`; assets: `/static/`; router history: `/`.
 - Use the shared API client/feature services. Preserve session credentials, login CSRF bootstrap, response envelopes, opening resource versions/`If-Match`, and operation keys across uncertain retries.
-- Patient UI/API: [schema and retention](../backend/docs/patient-record-schema.md); keep optional year-only birth, unchanged IDs/nonblocking duplicate review, explicit optional merge/access confirmation, clinical unknowns, dated team history, and opening parent versions for longitudinal records.
+- Patient UI/API: [schema and retention](../backend/docs/contracts/patients.md); keep optional year-only birth, unchanged IDs/nonblocking duplicate review, explicit optional merge/access confirmation, clinical unknowns, dated team history, and opening parent versions for longitudinal records.
 - Preserve permission-aware navigation, conflict refresh, import/restore previews/scope confirmations, and signed-visit document issuance. Backend authorization remains authoritative.
 
 ## CSS, layout, and RTL
 
-- Follow [CSS organization](docs/css-organization.md): shared CSS in `public/static/css/`, grouped by responsibility with kebab-case filenames and one ordered `app.css` entry point. Preserve cascade/third-party order and early font/skeleton links in `index.html`.
+- Follow [CSS organization](docs/ui/css.md): shared CSS in `public/static/css/`, grouped by responsibility with kebab-case filenames and one ordered `app.css` entry point. Preserve cascade/third-party order and early font/skeleton links in `index.html`.
 - Aim for coherent shared modules of 50–200 readable lines; review above 250 lines or 12 KiB. These are project guidelines, not CSS standards. Split/merge by ownership/purpose; do not fragment coherent tokens/themes or combine unrelated rules to meet counts.
 - Keep component CSS in mirrored `src/styles/` paths via external `<style scoped src="...">`. Preserve scoping/deep selectors; tiny owned files are acceptable. Matching selectors alone do not justify merging global/scoped rules.
 - Externalize nonessential static inline styles; retain runtime geometry/data bindings (floating coordinates, progress widths, chart heights, data-driven columns/colors).
 - Use logical properties and start/end alignment for RTL/LTR. Explicitly check directional icons, transforms, drawers, floating panels, and calendar geometry; browsers do not reverse everything automatically.
 - The shell owns page gutters; `PageContainer` owns standard/wide/form width constraints. Avoid duplicate padding/competing max-width overrides; allow grid/flex children to shrink and check distribution, wrapping, tables, and navigation at narrow widths.
-- Use semantic tokens with noncyclic theme dependencies and literal media breakpoints, not CSS custom properties. Preserve light/dark and Arabic readability; consult the [layout/RTL fixes record](docs/design-rtl-fixes.md) for existing behavior/pending rendered checks.
+- Use semantic tokens with noncyclic theme dependencies and literal media breakpoints, not CSS custom properties. Preserve light/dark and Arabic readability; consult the [layout/RTL fixes record](docs/ui/layout.md) for existing behavior/pending rendered checks.
 
 ## Verification and privacy
 

@@ -1,39 +1,24 @@
-# Completed work
+# Completed frontend work and verification
 
-Updated: 2026-10-11.
+Recorded verification: 2026-10-11; documentation organization checked separately, without rerunning application tests.
 
-- Frontend interaction expansion (2026-10-11): **172 Vue DOM/import, 110 Node and 193 backend cases passed; all 96 Chromium scenarios verified across runs**. Added 63 component/store regressions covering charts, floating/search/dropdown panels, keyboard/overlay focus, catalog/admin/scale/date forms and controlled selection replacement. Corrected evidenced search/geometry/privacy, notification lifecycle/polling, button visibility-transition, modal edit/save and password/date regressions. Full Chromium run: 95 passed, one mobile chart timeout exposed paired calendar dismissal. After the Escape correction, all six search/chart cases passed across desktop/tablet/mobile (52.7 seconds); the remaining 90 cases passed in the full run. Full Vue suite passed 172 cases, followed by 12 passing focused date/search regressions after the calendar correction. The complete 96-case browser run was not repeated. Synthetic database/media only; no build, migration-file, clinic-data, dependency/version or lockfile changes. [Coverage/fixes/limits](frontend-interaction-verification.md).
+| Layer | Recorded outcome / limit |
+| --- | --- |
+| Node services/state | **110 passed**; imported production JS, not whole-app coverage. |
+| Vue DOM/import | **172 passed**, including all 36 feature-view imports; **12 focused date/search checks passed** after the last calendar fix. Full 172 suite not repeated after that correction. |
+| Chromium Arabic RTL | **96 distinct scenarios verified across runs** at 1280×800, 768×1024, 390×844. Full run: **95 passed / one mobile chart timeout**. After paired-calendar Escape fix, six search/chart cases passed across viewports; other 90 passed in the full run. No automatic retries; complete 96 not repeated after final fix. |
+| Backend | **193 passed**, Python 3.14.4 / Django 6.1.2 / DRF 3.18.3; installed runtime differs from pins. |
+| PDF appearance | **6 earlier checks passed**, five long templates plus 18 downloaded/printed artifacts; inspector not rerun during latest interaction expansion. [Record](../../backend/docs/testing/pdf.md). |
 
-- Testing continuation: **193 backend / 110 Node / 109 Vue DOM/import / 66 Chromium cases passed**. Added 19 task/notification HTTP, 32 rendered task/notification/availability and six browser cases. Fixed nonexistent task-store create actions, invalid empty optional due dates, stale task rows/filter results after successful mutations, and pending availability surviving cleared context. Full Chromium matrix passed without retries in 7.6 minutes across desktop/tablet/mobile. Backend ran on existing Python 3.14.4 / Django 6.1.2 / DRF 3.18.3 with isolated synthetic data. No production build, migration-file, clinic-data, dependency/version or lockfile changes; preserved existing `dist/index.html` edit. PDF appearance inspector was not rerun; earlier results remain historical. PostgreSQL concurrency/pinned runtime/other engines/LTR/exhaustive UI checks remain pending. [Commands, coverage and limitations](testing.md).
+Frontend runtime: Node 24.21.0 / Chromium 156. Test runs use synthetic SQLite/media and real isolated API; jsdom has no layout. No production build or clinic-data/version/lockfile changes during the latest expansions. Initial test tooling/necessary lock entries were separately authorized.
 
-- Requested PDF/full-workflow expansion (2026-10-11): **174 backend / 110 Node / 77 Vue / 60 Chromium / 6 PDF appearance checks passed**. All requested UI workflows run against the real isolated API in three viewports; full ZIP recovery preserves signed revisions, issued-document checksums, paid timestamps and media, and revokes the old session. Reviewed actual downloads and long synthetic documents for Arabic typography, embedded fonts, A4 bounds and page breaks. Fixed evidenced visit unknown-risk/save navigation, router-link/native-click, decimal input/currency, PNG signature, restore precision and PDF font/direction/pagination defects. No production build, clinic-data, migration or dependency-version changes. [Verification and remaining limits](../../backend/docs/pdf-workflow-verification.md).
+| Completed source area | Behavior / authoritative record |
+| --- | --- |
+| Shared API/auth/forms | Session/CSRF, envelopes, opening versions, uncertain-retry keys, multipart/errors, permissions, validation/dirty-state corrections. [Coverage](testing/guide.md). |
+| Patient/clinical/import/recovery UI | Year-only/unknown demographics, records/corrections, dated team, optional duplicate review/merge, provenance, signed issuance, decimal billing, preview-bound imports/full restore. [Patient contract](../../backend/docs/contracts/patients.md), [PDF/workflows](../../backend/docs/testing/pdf.md). |
+| Shell/CSS/RTL | All original 15 design and 11 shell findings plus three responsive risks have source corrections; 20 scoped blocks externalized, ordered CSS ownership preserved. Selected RTL/browser checks now supplement earlier source/probes; broader rendering remains unverified. [Layout](ui/layout.md), [CSS](ui/css.md). |
+| Tasks/notifications/availability | Actual create action, null optional dates, refreshed rows/filters, stale availability cancellation; lifecycle/version/permission coverage. [Testing](testing/guide.md). |
+| Charts/panels/catalog/admin/focus | 63 additional component/store regressions and ten browser scenarios × three viewports; N1–N5/N8 addressed. [Interaction file map](testing/interactions.md). |
+| Documentation | Topic indexes, source-file correction tables and compact current/completed records replace duplicate historical reviews/plans. |
 
-- Test expansion (2026-10-11): added **41 rendered component tests** for patient records/team/documents/duplicate merge, diagnosis/medication preview-bound imports, recovery scope/consent, billing and appointment forms. Full **110 Node tests + 74 Vue DOM/import checks passed**, including all 36 feature views. Seven additional browser scenarios passed in all three viewports: **42 Chromium cases passed** (21 added). Corrected two CSS declarations that caused mobile sticky-header interception and overlapping tab labels; regression tests use ordinary clicks and assert actual overflow/header geometry. Backend full suite: **173 tests passed**, including 34 new patient HTTP cases and three renderer regressions plus two throttle HTTP checks. Frontend source changes are limited to those two CSS declarations; versions and lockfiles are preserved; test caches/tooling remain in `/tmp`, no production build or clinic-data changes. [Coverage and commands](testing.md).
-
-- Automated test suite (2026-10-11): **110 Node tests**, **33 Vue DOM/import checks** (all 36 feature views resolve), and **21 Chromium browser cases** across desktop/tablet/mobile passed. Actual session/API tests cover patient creation/reload/unknowns, signing, permissions, stale writes/replay, user/template saves, 14 operational pages and dark-mode switching. Fixed evidenced multipart/search/unread-count/auth/form/dirty-save/locale/statistics/visit-link/selection regressions. Existing application/dependency versions and direct resolutions preserved; added test tooling/lock entries explicitly authorized. No production build. [Commands, matrix and limits](testing.md). Historical shell findings and untested interactions remain separately tracked.
-
-- Shell/navigation interaction review: 8 additional findings (floating width growth, search races/empty-state geometry, notification state/polling/closure, section highlighting, background loading, persistent patient-name history), three responsive risks and fluidity recommendations. 16 isolated assertions/9 script parses; no application changes or browser rendering. [Review](shell-navigation-review.md).
-
-- Patient expansion: Arabic profile preferences/year-only birth, optional current team assignment, nonblocking duplicate warnings, structured records with opening patient versions/history, separate documents/corrections/duplicates/team tabs, optional admin merge preview/confirmation, tri-state clinical facts, care-basis separation, action dashboard and configurable completeness. 23 scripts parsed; 196 isolated source/import/schema assertions passed; browser checks pending. [Schema/API](../../backend/docs/patient-record-schema.md), [verification](../../backend/docs/patient-record-verification.md).
-
-- Shell/layout implementation: fixed all 11 findings and three responsive risks; shared overlay ownership, viewport/banner/guest/print layout, retry, shortcuts, RTL controls and responsive forms. Consolidated duplicate clinical geometry. 23 scripts parsed, 18 template structures checked, 129 isolated assertions and 10 existing API version assertions passed; browser verification pending. See [implementation](shell-layout-fixes.md).
-
-- Original deep shell/layout/container review: 11 source findings, three rendering risks and ownership recommendations; 15 source/handler assertions passed, including drawer/modal focus conflict reproduction. Review-stage application sources unchanged; implementation now complete above; browser checks pending. See [review](shell-layout-review.md).
-
-- Backend second-pass integration: explicit care-team patient versions/refresh, corrected member name/role/removal fields, isolated nested document versions and id-less parent response versions. Five changed scripts parsed; 10 version-registry assertions passed. Browser flows remain unchecked; [backend record](../../backend/docs/backend-second-pass.md).
-
-- Enhanced/compacted both root agent guides: agreed limits, docs/handoff locations, review/fix workflow, verification boundaries, model/API and CSS/layout/RTL conventions.
-
-- Moved both projects' handoffs to `docs/`; retained root `README.md`/`AGENTS.md`, updated local/cross-project links. Compacted other Markdown, preserving technical content/verification history.
-
-- Reorganized CSS by purpose, ordered `app.css`, kebab-case names; split large layout/form/clinical/typography modules. Preserved scoping, early fonts/skeletons, shared rules/order, 20 scoped files. See [CSS organization](css-organization.md).
-
-- Fixed 15 layout/RTL findings/latent calendar issues; externalized 20 scoped blocks/static inline styling. Details: [design-rtl-fixes.md](design-rtl-fixes.md).
-- Passed JS syntax, CSS/reference/token audits, navigation/chart/floating probes; no app build/browser validation (local launch failed).
-- Integrated resource versions/`If-Match`, opening versions, retained idempotency keys for uncertain-network retries.
-- Updated referral POST, login CSRF bootstrap, import previews/restore scope.
-- Improved shared API duplicate mutations, structured JSON download errors, stale-edit conflicts.
-- Created both READMEs/compact handoffs; checked local links.
-- Prior checks: changed JS/Vue scripts parsed; no frontend builds/compilation/packaging/browser interactions or dependency/version changes.
-
-Details: [backend implementation record](../../backend/docs/backend-fixes-implementation.md). Unverified: [workCurrent.md](workCurrent.md).
+Remaining work and verification gaps: [current](workCurrent.md). Earlier isolated source/ORM probes establish implementation evidence, not broader browser/PostgreSQL guarantees.

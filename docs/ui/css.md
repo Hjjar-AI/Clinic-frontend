@@ -1,6 +1,6 @@
 # CSS organization
 
-[main.js](../src/main.js) imports shared [app.css](../public/static/css/app.css) once; import order defines cascade, followed by third-party CSS. Keep early fonts/skeletons separately linked in `index.html`.
+[main.js](../../src/main.js) imports shared [app.css](../../public/static/css/app.css) once; import order defines cascade, followed by third-party CSS. Keep early fonts/skeletons separately linked in `index.html`.
 
 | Location under `public/static/css/` | Responsibility |
 | --- | --- |
@@ -21,8 +21,4 @@ Use descriptive kebab-case; target 50–200 readable lines, review above 250 lin
 
 Add modules explicitly to `app.css` by cascade, not alphabetically: themes override tokens, features remain later, helpers may override components. Matching classes do not justify global/scoped merging. Inline bindings only for runtime coordinates/data-driven widths.
 
-Reorganization replaced root underscore-prefixed token/form/calendar/component names, removed `components_misc.css`, split large layout/form/clinical/typography files at section boundaries. Small related widgets stay grouped; extract further for ownership/reuse needs.
-
-Verified expanded shared selectors/declarations/quoted values/at-rules/order unchanged except comments/formatting; scoped contents byte-identical. Development scripts checked import graphs/references/sizes/delimiters/light-dark token dependencies. No build/compilation/browser rendering.
-
-Shell follow-up: duplicate visit/sidebar geometry now lives only in shared feature CSS; two scoped copies/imports removed. See [fixes](shell-layout-fixes.md).
+Source reorganization preserved expanded rules/cascade and byte-identical scoped contents; import/reference/delimiter/theme-cycle probes passed. Duplicate visit/sidebar geometry now belongs only to shared feature CSS; two redundant scoped copies were removed. Twenty scoped blocks were externalized; runtime geometry/data bindings remain inline. [Layout corrections](layout.md), [current runtime evidence](../doneCurrent.md). No production bundle was run.

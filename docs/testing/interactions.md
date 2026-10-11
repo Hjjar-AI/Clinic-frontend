@@ -1,6 +1,6 @@
 # Frontend interaction verification
 
-User-requested expansion, 2026-10-11. Tests use synthetic records, temporary SQLite/media, actual workspace Vue source and the real Django API. No production build, migration-file, clinic-data, application/dependency-version or lockfile changes.
+Tests use synthetic records, temporary SQLite/media, actual workspace Vue source and the real Django API. No production build, migration-file, clinic-data, application/dependency-version or lockfile changes.
 
 ## Added coverage
 
@@ -26,6 +26,6 @@ Eight new component files add 62 cases. One additional notification-store case v
 
 ## Results and limits
 
-Full component regression: **172 passed**; Node: **110 passed**; backend: **193 passed**. **All 96 browser scenarios verified across runs:** full run 95 passed/one mobile chart timeout; after paired-calendar Escape handling and the final ArrowUp check, six search/chart cases passed in all three viewports. The other 90 passed in the full run. Final date/search component rerun: 12 passed. A complete 96-case run after the final calendar correction was not repeated. Browser results are recorded in [completed work](doneCurrent.md); [test commands](testing.md). jsdom verifies DOM/contracts, not rendered geometry; chart component tests use a controlled Chart.js double, supplemented by real browser canvas interactions. Browser CRUD uses actual API responses rather than mocked routes. Existing PDF appearance results remain historical.
+Latest full/focused run counts and final-calendar rerun limits: [completed](../doneCurrent.md); [commands/file coverage](guide.md). jsdom verifies DOM/contracts, not rendered geometry; chart component tests use a controlled Chart.js double, supplemented by real browser canvas interactions. Browser CRUD uses actual API responses rather than mocked routes. Existing PDF appearance results remain historical.
 
-This matrix covers the listed interactions, not every CRUD permutation or an accessibility certification. Other browser engines, browser LTR, text zoom, native popup behavior, broader visual comparison, PostgreSQL concurrency and production bundles remain unverified. Historical navigation-section highlighting/background-loading findings N6/N7 and untested responsive risks remain open in [the shell review](shell-navigation-review.md).
+This matrix covers the listed interactions, not every CRUD permutation or an accessibility certification. Other browser engines, browser LTR, text zoom, native popup behavior, broader visual comparison, PostgreSQL concurrency and production bundles remain unverified. Historical navigation-section highlighting/background-loading findings N6/N7 and untested responsive risks remain open in [the shell review](../ui/navigation.md).
