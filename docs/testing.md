@@ -42,4 +42,43 @@ Existing application/dependency declarations and existing direct dependency reso
 
 ## Verification limits
 
-Latest run results and environment limitations are recorded in [completed work](doneCurrent.md). Node coverage reports imported JS only, not whole-application or Vue-template coverage; no 100% coverage claim or arbitrary threshold is imposed. The browser suite covers selected workflows and Arabic RTL viewports; it is not exhaustive visual/accessibility certification. Other browsers, LTR layouts, full chart/overlay interactions, every CRUD form, import/recovery UI, PDF typography/font assets, production bundles and PostgreSQL concurrent writers still need dedicated checks.
+Latest run results and environment limitations are recorded in [completed work](doneCurrent.md). Node coverage reports imported JS only, not whole-application or Vue-template coverage; no 100% coverage claim or arbitrary threshold is imposed. The browser suite covers selected workflows and Arabic RTL viewports; it is not exhaustive visual/accessibility certification. Other browsers, LTR layouts, full chart/overlay interactions, remaining CRUD forms, production bundles and PostgreSQL concurrent writers still need dedicated checks.
+
+## Workflow expansion (2026-10-11)
+
+Added **41 rendered component tests** in `tests/components/patient-workflows.spec.js`, `tests/components/import-recovery.spec.js`, `tests/components/billing-form.spec.js` and `tests/components/appointment-form.spec.js`. Together with the existing cases, these comprise **110 Node tests and 74 Vue DOM/import checks**, including all 36 feature-view imports. Combined execution results are recorded in the completed handoff.
+
+- Patient records: opening parent versions survive prop refreshes, stale errors retain drafts, corrections/retirement carry reasons, permission-aware kinds, archived/legacy record controls, paginated history and late-response suppression.
+- Care team: numeric member IDs, selected roles, parent versions, dated membership display and permission-aware management.
+- Documents: opening document versions, multipart file/provenance, rejected edits, archive cancellation/confirmation and archived-patient download controls.
+- Duplicate review/merge: optional dismissal, admin-only controls, required consent/reason and preview-bound source/target versions.
+- Diagnosis/medication imports: preview before commit, tokens bound to mappings/modes, reset after mode/mapping changes and failed-preview behavior. The failed-preview test explicitly captures Vue's application error handler; unhandled rejections are not ignored.
+- Recovery UI: file/clear confirmation, exact phrase and execution consent, preview tokens, explicit scopes and reset on scope changes. These DOM tests do not execute a real full restore.
+- Billing: actual forms/router and VeeValidate check fractional/zero amounts, computed totals, invalid submissions, opening invoice versions, normalized dates, optional visits, rejected saves and clean navigation. Assertions await completed asynchronous validation/mutations to prevent work leaking into subsequent cases.
+- Appointments: actual forms/router check cancellation reasons, completed-state transition restrictions, opening versions, normalized scheduling data, retained drafts after rejection and clean navigation. The time-slot child is replaced only for these form-context tests; availability rendering is not established by this double.
+
+Added seven browser scenarios (`tests/e2e/patient-workflows.spec.js`), each passed in all three viewports: record correction/retirement/history, stale drafts, upload/download/metadata/archive, duplicate review, diagnosis import, care-team membership and optional merge. The full **42-case Chromium matrix passed** in the final run (5.1 minutes, no retries). It used the real workspace sources, isolated Django API, Chromium 156 and temporary caches/artifacts. The normal project configs were extended only in `/tmp` to accommodate read-only dependency directories; no production bundle was generated. Runtime/backend limits are in the [backend guide](../../backend/docs/testing.md).
+
+When the installed dependency directory is read-only, run the existing Node tests directly to avoid pnpm's automatic install check. Vitest can keep its token/cache in `/tmp` without changing the lockfile:
+
+```bash
+node --import ./tests/setup.js --test --test-isolation=none tests/*.test.js
+XDG_DATA_HOME=/tmp/clinic-test-tools node node_modules/vitest/vitest.mjs run \
+  --configLoader runner --cache=false --fsModuleCachePath /tmp/clinic-test-module-cache
+```
+
+The original native JS coverage figures remain historical measurements; this expansion did not recalculate coverage percentages.
+
+Real browser execution identified a backend 204-response framing defect: document archive committed but its JSON body broke the Vite proxy. The backend renderer correction is covered by empty-body/idempotent-replay regressions and the archive browser scenario. Aggregate browser traffic also required higher quotas only in the disposable backend fixture; production limits remain unchanged, with separate HTTP rate-enforcement tests.
+
+The mobile matrix also confirmed an oversized sticky patient header covering action buttons and shrinking tab labels overlapping. Two CSS declarations correct narrow-header scrolling and preserve tab widths; regression assertions check actual clickability, label overflow, mobile header positioning and whole-page overflow. [Findings and locations](design-rtl-fixes.md).
+
+## Complete clinical workflows and PDF/print (2026-10-11)
+
+The full **60-case Chromium matrix passed**, without retries, across desktop/tablet/mobile. Added booking/rescheduling, actual visit creation/signing/reasoned amendments, signature-based prescription/referral issuance, decimal invoice issuance/payment/export, patient and medication import wizards, and full ZIP download/preview/restore/relogin. Tests retain six PDFs per viewport when `CLINIC_PDF_ARTIFACT_DIR` is set. Three final print-font assertions also passed in a focused rerun. Full component suite: **77 Vue DOM/import checks**; Node suite remains **110 tests**. Shared control regressions check decimal step/native validity, click-event forwarding and router-link href, with a real visit payload test for clinical unknowns.
+
+```bash
+CLINIC_PDF_ARTIFACT_DIR=/tmp/clinic-browser-pdfs pnpm test:e2e
+```
+
+[Detailed PDF/workflow verification, defects corrected and remaining limits](../../backend/docs/pdf-workflow-verification.md).

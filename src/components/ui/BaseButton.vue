@@ -2,7 +2,7 @@
   <component
     :is="componentTag"
     :to="to"
-    :href="href"
+    v-bind="componentTag === 'a' ? { href } : {}"
     :type="componentTag === 'button' ? (to || href ? undefined : 'button') : undefined"
     class="btn"
     :class="[variantClass, sizeClass, { 'btn--loading': loading, 'btn--block': block }]"
@@ -73,7 +73,7 @@ const sizeClass = computed(() => {
 
 const confirmStore = useConfirmStore()
 
-async function handleClick() {
+async function handleClick(event) {
   if (props.confirmMessage) {
     const ok = await confirmStore.confirm(props.confirmMessage, {
       confirmText: props.confirmOkText,
@@ -87,7 +87,7 @@ async function handleClick() {
   }
 
   if (!props.to) {
-    emit('click')
+    emit('click', event)
   }
 }
 </script>

@@ -25,6 +25,7 @@
 @container (max-width: 640px) {
   .grid-2, .grid-3, .grid-4, .grid-5, .grid-6, .grid--profile { grid-template-columns: minmax(0, 1fr); }
   .patient-summary-sidebar { position: static; width: 100%; }
+  .patient-detail-wrapper > .patient-sticky-header { position: static; }
 }
 @container (max-width: 400px) {
   .kpi-grid--cols-4, .kpi-grid--cols-2 { grid-template-columns: minmax(0, 1fr); }

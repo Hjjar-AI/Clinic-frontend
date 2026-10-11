@@ -22,6 +22,7 @@
       :required="required"
       :autocomplete="autocomplete"
       :inputmode="inputmode"
+      :step="step"
       :aria-invalid="Boolean(error)"
       @blur="$emit('blur')"
     >
@@ -39,6 +40,7 @@ const props = defineProps({
   placeholder: { type: String, default: '' },
   autocomplete: { type: String, default: undefined },
   inputmode: { type: String, default: undefined },
+  step: { type: [String, Number], default: undefined },
   label: { type: String, default: '' },
   required: { type: Boolean, default: false },
   error: { type: String, default: '' },

@@ -13,6 +13,15 @@ import DataTable from '@/components/ui/DataTable.vue'
 import FileUpload from '@/components/common/FileUpload.vue'
 
 describe('buttons and confirmation', () => {
+  it('click.stop receives the native event and prevents row navigation', async () => {
+    const parent = vi.fn(), download = vi.fn()
+    const wrapper = mount({ components: { BaseButton }, setup: () => ({ parent, download }),
+      template: '<div @click="parent"><BaseButton @click.stop="download">Download</BaseButton></div>' })
+    await wrapper.get('button').trigger('click')
+    expect(download).toHaveBeenCalledOnce()
+    expect(download.mock.calls[0][0]).toBeInstanceOf(MouseEvent)
+    expect(parent).not.toHaveBeenCalled()
+  })
   it('emits clicks for enabled buttons and blocks disabled buttons', async () => {
     const wrapper = mount(BaseButton, { slots: { default: 'Save' } })
     await wrapper.trigger('click')
@@ -49,12 +58,21 @@ describe('buttons and confirmation', () => {
     await router.push('/')
     await router.isReady()
     const wrapper = mount(BaseButton, { props: { to: '/patients' }, global: { plugins: [router] } })
+    expect(wrapper.get('a').attributes('href')).toBe('/patients')
     await wrapper.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/patients')
   })
 })
 describe('form controls', () => {
+  it('decimal step reaches the native input and accepts valid fractional amounts', async () => {
+    const wrapper = mount(FormInput, { props: { type: 'number', step: '0.01' } })
+    const input = wrapper.get('input')
+    await input.setValue('10.75')
+    expect(input.element.validity.stepMismatch).toBe(false)
+    await input.setValue('10.751')
+    expect(input.element.validity.stepMismatch).toBe(true)
+  })
   it('labels reference unique input ids and errors set aria-invalid', () => {
     const wrapper = mount(FormInput, { props: { label: 'Synthetic name', error: 'Required' } })
     expect(wrapper.get('label').attributes('for')).toBe(wrapper.get('input').attributes('id'))

@@ -41,7 +41,7 @@
 
         <template #final_amount="{ item }">
           <span class="font-bold text-success">
-            {{ formatMoney(item.final_amount) }}
+            {{ formatMoney(item.final_amount, item.currency || 'SYP') }}
           </span>
         </template>
 

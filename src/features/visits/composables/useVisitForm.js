@@ -192,6 +192,11 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
   function buildPayload() {
     let payload = { ...form }
     payload = normalizeFormDates(payload, ['visit_date', 'follow_up_date', 'date_signed'])
+    // The API stores an unassessed risk as the blank choice, while the form
+    // uses null for an untouched select. Do not fabricate a negative finding.
+    for (const field of ['suicide_risk_level', 'violence_risk_level']) {
+      payload[field] = payload[field] ?? ''
+    }
 
     const clinical = {
       ...(typeof form.clinical_data === 'object' && form.clinical_data !== null
@@ -256,6 +261,7 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
       } else {
         await visitStore.createVisit(getPatientId(), payload)
       }
+      markClean()
       router.push({ name: 'PatientDetail', params: { id: getPatientId() } })
     },
     { silent: true }

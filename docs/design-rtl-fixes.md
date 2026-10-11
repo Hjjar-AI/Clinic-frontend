@@ -41,3 +41,12 @@ Availability grids use runtime doctor-count CSS properties/valid tracks; queue r
 - No builds/compilation/packaging, test-suite access, migrations, project DB/dependency/version changes; temporary helpers: `/tmp`.
 
 Pending rendering: 320/375/768/900/1024/1440px, long Arabic/mixed English, international phones, populated charts/theme switches, dropdown scrolling, keyboard navigation.
+
+## Patient workflow regressions (2026-10-11)
+
+Real 390×844 RTL browser tests confirmed two additional defects. The patient identity/tabs header remained sticky at narrow content widths and covered record/document/team buttons during scrolling; Playwright's ordinary clicks were intercepted by that header or the bottom navigation. Also, `flex: 1` shrank seven nowrap tab labels until their text overlapped.
+
+- `public/static/css/layout/responsive-pages.css`: patient headers use static positioning inside the existing 640px content-container rule. The direct-child selector takes precedence over the later feature default, preserving normal scrolling at narrow widths.
+- `public/static/css/components/tabs.css`: tabs use `flex: 1 0 auto` so labels retain their width and overflow scrolls within the existing tab header.
+
+The expanded browser record scenario checks non-overflowing tab labels, the mobile header position, page overflow and ordinary create/edit/retire clicks. Other scenarios cover documents, duplicates, team changes and merge. Current execution results and wider limitations: [testing](testing.md), [completed work](doneCurrent.md). These are new rendered findings; earlier source-review completions remain intact.

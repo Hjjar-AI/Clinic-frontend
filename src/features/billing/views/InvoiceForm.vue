@@ -141,6 +141,7 @@ const initialData = {
   due_date: '',
   notes: '',
   version: 1,
+  currency: 'SYP',
 }
 
 const schema = [
@@ -194,12 +195,12 @@ watch(
 )
 
 const summaryLines = computed(() => [
-  { label: 'الإجمالي', value: formatMoney(form.total_amount || 0) },
-  { label: 'الضريبة', value: formatMoney(form.tax || 0) },
-  { label: 'الخصم', value: formatMoney(form.discount || 0) },
+  { label: 'الإجمالي', value: formatMoney(form.total_amount || 0, form.currency) },
+  { label: 'الضريبة', value: formatMoney(form.tax || 0, form.currency) },
+  { label: 'الخصم', value: formatMoney(form.discount || 0, form.currency) },
   {
     label: 'النهائي',
-    value: formatMoney(form.final_amount || 0),
+    value: formatMoney(form.final_amount || 0, form.currency),
     total: true,
   },
 ])

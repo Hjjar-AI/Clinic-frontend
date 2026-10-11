@@ -167,23 +167,23 @@ function clear() {
 function save() {
   if (!hasDrawn.value) return
 
-  const d = points.value.reduce((acc, p, i) => {
-    return i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`
-  }, '')
-
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 300 100"
-     width="300" height="100">
-  <path d="${d}"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"/>
-</svg>`.trim()
-
-  emit('save', svg)
+  // The issuance API accepts validated PNG/JPEG images, not SVG markup.
+  // Rasterize the same collected strokes locally into a transparent PNG.
+  const canvas = document.createElement('canvas')
+  canvas.width = 300
+  canvas.height = 100
+  const context = canvas.getContext('2d')
+  context.strokeStyle = '#172033'
+  context.lineWidth = 2
+  context.lineCap = 'round'
+  context.lineJoin = 'round'
+  context.beginPath()
+  points.value.forEach((point, index) => {
+    if (index === 0) context.moveTo(point.x, point.y)
+    else context.lineTo(point.x, point.y)
+  })
+  context.stroke()
+  emit('save', canvas.toDataURL('image/png'))
 }
 </script>
 
