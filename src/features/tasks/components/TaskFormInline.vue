@@ -20,7 +20,6 @@
         <FormDate
           v-model="dueDate"
           label="تاريخ الاستحقاق"
-          required
         />
         <div class="form-group m-0 flex flex--end">
           <BaseButton
@@ -43,10 +42,12 @@ import { ref } from 'vue'
 import CardHeader from '@/components/ui/CardHeader.vue'
 import FormDate from '@/components/ui/FormDate.vue'   // ← added import
 import FormInput from '@/components/ui/FormInput.vue'
+import { useNotify } from '@/composables/useNotify'
 import { useTaskStore } from '@/features/tasks/stores/tasks'
 
 const emit = defineEmits(['task-added'])
 const taskStore = useTaskStore()
+const { notify } = useNotify()
 const title = ref('')
 const dueDate = ref('')
 const adding = ref(false)
@@ -55,10 +56,12 @@ async function handleAdd() {
   if (!title.value.trim()) return
   adding.value = true
   try {
-    await taskStore.addTask({ title: title.value, due_date: dueDate.value })
+    await taskStore.create({ title: title.value, due_date: dueDate.value || null })
     title.value = ''
     dueDate.value = ''
     emit('task-added')
+  } catch {
+    notify('فشل إنشاء المهمة', 'danger')
   } finally {
     adding.value = false
   }

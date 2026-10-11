@@ -82,3 +82,28 @@ CLINIC_PDF_ARTIFACT_DIR=/tmp/clinic-browser-pdfs pnpm test:e2e
 ```
 
 [Detailed PDF/workflow verification, defects corrected and remaining limits](../../backend/docs/pdf-workflow-verification.md).
+
+## Tasks, notifications and scheduling availability (2026-10-11)
+
+Added **32 rendered cases** in `tests/components/task-workflows.spec.js`, `notification-workflows.spec.js` and `time-slot-picker.spec.js`, plus **six Chromium cases** in `tests/e2e/task-workflows.spec.js` across desktop/tablet/mobile. The new DOM cases use actual stores/services and controls; HTTP adapters return synthetic responses. Browser cases use the real isolated Django API.
+
+Final full runs: **110 Node / 109 Vue DOM/import / 66 Chromium cases passed**, plus **193 backend tests**. Chromium ran all cases without retries in 7.6 minutes. The PDF appearance inspector was not rerun; earlier appearance results remain recorded separately.
+
+- Tasks: creation with optional/null or explicit due date, failed/blank submissions, inline draft retention, status-appropriate controls, opening versions and cancellation reasons, dismissed confirmations, stale writes, immediate list refresh after deletion and reapplication of active filters after transitions.
+- Notifications: real list envelopes, read-before-navigation, already-read navigation without repeat mutations, unsafe/absent links, deletion of read/unread rows and empty states.
+- Availability: actual doctor/date/duration requests, date normalization, occupied options, preservation of the existing booking time, clearing newly unavailable selections, disabled loading, cancelled/stale responses, cleared scheduling context, unmount cancellation and rejected refreshes.
+- Browser: actual task creation without a due date, start/complete/reopen/cancel, reason dismissal/confirmation, persisted versions/reasons, confirmed deletion with immediate row removal, narrow-width overflow, and permission denial without changing the task.
+
+Regressions confirmed and corrected: both task forms called nonexistent store actions; blank optional due dates were sent as invalid empty strings; successful mutations left the list's separate row array/filter results stale; clearing doctor/date failed to cancel pending availability or clear old options/selection. Forms now reuse the existing `create` action, send `null` for absent dates, retain failed drafts and refresh through `ListView`'s existing `refreshKey`. The availability picker clears its request/state when context is missing.
+
+Focused commands (existing installed tooling, no production bundle):
+
+```bash
+XDG_DATA_HOME=/tmp/clinic-test-tools node node_modules/vitest/vitest.mjs run \
+  tests/components/task-workflows.spec.js tests/components/notification-workflows.spec.js \
+  tests/components/time-slot-picker.spec.js --configLoader runner --cache=false \
+  --fsModuleCachePath /tmp/clinic-test-module-cache
+CLINIC_TEST_PYTHON=/home/mhmmd/Envs/clinic/bin/python pnpm test:e2e -- task-workflows.spec.js
+```
+
+This session used temporary Vite/Playwright config wrappers: absolute project root/server working directories, Vite dependency cache and failure artifacts under `/tmp`, and the installed Vite CLI instead of pnpm's install check. Test settings, assertions, viewports and sources were preserved. Localhost servers/Chromium required sandbox escalation. No application/dependency version or lockfile changes, production build, clinic-data mutation or migration-file work were performed. Full-suite results are in [completed work](doneCurrent.md); jsdom does not verify layout, and Chromium RTL checks do not verify other engines/LTR/accessibility exhaustively.

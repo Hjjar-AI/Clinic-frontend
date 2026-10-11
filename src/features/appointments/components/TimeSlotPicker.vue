@@ -73,10 +73,15 @@ let cancelTokenSource = null
 const { parseDate, toISODate } = useDate()
 
 async function fetchSlots() {
-  if (!props.doctorId || !props.date) return
-
   if (cancelTokenSource) {
     cancelTokenSource.cancel('New slots request')
+  }
+  if (!props.doctorId || !props.date) {
+    cancelTokenSource = null
+    slots.value = []
+    loading.value = false
+    if (props.modelValue) emit('update:modelValue', '')
+    return
   }
   const source = apiClient.CancelToken.source()
   cancelTokenSource = source

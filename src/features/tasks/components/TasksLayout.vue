@@ -53,6 +53,7 @@
       <ListView
         :columns="columns"
         :fetch-fn="fetchFn"
+        :refresh-key="refreshKey"
         :filters="taskFilters"
         :filter-values="filters"
         empty-title="لا توجد مهام"
@@ -146,6 +147,7 @@ defineProps({
   taskFilters: { type: Array, required: true },
   filters: { type: Object, required: true },
   fetchFn: { type: Function, required: true },
+  refreshKey: { type: Number, default: 0 },
 })
 
 defineEmits([

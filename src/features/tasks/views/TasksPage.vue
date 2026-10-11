@@ -7,6 +7,7 @@
     :task-filters="taskFilters"
     :filters="filters"
     :fetch-fn="(args) => taskStore.fetchTasks(args)"
+    :refresh-key="refreshKey"
     @toggle-add-form="showAddForm = !showAddForm"
     @add-task="handleAdd"
     @update:filters="filters = $event"
@@ -37,6 +38,7 @@ const { notify } = useNotify()
 
 const showAddForm = ref(false)
 const adding = ref(false)
+const refreshKey = ref(0)
 
 const statusFilter = useRouteQuery('status', '')
 const assignedFilter = useRouteQuery('assigned', '')
@@ -127,12 +129,13 @@ async function handleAdd(title, dueDate) {
   adding.value = true
 
   try {
-    await taskStore.createTask({
+    await taskStore.create({
       title,
-      due_date: dueDate,
+      due_date: dueDate || null,
     })
 
     showAddForm.value = false
+    refreshKey.value++
     notify('تم إضافة المهمة', 'success')
   } catch {
     notify('فشل إنشاء المهمة', 'danger')
@@ -144,6 +147,7 @@ async function handleAdd(title, dueDate) {
 async function handleComplete(task) {
   try {
     await taskStore.completeTask(task.id, task.version)
+    refreshKey.value++
     notify('تم إكمال المهمة', 'success')
   } catch {
     notify('فشل إكمال المهمة', 'danger')
@@ -153,6 +157,7 @@ async function handleComplete(task) {
 async function handleStart(task) {
   try {
     await taskStore.transitionTask(task.id, 'in_progress', task.version)
+    refreshKey.value++
     notify('تم بدء تنفيذ المهمة', 'success')
   } catch {
     // Shared API handling shows the backend error.
@@ -167,11 +172,13 @@ async function handleCancel(task) {
   })
   if (!reason) return
   await taskStore.transitionTask(task.id, 'cancelled', task.version, reason)
+  refreshKey.value++
   notify('تم إلغاء المهمة', 'success')
 }
 
 async function handleReopen(task) {
   await taskStore.transitionTask(task.id, 'open', task.version)
+  refreshKey.value++
   notify('تمت إعادة فتح المهمة', 'success')
 }
 
@@ -188,6 +195,7 @@ async function handleDelete(task) {
 
   try {
     await taskStore.deleteTask(task.id)
+    refreshKey.value++
     notify('تم حذف المهمة', 'success')
   } catch {
     notify('فشل حذف المهمة', 'danger')
