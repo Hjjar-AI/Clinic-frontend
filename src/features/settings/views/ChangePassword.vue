@@ -78,7 +78,7 @@ const schema = [
     label: 'تأكيد كلمة المرور',
     required: true,
     // Closes over `form` lazily; `form` is defined by the time this runs.
-    custom: (v) => (v !== form.confirmPassword ? 'غير متطابقة' : ''),
+    custom: (v) => (v !== form.newPassword ? 'غير متطابقة' : ''),
   },
 ]
 

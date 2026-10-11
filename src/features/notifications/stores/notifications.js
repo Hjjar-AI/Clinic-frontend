@@ -59,9 +59,9 @@ export const useNotificationStore = defineStore('notifications', () => {
   }
 
   function startPolling(intervalMs = 30000) {
-    stopPolling()
+    if (pollingTimer !== null) return
     if (!authStore.isAuthenticated) return
-    fetchAll()
+    fetchAllPersistent()
     pollingTimer = setInterval(fetchAllPersistent, intervalMs)
   }
 

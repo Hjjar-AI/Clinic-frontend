@@ -4,6 +4,8 @@
 
 ## Findings
 
+2026-10-11 interaction-test follow-up: N1/N2/N3/N4/N5/N8 implementations are covered in [the frontend interaction record](frontend-interaction-verification.md). N5 is addressed through completed-route/focus closure; the shared router-link click contract was preserved. N6/N7 and responsive risks outside the tested matrix remain open. Original findings below are retained as historical evidence.
+
 | ID / priority | Location | Trigger / impact | Correction |
 | --- | --- | --- | --- |
 | N1 / P2 | `src/composables/useFloatingPosition.js:25` | Position uses measured old panel width, then changes `maxWidth` in the same update. When a constrained panel grows after a viewport change, its new width can exceed the bounds used to place it. Controlled RTL example: viewport 400px, measured width 304px, trigger right 380px → left 76px; newly allowed 360px panel reaches 436px until remeasurement. This is a concrete geometry defect; actual browser scroll from it remains unverified. | Apply size constraints before measuring and positioning, or use one resolved width for both placement and rendered size. Keep first paint hidden until positioned; clamp to visual viewport, remeasure on content/viewport changes. |

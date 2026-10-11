@@ -45,7 +45,7 @@
             :search-fn="globalSearch"
             :option-label="(p) => p.label"
             :option-key="(p) => p.id"
-            min-length="2"
+            :min-length="2"
             :highlight="true"
             @select="goToItem"
           >

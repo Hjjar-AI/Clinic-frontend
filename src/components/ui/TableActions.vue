@@ -10,7 +10,7 @@
       @click="!safeViewTo && $emit('view')"
     />
     <BaseButton
-      v-if="showEdit && safeEditTo"
+      v-if="showEdit && (editTo === null || safeEditTo)"
       variant="ghost"
       size="xs"
       icon="edit"

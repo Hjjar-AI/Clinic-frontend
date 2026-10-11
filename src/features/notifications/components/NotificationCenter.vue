@@ -7,6 +7,8 @@
       variant="ghost"
       class="navbar__link notification-wrapper"
       aria-label="الإشعارات"
+      :aria-expanded="open"
+      @keydown="onTriggerKey"
       @click="toggle"
     >
       <Icon icon="bell" />
@@ -110,6 +112,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import Badge from '@/components/ui/Badge.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -124,8 +127,10 @@ import { useNotificationStore } from '@/features/notifications/stores/notificati
 const notificationStore = useNotificationStore()
 const { unreadCount } = useUnreadCount(180000)
 const authStore = useAuthStore()
+const router = useRouter()
 const hasNew = ref(false)
-const { triggerRef, panelRef, open, positionStyle, toggle, close, observeTrigger } = useDropdown()
+const { triggerRef, panelRef, open, positionStyle, toggle, close, onTriggerKey } = useDropdown()
+watch(() => router.currentRoute.value.fullPath, close)
 const { toISODate } = useDate()
 
 watch(() => authStore.isAuthenticated, (authenticated) => {
@@ -143,8 +148,6 @@ watch(() => unreadCount.value, (newVal, oldVal) => {
 })
 
 onMounted(() => {
-  notificationStore.fetchNotifications()
-  observeTrigger()
   notificationStore.startPolling(180000)
 })
 onBeforeUnmount(() => notificationStore.stopPolling())

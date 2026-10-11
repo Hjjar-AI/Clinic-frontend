@@ -275,7 +275,7 @@ const { execute: doCreate } = useApi(async () => {
   refreshKey.value++
 })
 
-const createScale = () => doCreate()
+const createScale = () => doCreate().catch(() => {}) // Shared error handling preserves the open draft.
 
 function openAddFieldModal(scale) {
   selectedScale.value = scale
@@ -322,7 +322,7 @@ const { execute: doAddField } = useApi(async () => {
   refreshKey.value++
 })
 
-const saveField = () => doAddField()
+const saveField = () => doAddField().catch(() => {}) // Shared error handling preserves the open draft.
 
 async function deactivateScale(id) {
   await scaleService.delete(id)

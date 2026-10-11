@@ -107,12 +107,14 @@ const schema = [
   {
     field: 'password',
     label: 'كلمة المرور',
+    required: !isEdit,
     minLength: 8,
     message: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل',
   },
   {
     field: 'confirm_password',
     label: 'تأكيد كلمة المرور',
+    required: !isEdit,
     custom: (v) => (!v || v === form.password ? '' : 'كلمتا المرور غير متطابقتين'),
   },
 ]

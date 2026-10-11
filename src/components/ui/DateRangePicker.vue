@@ -10,25 +10,27 @@
         <input
           :id="`${rangeId}-start`"
           ref="startInput"
-          :value="startDate"
+          :value="displayDate(startDate)"
           type="text"
           class="form-control form-control--small"
           placeholder="من (يوم/شهر/سنة)"
           autocomplete="off"
           aria-label="بداية الفترة"
           @input="onStartInput"
+          @keydown.esc="closeCalendars"
         >
         <span class="text-muted">–</span>
         <input
           :id="`${rangeId}-end`"
           ref="endInput"
-          :value="endDate"
+          :value="displayDate(endDate)"
           type="text"
           class="form-control form-control--small"
           placeholder="إلى (يوم/شهر/سنة)"
           autocomplete="off"
           aria-label="نهاية الفترة"
           @input="onEndInput"
+          @keydown.esc="closeCalendars"
         >
         <button
           class="btn btn--secondary btn--sm"
@@ -56,7 +58,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount,onMounted, ref, useId } from 'vue'
+import { computed, onBeforeUnmount,onMounted, ref, useId, watch } from 'vue'
 
 import Icon from '@/components/ui/Icon.vue'
 import { useDate } from '@/composables/useDate'
@@ -72,7 +74,9 @@ const rangeId = useId()
 
 const startInput = ref(null)
 const endInput = ref(null)
-const { initDatePicker, getFlatpickrDefaults, toISODate, parseDate } = useDate()
+const { initDatePicker, getFlatpickrDefaults, toISODate, parseDate, formatDate } = useDate()
+
+const displayDate = value => formatDate(value) || value
 
 let startFlatpickr = null
 let endFlatpickr = null
@@ -88,7 +92,7 @@ const invalidRange = computed(() => {
 onMounted(async () => {
   if (startInput.value) {
     startFlatpickr = await initDatePicker(startInput.value, getFlatpickrDefaults({
-      defaultDate: props.startDate || undefined,
+      defaultDate: parseDate(props.startDate) || undefined,
       onChange: (selectedDates, dateStr) => {
         const d = parseDate(dateStr)
         emit('update:startDate', d ? toISODate(d) : dateStr)
@@ -97,7 +101,7 @@ onMounted(async () => {
   }
   if (endInput.value) {
     endFlatpickr = await initDatePicker(endInput.value, getFlatpickrDefaults({
-      defaultDate: props.endDate || undefined,
+      defaultDate: parseDate(props.endDate) || undefined,
       onChange: (selectedDates, dateStr) => {
         const d = parseDate(dateStr)
         emit('update:endDate', d ? toISODate(d) : dateStr)
@@ -105,6 +109,9 @@ onMounted(async () => {
     }))
   }
 })
+
+watch(() => props.startDate, value => startFlatpickr?.setDate(parseDate(value), false))
+watch(() => props.endDate, value => endFlatpickr?.setDate(parseDate(value), false))
 
 onBeforeUnmount(() => {
   if (startFlatpickr) {
@@ -132,6 +139,11 @@ function onEndInput(e) {
 function emitApply() {
   if (invalidRange.value) return
   emit('apply')
+}
+
+function closeCalendars() {
+  startFlatpickr?.close()
+  endFlatpickr?.close()
 }
 
 function clear() {

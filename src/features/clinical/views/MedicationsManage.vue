@@ -100,6 +100,7 @@
       v-model="modalOpen"
       :title="isEditing ? 'تعديل دواء' : 'دواء جديد'"
       confirm-text="حفظ"
+      :loading="saving"
       @confirm="handleSaveMedication"
     >
       <div class="flex flex--column gap-3">
@@ -288,7 +289,7 @@ function openFormModal(medication) {
   modalOpen.value = true
 }
 
-const { execute: execSave } = useApi(async () => {
+const { loading: saving, execute: execSave } = useApi(async () => {
   if (isEditing.value) {
     await medicationService.update(currentId.value, form.value)
   } else {
@@ -299,7 +300,7 @@ const { execute: execSave } = useApi(async () => {
   refreshList()
 })
 
-const handleSaveMedication = () => execSave()
+const handleSaveMedication = () => execSave().catch(() => {}) // Shared API handling reports the error; retain the modal draft.
 
 const handleDeleteMedication = async (id) => {
   try {

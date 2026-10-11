@@ -4,7 +4,7 @@ import { nextTick, onBeforeUnmount, ref, unref, watch } from 'vue'
 export function useFloatingPosition(triggerRef, options = {}) {
   const { maxWidth = 360, maxHeight = 400, gap = 4, placement = 'start', active = true } = options
   const panelRef = ref(null)
-  const positionStyle = ref({})
+  const positionStyle = ref({ visibility: 'hidden' })
   let observer = null
   let frame = null
   let listening = false
@@ -22,8 +22,11 @@ export function useFloatingPosition(triggerRef, options = {}) {
     const vh = viewport?.height || window.innerHeight
     const margin = 8
     const rect = trigger.getBoundingClientRect()
-    const bounds = panel.getBoundingClientRect()
     const widthLimit = Math.max(0, Math.min(maxWidth, vw - margin * 2))
+    // Resolve the new constraint before measuring: the old constrained width
+    // cannot position a panel that expands on this frame.
+    panel.style.maxWidth = `${widthLimit}px`
+    const bounds = panel.getBoundingClientRect()
     const width = Math.min(bounds.width, widthLimit)
     const rtl = getComputedStyle(trigger).direction === 'rtl'
     const alignRight = placement === 'end' ? !rtl : rtl
@@ -37,6 +40,7 @@ export function useFloatingPosition(triggerRef, options = {}) {
     const height = Math.min(naturalHeight, available)
     const top = Math.max(originY + margin, flip ? rect.top - gap - height : rect.bottom + gap)
     positionStyle.value = {
+      visibility: 'visible',
       top: `${top}px`, left: `${left}px`,
       maxWidth: `${widthLimit}px`, maxHeight: `${available}px`,
     }

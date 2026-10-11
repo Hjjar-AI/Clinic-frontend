@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import apiClient from '@/services/apiClient'
+import apiClient, { cancelAllPending } from '@/services/apiClient'
 import Notifications from '@/features/notifications/views/Notifications.vue'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import { useNotificationStore } from '@/features/notifications/stores/notifications'
@@ -27,6 +27,31 @@ async function page({ read = false, link = '/patients/7', empty = false } = {}) 
 }
 
 describe('notification page ownership and navigation', () => {
+  it('initial polling survives route cancellation and repeated owners start only one timer/fetch', async () => {
+    vi.useFakeTimers()
+    useAuthStore().user = { id: 3, username: 'synthetic' }
+    const store = useNotificationStore()
+    const requests = []
+    let release
+    apiClient.defaults.adapter = config => {
+      requests.push(config)
+      return new Promise(resolve => { release = () => resolve({ status: 200, headers: {}, config,
+        data: { data: { items: [{ id: 81, is_read: false }], meta: { unread_count: 1 } } } }) })
+    }
+    store.startPolling(180000)
+    store.startPolling(180000)
+    await flushPromises()
+    expect(requests).toHaveLength(1)
+    expect(requests[0].__persistent).toBe(true)
+    cancelAllPending()
+    expect(requests[0].signal?.aborted).not.toBe(true)
+    release()
+    await flushPromises()
+    expect(store.unreadCount).toBe(1)
+    expect(vi.getTimerCount()).toBe(1)
+    store.stopPolling()
+    expect(vi.getTimerCount()).toBe(0)
+  })
   it('loads actual service envelopes and marks unread content before navigating', async () => {
     const { wrapper, router, store, requests } = await page()
     expect(requests[0].url).toBe('/notifications/')

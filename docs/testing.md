@@ -42,7 +42,7 @@ Existing application/dependency declarations and existing direct dependency reso
 
 ## Verification limits
 
-Latest run results and environment limitations are recorded in [completed work](doneCurrent.md). Node coverage reports imported JS only, not whole-application or Vue-template coverage; no 100% coverage claim or arbitrary threshold is imposed. The browser suite covers selected workflows and Arabic RTL viewports; it is not exhaustive visual/accessibility certification. Other browsers, LTR layouts, full chart/overlay interactions, remaining CRUD forms, production bundles and PostgreSQL concurrent writers still need dedicated checks.
+Latest run results and environment limitations are recorded in [completed work](doneCurrent.md). Node coverage reports imported JS only, not whole-application or Vue-template coverage; no 100% coverage claim or arbitrary threshold is imposed. The browser suite covers selected workflows and Arabic RTL viewports; it is not exhaustive visual/accessibility certification. Other browsers, browser LTR, interaction/CRUD permutations outside the explicit matrix, production bundles and PostgreSQL concurrent writers still need dedicated checks.
 
 ## Workflow expansion (2026-10-11)
 
@@ -107,3 +107,7 @@ CLINIC_TEST_PYTHON=/home/mhmmd/Envs/clinic/bin/python pnpm test:e2e -- task-work
 ```
 
 This session used temporary Vite/Playwright config wrappers: absolute project root/server working directories, Vite dependency cache and failure artifacts under `/tmp`, and the installed Vite CLI instead of pnpm's install check. Test settings, assertions, viewports and sources were preserved. Localhost servers/Chromium required sandbox escalation. No application/dependency version or lockfile changes, production build, clinic-data mutation or migration-file work were performed. Full-suite results are in [completed work](doneCurrent.md); jsdom does not verify layout, and Chromium RTL checks do not verify other engines/LTR/accessibility exhaustively.
+
+## Charts, panels, CRUD and keyboard/focus (2026-10-11)
+
+Added 63 component/store regressions and ten real browser scenarios, configured for three Arabic RTL viewports. See [coverage, evidenced corrections and limits](frontend-interaction-verification.md) for chart painting/hover/legend/theme/filtering, search race/geometry/privacy, dropdown/overlay focus, catalog lifecycle and user/template/patient forms. Final run counts are recorded in [completed work](doneCurrent.md). The normal test commands above apply; no application/dependency versions or lockfiles changed.

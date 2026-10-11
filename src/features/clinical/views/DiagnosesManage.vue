@@ -88,6 +88,7 @@
       v-model="modalOpen"
       :title="isEditing ? 'تعديل التشخيص' : 'تشخيص جديد'"
       confirm-text="حفظ"
+      :loading="saving"
       size="sm"
       @confirm="handleSaveDiagnosis"
     >
@@ -254,7 +255,7 @@ function openFormModal(diagnosis) {
   modalOpen.value = true
 }
 
-const { execute: execSave } = useApi(async () => {
+const { loading: saving, execute: execSave } = useApi(async () => {
   if (isEditing.value) {
     await diagnosisService.update(currentId.value, form.value)
   } else {
@@ -265,7 +266,7 @@ const { execute: execSave } = useApi(async () => {
   refreshList()
 })
 
-const handleSaveDiagnosis = () => execSave()
+const handleSaveDiagnosis = () => execSave().catch(() => {}) // Shared API handling reports the error; retain the modal draft.
 
 const handleDeleteDiagnosis = async (id) => {
   try {
