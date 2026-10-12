@@ -1,28 +1,13 @@
-# Completed frontend work and verification
+# Completed work and evidence
 
-2026-10-12: coordinated [models/logic corrections](../../backend/docs/reviews/models-and-logic-2026-10-12.md): reconciliation displays labelled per-currency totals, scale admin exposes/enforces the 100-question bound, average age displays unknown, clinical narrative inputs respect edit permission, and catalog import explains content-only fidelity. Five Vue descriptors/script sections parsed; no browser/build/test-suite checks. Backend source/schema/rollout limits are in [backend current](../../backend/docs/workCurrent.md). Earlier frontend F01–F43/L01–L10 findings remain a separate review scope.
-
-2026-10-12: completed [frontend file-by-file review](reviews/frontend-file-by-file-2026-10-12.md) across 431 first-party production/config files, including backend contract comparisons and checklist disposition. Parsed 133 JS files, 197 Vue descriptors/script sections and 96 CSS files without syntax errors; one missing unused AuditLog import. Synthetic Pinia probe confirmed persistence configuration mismatch. Review/documentation only; no production fixes, migration/test-suite inspection, builds, browser or PDF checks. Earlier runtime results below were not rerun.
-
-Recorded verification: 2026-10-11; documentation organization checked separately, without rerunning application tests.
-
-| Layer | Recorded outcome / limit |
+| Date / scope | Recorded result / limit |
 | --- | --- |
-| Node services/state | **110 passed**; imported production JS, not whole-app coverage. |
-| Vue DOM/import | **172 passed**, including all 36 feature-view imports; **12 focused date/search checks passed** after the last calendar fix. Full 172 suite not repeated after that correction. |
-| Chromium Arabic RTL | **96 distinct scenarios verified across runs** at 1280×800, 768×1024, 390×844. Full run: **95 passed / one mobile chart timeout**. After paired-calendar Escape fix, six search/chart cases passed across viewports; other 90 passed in the full run. No automatic retries; complete 96 not repeated after final fix. |
-| Backend | **193 passed**, Python 3.14.4 / Django 6.1.2 / DRF 3.18.3; installed runtime differs from pins. |
-| PDF appearance | **6 earlier checks passed**, five long templates plus 18 downloaded/printed artifacts; inspector not rerun during latest interaction expansion. [Record](../../backend/docs/testing/pdf.md). |
+| 2026-10-12 models/logic coordination | Currency-labelled totals (F36/R13), scale question bound, unknown age, clinical edit permission and content-import notice implemented. Five Vue descriptor/script parses passed; no browser/build/suite run. [Backend evidence](../../backend/docs/doneCurrent.md). |
+| 2026-10-12 frontend review | 431 production/config files: 197 Vue, 133 JS, 96 CSS, five other. Syntax parses passed; isolated Pinia probe confirmed F22. Open findings retained in [review](review.md); per-file no-finding ledger removed. No runtime rerun. |
+| 2026-10-11 Node / Vue | 110 Node and 172 Vue passed, including all 36 view imports; 12 focused date/search checks passed after the final calendar fix. Full 172 not repeated after that fix. |
+| 2026-10-11 Chromium Arabic RTL | 96 distinct scenarios across 1280×800, 768×1024 and 390×844. Full run: 95 passed/one mobile-chart timeout; six focused search/chart cases passed after the final calendar fix, other 90 passed in the full run. Complete 96 not repeated. |
+| Earlier source completion | API/auth/forms, patient/history/team/import/recovery, tasks/notifications/availability, charts/catalog/admin/focus; D1–D15/S1–S11 and N1–N5/N8 corrected. Twenty scoped blocks externalized, cascade retained. [UI ownership](ui.md). |
 
-Frontend runtime: Node 24.21.0 / Chromium 156. Test runs use synthetic SQLite/media and real isolated API; jsdom has no layout. No production build or clinic-data/version/lockfile changes during the latest expansions. Initial test tooling/necessary lock entries were separately authorized.
+Runtime: Node 24.21.0/Chromium 156; synthetic temporary SQLite/media and isolated real API. jsdom lacks layout. Historical imported-JS coverage was 84.98% lines/83.99% branches/69.76% functions, not recalculated after expansion. No whole-app/accessibility guarantee. Backend/PDF results live only in [backend completed](../../backend/docs/doneCurrent.md); remaining work only in [current](workCurrent.md).
 
-| Completed source area | Behavior / authoritative record |
-| --- | --- |
-| Shared API/auth/forms | Session/CSRF, envelopes, opening versions, uncertain-retry keys, multipart/errors, permissions, validation/dirty-state corrections. [Coverage](testing/guide.md). |
-| Patient/clinical/import/recovery UI | Year-only/unknown demographics, records/corrections, dated team, optional duplicate review/merge, provenance, signed issuance, decimal billing, preview-bound imports/full restore. [Patient contract](../../backend/docs/contracts/patients.md), [PDF/workflows](../../backend/docs/testing/pdf.md). |
-| Shell/CSS/RTL | All original 15 design and 11 shell findings plus three responsive risks have source corrections; 20 scoped blocks externalized, ordered CSS ownership preserved. Selected RTL/browser checks now supplement earlier source/probes; broader rendering remains unverified. [Layout](ui/layout.md), [CSS](ui/css.md). |
-| Tasks/notifications/availability | Actual create action, null optional dates, refreshed rows/filters, stale availability cancellation; lifecycle/version/permission coverage. [Testing](testing/guide.md). |
-| Charts/panels/catalog/admin/focus | 63 additional component/store regressions and ten browser scenarios × three viewports; N1–N5/N8 addressed. [Interaction file map](testing/interactions.md). |
-| Documentation | Topic indexes, source-file correction tables and compact current/completed records replace duplicate historical reviews/plans. |
-
-Remaining work and verification gaps: [current](workCurrent.md). Earlier isolated source/ORM probes establish implementation evidence, not broader browser/PostgreSQL guarantees.
+Documentation compaction: merged topic guides and removed duplicate history/file ledgers; references checked. No application source, suites, migrations, builds, runtime data or versions changed by that cleanup.

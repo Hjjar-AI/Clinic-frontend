@@ -1,14 +1,10 @@
 # Remaining frontend work
 
-| Area / files | Remaining action |
+| Work | Remaining action |
 | --- | --- |
-| Review recommendations | [431-file review](reviews/frontend-file-by-file-2026-10-12.md) is complete. F01–F43/L01–L10 remain recommendations for a later fix task; N6/N7 below are carried forward, not duplicate findings. No production fixes authorized by this review. |
-| `AppNavigation.vue`, `BottomNav.vue`, `src/router/index.js` | **N6 confirmed:** detail/create/edit sibling routes lose section highlighting; share section identity and correct `aria-current`. |
-| `useNavigationItems.js`, `apiClient.js`, `src/stores/loading.js` | **N7 confirmed:** background badge/poll requests can activate blocking loading; separate background refresh, preserve visible cards and avoid duplicate dashboard fetches. |
-| Topbar/bottom navigation, drawer, floating panels | Reproduce remaining badge-width/overflow/animation risks at 320/360/390px and 768/769px, expanded/collapsed desktop, RTL/LTR, 100/200% text and long labels/counts; inspect both edges/scroll owners without logging patient content. [Details](ui/navigation.md). |
-| Models/logic API coordination | Render-check per-currency reconciliation, scale question limit, unknown age, clinical narrative permissions and content-import notice after authorized backend schema application. Source corrections/limits: [backend review](../../backend/docs/reviews/models-and-logic-2026-10-12.md). |
-| Browser/component matrix | Repeat the complete suites after final paired-calendar correction; prior full/focused outcomes are distinguished in [completed](doneCurrent.md). |
-| Broader rendering/accessibility | Other engines, browser LTR, screen readers, exhaustive CRUD/keyboard permutations, native popups, virtual keyboard/safe areas, landscape/zoom and print permutations remain unverified. [Layout matrix](ui/layout.md), [coverage](testing/guide.md). |
-| Cross-project environment | Pinned Django/DRF on supported Python and PostgreSQL concurrent writers/locking; coordinate with [backend current](../../backend/docs/workCurrent.md). Production bundles remain unverified and require explicit build authorization. |
+| Open source findings | Address F01–F35/F37–F43 and L01–L10 from [review](review.md); N6/N7 are tracked once under F43. F36 currency reconciliation is completed. |
+| Backend coordination | After authorized schema application, render-check per-currency totals, 100-question limit, unknown age, clinical narrative permissions and content-import notice. [Backend current](../../backend/docs/workCurrent.md). |
+| Final runtime matrix | Repeat full component/browser suites after the last paired-calendar correction; broader RTL/LTR, engines, zoom/native-popup/safe-area/accessibility/print checks remain open. [Coverage](verification.md), [recorded outcomes](doneCurrent.md). |
+| Deployment | Supported pinned backend runtime, external DB/cache concurrency and production bundles remain unverified. Builds/schema/version changes need their explicit scope. |
 
-Requested chart/panel/CRUD/focus expansion is implemented. No other implementation task is active. Existing authorization covers tests/tooling and Vue/Vite test transforms; migration files, production builds and version changes still require explicit requests. Preserve contracts in [AGENTS](../AGENTS.md).
+No implementation task is active. Source completion is not runtime verification; [working limits](../AGENTS.md) still apply.
