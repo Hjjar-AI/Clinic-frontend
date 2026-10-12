@@ -44,6 +44,36 @@ describe('prescription physical paper controls', () => {
     await wrapper.get('button').trigger('click')
     expect(wrapper.get('[role="status"]').text()).toContain('نافذة جديدة')
   })
+
+  it.each(['session', 'unmount'])('revokes patient PDF URLs on %s and ignores late calibration results', async reason => {
+    vi.spyOn(prescriptionService, 'preview').mockResolvedValue({ data: { data: {
+      preview_token: 'synthetic-token', patient_id: 1, patient_name: 'Synthetic patient', medications: [], diagnoses: [],
+    } } })
+    vi.spyOn(prescriptionService, 'generate').mockResolvedValue({ data: new Blob(['%PDF-synthetic']) })
+    let finishCalibration
+    vi.spyOn(prescriptionService, 'calibration').mockImplementation(() => new Promise(resolve => { finishCalibration = resolve }))
+    const router = createRouter({ history: createMemoryHistory(), routes: [
+      { path: '/prescription/:visitId', component: PrescriptionPreview },
+      { path: '/patients', name: 'PatientsList', component: { template: '<p>Patients</p>' } },
+    ] })
+    await router.push('/prescription/7')
+    const createUrl = vi.fn(() => 'blob:synthetic-private')
+    const revoke = vi.fn()
+    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: createUrl, revokeObjectURL: revoke }))
+    const wrapper = mount(PrescriptionPreview, { global: { plugins: [router], stubs: { SignaturePad: { template: '<button @click="$emit(\'save\', \'synthetic-signature\')">Save synthetic signature</button>' } } } })
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text().includes('Save synthetic')).trigger('click')
+    await wrapper.findAll('button').find(button => button.text().includes('إنشاء ومعاينة')).trigger('click')
+    await flushPromises()
+    expect(createUrl).toHaveBeenCalledOnce()
+    await wrapper.findAll('button').find(button => button.text().includes('إنشاء ورقة معايرة')).trigger('click')
+    if (reason === 'session') changeSession(null)
+    else wrapper.unmount()
+    expect(revoke).toHaveBeenCalledWith('blob:synthetic-private')
+    finishCalibration({ data: new Blob(['%PDF-calibration']) })
+    await flushPromises()
+    expect(createUrl).toHaveBeenCalledOnce()
+  })
   it('defaults to A6 and validates finite sizes, precision and offsets', () => {
     expect(normalizePaperOptions(defaultPaperOptions())).toEqual(defaultPaperOptions())
     for (const changes of [{ width_mm: '' }, { height_mm: true }, { width_mm: 79 }, { height_mm: 351 }, { width_mm: Infinity }, { offset_x_mm: 6 }, { width_mm: 105.001 }, { mode: 'scan' }]) {
