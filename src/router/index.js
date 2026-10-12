@@ -262,9 +262,9 @@ router.onError((error, to) => {
   window.location.assign('/error?reason=deployment')
 })
 
-// 1) Cancel any pending requests on each navigation
+// 1) Cancel requests when leaving the page; query-only changes keep its reads alive.
 router.beforeEach(async (to, from, next) => {
-  cancelAllPending()
+  if (to.path !== from.path) cancelAllPending()
   next()
 })
 

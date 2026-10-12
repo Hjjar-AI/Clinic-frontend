@@ -2,9 +2,9 @@
 
 | Work | Remaining action |
 | --- | --- |
-| Runtime verification | Under explicit test authorization, repeat component/browser coverage after the 2026-10-12 source corrections: account changes/drafts/retries, clinical catalogs/scales/signatures, forms, calendar paging, preview consent and keyboard contracts. [Coverage and rendered matrix](verification.md), [source evidence](doneCurrent.md). |
-| Rendered UI | Check contrast across eight themes/light-dark, reduced motion, narrow layouts, RTL/LTR, engines, zoom/native popups, focus/tabs/rows, long clinical text and print. Source color arithmetic does not certify rendering. |
-| Backend coordination | After authorized schema application, verify per-currency totals, scale limits, unknown age, clinical permissions and import notices with the paired API. [Backend current](../../backend/docs/workCurrent.md). |
-| Deployment | Pinned backend runtime, external DB/cache concurrency and production bundles remain unverified; builds/schema/version changes require their explicit scope. |
+| Test verification in progress | Final complete browser and mounted-component runs after the new tab/care-team corrections; [suite commands and coverage](verification.md), [completed evidence](doneCurrent.md). |
+| Rendered UI | Broader width/zoom/native-popup/overflow/long-text combinations, other engines and accessibility review. Chromium selected viewports now exercise eight theme solid contrast/light-dark, reduced motion, navigation/tabs and RTL/LTR arrows; this does not certify every layout. |
+| Backend coordination | Applying the existing clinic schema still requires explicit schema/migration authorization. Pinned runtime, isolated API/PDF and disposable PostgreSQL suites are exercised. [Backend current](../../backend/docs/workCurrent.md). |
+| Deployment | MySQL/MariaDB/Redis/Memcached, arbitrary worker failure, production bundles and physical printing remain unverified. Builds/schema/version changes require their explicit scope. |
 
-Source review implementation is complete; [dispositions](review.md). No build, suite, migration or version work was performed in this fix pass. [Working limits](../AGENTS.md).
+Source review implementation is complete; [dispositions](review.md). Test suites are now explicitly authorized; no production build, migration inspection or version change was performed. [Working limits](../AGENTS.md).

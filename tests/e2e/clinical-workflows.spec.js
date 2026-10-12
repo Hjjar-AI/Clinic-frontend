@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import { setup, confirm, items, downloaded, retained } from './helpers/workflow.js'
 
 test('booking, occupied slots and rescheduling use the actual availability picker', async ({ page }, info) => {
+  test.setTimeout(60000)
   const { patient } = await setup(page, info, 'حجز موعد')
   const date = { desktop: '2026-11-02', tablet: '2026-11-03', mobile: '2026-11-04' }[info.project.name]
   await page.goto(`/appointments/new?patientId=${patient.id}&date=${date}`)

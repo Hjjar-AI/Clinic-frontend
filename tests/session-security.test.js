@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { effectScope, nextTick, ref } from 'vue'
+import { effectScope, ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import apiClient, { cancelAllPending } from '@/services/apiClient'

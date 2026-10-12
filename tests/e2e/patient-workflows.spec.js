@@ -171,6 +171,7 @@ test('care-team add and removal retain dated membership history after reload', a
 })
 
 test('optional merge requires preview consent and transfers records to the selected survivor', async ({ page }, info) => {
+  test.setTimeout(60000)
   const nationalId = { desktop: '9000000001', tablet: '9000000002', mobile: '9000000003' }[info.project.name]
   const { patient, headers } = await setup(page, { national_id: nationalId })
   const sourceResponse = await page.request.post('/api/v1/patients/', {

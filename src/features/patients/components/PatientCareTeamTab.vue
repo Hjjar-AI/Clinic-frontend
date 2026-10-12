@@ -39,9 +39,14 @@
       title="لا يوجد أعضاء في الفريق"
     />
 
+    <div v-if="candidateError" role="alert">
+      {{ candidateError }}
+      <BaseButton variant="secondary" @click="retryCandidates">إعادة المحاولة</BaseButton>
+    </div>
+
     <!-- Add form -->
     <div v-if="authStore.can('manage_users')" class="care-team-add-row mt-3 flex gap-2 flex--end">
-      <select v-model="newUserId" class="form-control" aria-label="عضو فريق الرعاية">
+      <select v-model="newUserId" :disabled="!candidatesReady" class="form-control" aria-label="عضو فريق الرعاية">
         <option :value="null">اختر عضو الفريق</option>
         <option v-for="user in candidates" :key="user.id" :value="user.id">{{ user.full_name }}</option>
       </select>
@@ -68,7 +73,7 @@
       <BaseButton
         variant="primary"
         size="sm"
-        :disabled="!newUserId"
+        :disabled="!candidatesReady || !newUserId"
         @click="addMember"
       >
         <Icon icon="plus" /> إضافة
@@ -83,6 +88,7 @@ import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import Badge from '@/components/ui/Badge.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import { useNotify } from '@/composables/useNotify'
 import patientService from '@/features/patients/services/patientService'
 
@@ -94,7 +100,13 @@ const props = defineProps({
 
 const authStore = useAuthStore()
 const candidates = ref([])
-onMounted(async () => { if (authStore.can('manage_users')) candidates.value = await patientService.getTeamCandidates() })
+const { ready: candidatesReady, error: candidateError, load: loadCandidates, retry: retryCandidates } = useResourceLoad()
+onMounted(() => {
+  if (authStore.can('manage_users')) loadCandidates(async current => {
+    const result = await patientService.getTeamCandidates()
+    if (current()) candidates.value = result
+  })
+})
 
 const emit = defineEmits(['remove', 'added'])
 

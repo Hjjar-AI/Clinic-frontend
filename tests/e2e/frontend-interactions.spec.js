@@ -143,6 +143,7 @@ test('real charts paint, expose hover/legend interactions, update themes and sur
     const { default: Chart } = await import(url)
     const chart = Chart.getChart(document.querySelector('.chart-card canvas'))
     const arc = chart.getDatasetMeta(0).data.find((arc, index) => chart.data.datasets[0].data[index] > 0)
+    if (!arc) return false
     return arc.circumference > 0 && Math.abs(arc.circumference - arc.getProps(['circumference'], true).circumference) < 0.001
   }, moduleUrl)).toBe(true)
   const arc = await page.evaluate(async url => {

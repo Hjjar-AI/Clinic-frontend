@@ -28,3 +28,31 @@ it('untouched risk controls serialize as unassessed, while an explicit negative 
   }))
   await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('PatientDetail'))
 })
+
+
+it('removing the last goal sends an empty list and omits server signing metadata', async () => {
+  const update = vi.spyOn(useVisitStore(), 'updateVisit').mockResolvedValue({})
+  let visit
+  const component = defineComponent({ setup() {
+    visit = useVisitForm({ getPatientId: () => 7, visitId: 9, isEdit: true })
+    return () => null
+  } })
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/edit', component },
+    { path: '/patients/:id', name: 'PatientDetail', component: { template: '<p>Patient</p>' } },
+  ] })
+  await router.push('/edit')
+  mount({ template: '<RouterView />' }, { global: { plugins: [router] } })
+  await flushPromises()
+  visit.hydrateFromData({ id: 9, version: 5, visit_date: '2026-10-12',
+    main_complaints: 'Synthetic complaint', signed_by_id: 1, date_signed: '2026-10-12',
+    clinical_data: { goals: [{ title: 'Synthetic old goal', percentage: 20 }] },
+  })
+  visit.form.goals.splice(0)
+  expect(await visit.handleSubmit()).toBe(true)
+  const payload = update.mock.calls[0][1]
+  expect(payload.clinical_data.goals).toEqual([])
+  expect(payload.version).toBe(5)
+  expect(payload).not.toHaveProperty('signed_by_id')
+  expect(payload).not.toHaveProperty('date_signed')
+})

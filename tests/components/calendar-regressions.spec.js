@@ -1,4 +1,4 @@
-import { it, expect, vi } from 'vitest'
+import { it, expect } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { nextTick } from 'vue'
@@ -8,7 +8,6 @@ import { useCalendar } from '@/features/appointments/composables/useCalendar'
 import { useVisitScales } from '@/features/visits/composables/useVisitScales'
 import { useScaleLookup } from '@/stores/scaleLookup'
 import DayViewGrid from '@/features/appointments/components/DayViewGrid.vue'
-import MonthViewGrid from '@/features/appointments/components/MonthViewGrid.vue'
 import CalendarView from '@/features/appointments/components/CalendarView.vue'
 import CalendarLayout from '@/features/appointments/components/CalendarLayout.vue'
 

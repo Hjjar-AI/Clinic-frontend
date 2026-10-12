@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { defineComponent, ref, h } from 'vue'
+import { defineComponent, h } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
@@ -19,7 +19,6 @@ import { changeSession } from '@/services/sessionState'
 import { useRouteQuery } from '@/composables/useRouteQuery'
 import { useResourceLoad } from '@/composables/useResourceLoad'
 
-const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r }); return { promise, resolve } }
 async function router() {
   const result = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: { render: () => null } }] })
   await result.push('/'); return result
@@ -116,9 +115,10 @@ describe('privacy and signature state', () => {
     const context = { beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), stroke: vi.fn() }
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context); vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue('data:image/png;base64,Synthetic')
     const wrapper = mount(SignaturePad); const surface = wrapper.get('.signature-canvas')
+    vi.spyOn(surface.element, 'getBoundingClientRect').mockReturnValue({ left: 0, top: 0, width: 300, height: 100 })
     for (const x of [10, 100]) { await surface.trigger('mousedown', { clientX: x, clientY: 10 }); await surface.trigger('mousemove', { clientX: x + 10, clientY: 20 }); await surface.trigger('mouseup') }
     const save = wrapper.findAll('button').find(button => button.text().includes('حفظ')); await save.trigger('click')
-    expect(context.moveTo).toHaveBeenCalledTimes(2); expect(context.lineTo).toHaveBeenCalledTimes(2); expect(wrapper.emitted('save')[0][0]).toMatch(/^data:image\/png/)
+    expect(context.moveTo.mock.calls).toEqual([[10, 10], [100, 10]]); expect(context.lineTo).toHaveBeenCalledTimes(2); expect(wrapper.emitted('save')[0][0]).toMatch(/^data:image\/png/)
     const before = wrapper.emitted('change').length; const clear = wrapper.findAll('button').find(button => button.text().includes('مسح')); await clear.trigger('click')
     expect(wrapper.emitted('change').length).toBeGreaterThan(before); expect(wrapper.find('path').exists()).toBe(false)
   })
