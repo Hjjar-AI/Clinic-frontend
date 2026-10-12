@@ -32,7 +32,7 @@ Vitest uses a separate temporary optimizer cache (`CLINIC_VITEST_CACHE` can over
 | Browser (`e2e/`) | Guest/auth/roles, operational routes/themes, patient records/documents/team/duplicates/merge, actual appointment availability/reschedule, sign/amend/re-sign, PNG prescription/referral, fractional SYP billing, import and authenticated full recovery/relogin/exact bytes. |
 | Browser interactions | Ten added scenarios × three viewports: actual chart pixels/hover/legend/filter, bounded search/keyboard/badges/panel/route closure, drawer/modal focus and catalog/scale/user/template/patient edits. Five further scenarios × three viewports exercise all eight theme solid controls/light-dark (672 color pairs), actual tab relationships/focus with RTL/LTR arrows, normal textarea keys, failed opening-record retry/no writes, scratchpad reload privacy and reduced motion. |
 
-Selected Chromium Arabic RTL viewports: 1280×800, 768×1024, 390×844. Final full/focused runs must remain distinct. No general accessibility, visual or cross-engine certification.
+Selected Chromium Arabic RTL viewports: 1280×800, 768×1024, 390×844. Final full/focused runs must remain distinct. Current browser failures and interrupted work are listed in current; do not treat the earlier focused passes as a clean expanded full run. No general accessibility, visual or cross-engine certification.
 
 ## Remaining rendered matrix
 

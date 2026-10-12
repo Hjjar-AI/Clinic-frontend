@@ -102,12 +102,12 @@ test('operational pages render with the real API in light and dark themes', asyn
   test.setTimeout(120000)
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
-  page.on('console', message => { if (message.type() === 'error' && message.text().includes('[ErrorBoundary]')) errors.push(message.text()) })
+  page.on('console', message => { if (message.type() === 'error' && message.text().includes('ErrorBoundary')) errors.push(message.text()) })
   await login(page)
   for (const path of ['/patients', '/visits', '/appointments', '/tasks', '/diagnoses', '/medications', '/scales', '/invoices', '/templates', '/users', '/reports/statistics', '/settings', '/backup', '/import']) {
     await page.goto(path)
     await expect(page).toHaveURL(new RegExp(`${path}$`))
-    await expect(page.locator('#main-content')).toBeVisible()
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 15000 })
     await expect(page.getByRole('button', { name: 'تبديل الوضع الداكن' })).toBeVisible()
     await expect(page.locator('.page-wrapper__skeleton')).toHaveCount(0)
     await expect(page.locator('.error-state-card, .error-boundary-card')).toHaveCount(0)

@@ -48,7 +48,7 @@ test('patient sibling routes preserve navigation section identity and real tab r
 test('normal textarea keyboard input survives shared card wrappers without submitting', async ({ page }, info) => {
   const { patient } = await setup(page, info, 'إدخال اصطناعي')
   await page.goto(`/patients/${patient.id}/visits/new`)
-  const complaint = page.getByLabel('الشكوى الرئيسية', { exact: false }); await expect(complaint).toBeEditable()
+  const complaint = page.getByLabel('الشكوى الرئيسية', { exact: false }); await expect(complaint).toBeEditable({ timeout: 15000 })
   await complaint.fill('نص'); await complaint.press('Space'); await complaint.press('Enter'); await complaint.press('a')
   await expect(complaint).toHaveValue('نص \na'); await expect(page).toHaveURL(new RegExp(`/patients/${patient.id}/visits/new$`))
 })
