@@ -2,6 +2,7 @@
 
 | Area / files | Remaining action |
 | --- | --- |
+| Review recommendations | [431-file review](reviews/frontend-file-by-file-2026-10-12.md) is complete. F01–F43/L01–L10 remain recommendations for a later fix task; N6/N7 below are carried forward, not duplicate findings. No production fixes authorized by this review. |
 | `AppNavigation.vue`, `BottomNav.vue`, `src/router/index.js` | **N6 confirmed:** detail/create/edit sibling routes lose section highlighting; share section identity and correct `aria-current`. |
 | `useNavigationItems.js`, `apiClient.js`, `src/stores/loading.js` | **N7 confirmed:** background badge/poll requests can activate blocking loading; separate background refresh, preserve visible cards and avoid duplicate dashboard fetches. |
 | Topbar/bottom navigation, drawer, floating panels | Reproduce remaining badge-width/overflow/animation risks at 320/360/390px and 768/769px, expanded/collapsed desktop, RTL/LTR, 100/200% text and long labels/counts; inspect both edges/scroll owners without logging patient content. [Details](ui/navigation.md). |
