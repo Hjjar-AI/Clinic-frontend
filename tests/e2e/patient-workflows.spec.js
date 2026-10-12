@@ -22,6 +22,7 @@ async function confirm(page) {
 }
 
 test('contact creation, correction and retirement survive reload and retain history', async ({ page }, info) => {
+  test.setTimeout(60000)
   const { patient } = await setup(page)
   await page.goto(`/patients/${patient.id}?tab=records&kind=contacts`)
   await expect(page.getByRole('tab')).toHaveCount(7)

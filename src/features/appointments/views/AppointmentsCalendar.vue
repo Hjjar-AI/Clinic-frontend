@@ -1,6 +1,6 @@
 <!-- frontend/src/features/appointments/views/AppointmentsCalendar.vue -->
 <template>
-  <p v-if="error" role="alert" class="text-danger">{{ error }} <BaseButton @click="loadAppointments">إعادة المحاولة</BaseButton></p>
+  <ResourceFeedback :error="error" retryable @retry="loadAppointments" />
   <CalendarLayout
     :view="view"
     :can-manage-users="authStore.can('manage_users')"
@@ -29,6 +29,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useConfirmDialog } from '@/composables/useConfirmDialog'

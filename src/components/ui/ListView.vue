@@ -12,7 +12,7 @@
       @reset="$emit('filter-reset')"
     />
 
-    <p v-if="error" role="alert" class="text-danger">تعذر تحميل القائمة <BaseButton @click="initialLoad">إعادة المحاولة</BaseButton></p>
+    <ResourceFeedback :error="error ? 'تعذر تحميل القائمة' : ''" retryable @retry="initialLoad" />
     <!-- Table -->
     <DataTable
       :columns="columns"
@@ -65,6 +65,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { computed,getCurrentInstance,onBeforeUnmount,onMounted,ref, watch } from 'vue'
 
 import { useDate } from '@/composables/useDate'

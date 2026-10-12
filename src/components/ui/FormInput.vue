@@ -58,7 +58,7 @@ const props = defineProps({
   valid: { type: Boolean, default: false }
 })
 
-const controlDirection = computed(() => props.direction || (['tel', 'email', 'url', 'number'].includes(props.type) ? 'ltr' : undefined))
+const controlDirection = computed(() => props.direction || (['tel', 'email', 'url', 'number', 'date', 'time', 'datetime-local'].includes(props.type) ? 'ltr' : undefined))
 const fallbackId = `input-${useId()}`
 const computedId = computed(() => props.fieldId || fallbackId)
 

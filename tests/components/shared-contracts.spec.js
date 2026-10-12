@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
+import DateCell from '@/components/ui/DateCell.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -121,5 +123,37 @@ describe('privacy and signature state', () => {
     expect(context.moveTo.mock.calls).toEqual([[10, 10], [100, 10]]); expect(context.lineTo).toHaveBeenCalledTimes(2); expect(wrapper.emitted('save')[0][0]).toMatch(/^data:image\/png/)
     const before = wrapper.emitted('change').length; const clear = wrapper.findAll('button').find(button => button.text().includes('مسح')); await clear.trigger('click')
     expect(wrapper.emitted('change').length).toBeGreaterThan(before); expect(wrapper.find('path').exists()).toBe(false)
+  })
+})
+
+
+describe('standard feedback and clinical date presentation', () => {
+  it('announces loading, prioritizes errors, offers one retry and clears resolved feedback', async () => {
+    const wrapper = mount(ResourceFeedback, { props: { loading: true, retryable: true } })
+    expect(wrapper.get('[role="status"]').attributes('aria-busy')).toBe('true')
+    expect(wrapper.find('button').exists()).toBe(false)
+    await wrapper.setProps({ error: 'Synthetic lookup failure' })
+    expect(wrapper.get('[role="alert"]').text()).toContain('Synthetic lookup failure')
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.emitted('retry')).toHaveLength(1)
+    await wrapper.setProps({ loading: false, error: '' })
+    expect(wrapper.find('[role="alert"], [role="status"]').exists()).toBe(false)
+  })
+
+  it('does not imply that a failed write can be retried as a read', () => {
+    const wrapper = mount(ResourceFeedback, { props: { error: 'Synthetic rejected write' } })
+    expect(wrapper.get('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.find('button').exists()).toBe(false)
+  })
+
+  it('renders exact calendar dates and rejects rollovers with a context-specific missing label', async () => {
+    const wrapper = mount(DateCell, { props: { date: '2026-10-12', relative: false, emptyText: 'غير معروف' } })
+    expect(wrapper.get('time bdi').text()).toBe('12/10/2026')
+    expect(wrapper.get('time').attributes('title')).toBe('2026-10-12')
+    await wrapper.setProps({ date: '2026-02-30' })
+    expect(wrapper.find('time').exists()).toBe(false)
+    expect(wrapper.text()).toBe('غير معروف')
+    await wrapper.setProps({ date: null, emptyText: 'غير مسجل' })
+    expect(wrapper.text()).toBe('غير مسجل')
   })
 })

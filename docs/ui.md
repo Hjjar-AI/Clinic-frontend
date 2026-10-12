@@ -22,4 +22,15 @@ Shell owns gutters and viewport/safe-area budget; PageContainer owns standard/wi
 | Shared forms/tables | Native button event/href/number-step contracts, error/dirty-state handling, LTR-isolated machine values, zero local sticky-table offset and RTL scroll edges. At narrow widths patient context becomes static and tabs retain local scroll width. |
 | Documents/print | Current chrome/banners/overlays hidden; widths/offsets/sticky/fixed/clipping reset. Server PDF uses a separate renderer/font contract. |
 
-Completed behavior above has selected source/component/browser evidence, not exhaustive rendering. The 2026-10-12 review corrections cover cards, selectors, dates, permissions, theme ownership and other controls; their current evidence is source checks and isolated probes, pending rendered verification.
+Completed behavior above has selected source/component/browser evidence, not exhaustive rendering. The 2026-10-12 corrections have durable component and selected Chromium evidence; latest counts and runtime limits stay in completed.
+
+## Shared presentation contracts
+
+| Concern | Standard |
+| --- | --- |
+| Confirmation | One owner per action: button/TableActions or page handler. Retain required checkbox/reason and clinical scope/preview steps. Task deletion confirms in its page handler; draft archiving confirms in TableActions and sends the displayed opening version. |
+| Feedback | `ResourceFeedback` presents loading or errors with status/alert semantics and optional explicit read retry. It never retries writes. Forms keep their readiness fieldset; submission errors use `AlertBar`. Specialized picker/table skeletons remain owned by their controls. |
+| Status | `Badge` with explicit domain `statusType` owns labels/colors/icons. Task labels consistently use the feminine form; unknown states do not become cancelled. |
+| Fields | Reuse FormInput/FormSelect/FormTextarea for ordinary fields; retain specialized clinical/nullable/choice controls. Numeric/contact/date/time controls isolate machine values in LTR. |
+| Pages | PageContainer owns width, followed by Breadcrumb/PageHeader/content. Short forms use FormWrapper; the visit form keeps its patient sidebar and clinical sections. Shell alone owns gutters. |
+| Dates / absence | DateCell supports relative or exact dates, optional time and a context-specific empty label; exact dates use the shared strict parser and LTR isolation, with source timestamps retained in the title. `formatDisplayValue` treats only null/undefined/empty strings as missing; zero and explicit no remain values. Unknown, not recorded and not applicable remain distinct. Never parse a year-only birth as a full date. |

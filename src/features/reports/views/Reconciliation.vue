@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p v-if="loadError" role="alert" class="text-danger">{{ loadError }}</p>
+    <ResourceFeedback :error="loadError" />
     <Breadcrumb :items="[{ label: 'التقارير', to: { name: 'Statistics' } }, { label: 'مطابقة السجلات' }]" />
     <PageHeader
       title="مطابقة السجلات"
@@ -51,6 +51,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'

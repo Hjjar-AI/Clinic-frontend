@@ -48,4 +48,10 @@ export function formatNationalId(id) {
     return toArabicNumerals(cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4'))
   }
   return toArabicNumerals(cleaned)
+}/** Preserve explicit negatives/zero; callers choose the clinically appropriate absence label. */
+export function formatDisplayValue(value, emptyText = 'غير معروف') {
+  if (value == null || value === '') return emptyText
+  if (value === true) return 'نعم'
+  if (value === false) return 'لا'
+  return String(value)
 }

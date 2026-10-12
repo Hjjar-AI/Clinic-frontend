@@ -31,6 +31,8 @@
         />
       </div>
 
+      <PrescriptionPaperOptions v-model="paperOptions" :snapshot="snapshot" :disabled="generating" @validity="paperReady = $event" />
+
       <ControlledSubstanceCard
         v-for="med in controlledMeds"
         :key="med.id"
@@ -88,10 +90,12 @@
             <BaseButton
               variant="primary"
               :loading="generating"
+              :disabled="!paperReady || !previewToken"
               @click="generatePdf"
             >
               <Icon icon="file-pdf" /> إنشاء وطباعة الروشتة
             </BaseButton>
+            <BaseButton v-if="!previewToken" variant="secondary" @click="loadPreview">معاينة جديدة لطباعة نسخة أخرى</BaseButton>
             <BaseButton
               variant="secondary"
               :to="`/patients/${snapshot.patient_id}`"
@@ -125,6 +129,8 @@ import { useApi } from '@/composables/useApi'
 import ControlledSubstanceCard from '@/features/clinical/components/ControlledSubstanceCard.vue'
 import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'
 import MedicationList from '@/features/clinical/components/MedicationList.vue'
+import PrescriptionPaperOptions from '@/features/prescription/components/PrescriptionPaperOptions.vue'
+import { defaultPaperOptions, normalizePaperOptions } from '@/features/prescription/services/prescriptionPaper'
 import prescriptionService from '@/features/prescription/services/prescriptionService'
 import { unwrapResponse } from '@/services/apiClient'
 
@@ -132,8 +138,11 @@ const route = useRoute()
 const visitId = route.params.visitId
 const snapshot = ref(null)
 const previewToken = ref('')
+const paperOptions = ref(defaultPaperOptions())
+const paperReady = ref(true)
+let disposed = false
 let stampGeneration = 0
-onBeforeUnmount(() => { stampGeneration += 1 })
+onBeforeUnmount(() => { stampGeneration += 1; disposed = true })
 const stampFile = ref(null)
 const stampPreview = ref(null)
 const signatureData = ref(null)
@@ -160,17 +169,21 @@ const scheduleMeds = computed(() => snapshot.value?.medications?.map(m => ({
   controlled: m.controlled === true,
 })) || [])
 
-onMounted(async () => {
+async function loadPreview() {
+  statusMsg.value = ''
   try {
     const response = await prescriptionService.preview(visitId)
     const data = unwrapResponse(response)
+    if (disposed) return
     snapshot.value = data
     previewToken.value = data.preview_token
   } catch {
+    if (disposed) return
     statusMsg.value = 'تعذر تحميل معاينة الوصفة'
     statusType.value = 'danger'
   }
-})
+}
+onMounted(loadPreview)
 
 function handleStampUpload(event) {
   const request = ++stampGeneration
@@ -197,6 +210,8 @@ function onSignatureSave(dataUrl) { signatureData.value = dataUrl; signatureErro
 
 const { loading: generating, execute: doGenerate } = useApi(async () => {
   if (!signatureData.value) { signatureError.value = 'يجب توقيع الروشتة أولاً'; throw new Error('no signature') }
+  const printOptions = normalizePaperOptions(paperOptions.value)
+  if (!printOptions || !previewToken.value) throw new Error('تحقق من الورق وافتح معاينة صالحة قبل الطباعة')
   statusMsg.value = 'جاري إنشاء الروشتة...'
   statusType.value = 'info'
 
@@ -204,6 +219,7 @@ const { loading: generating, execute: doGenerate } = useApi(async () => {
     visit_id: visitId,
     preview_token: previewToken.value,
     signature: signatureData.value,
+    print_options: printOptions,
   }
   const currentStamp = stampFile.value
   if (currentStamp) {
@@ -222,6 +238,7 @@ const { loading: generating, execute: doGenerate } = useApi(async () => {
   a.href = url; a.download = `prescription_${visitId}.pdf`
   document.body.appendChild(a); a.click(); a.remove()
   window.URL.revokeObjectURL(url)
+  previewToken.value = ''
   statusMsg.value = 'تم إنشاء الروشتة بنجاح'; statusType.value = 'success'
 })
 

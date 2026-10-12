@@ -187,6 +187,7 @@ async function handleDelete(task) {
     CONFIRM.DELETE_WITH_NAME(task.title),
     {
       confirmText: 'نعم، احذف',
+      requireCheckbox: true,
       cancelText: 'إلغاء',
     }
   )

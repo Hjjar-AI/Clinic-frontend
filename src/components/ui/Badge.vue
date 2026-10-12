@@ -134,8 +134,8 @@ const statusLabelMap = {
   task: {
     [TASK_STATUS.OPEN]: 'مفتوحة',
     [TASK_STATUS.IN_PROGRESS]: 'قيد التنفيذ',
-    [TASK_STATUS.COMPLETED]: 'مكتمل',
-    [TASK_STATUS.CANCELLED]: 'ملغي'
+    [TASK_STATUS.COMPLETED]: 'مكتملة',
+    [TASK_STATUS.CANCELLED]: 'ملغية'
   },
   invoice: {
     [INVOICE_STATUS.DRAFT]: 'مسودة',

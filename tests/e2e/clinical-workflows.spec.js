@@ -181,12 +181,43 @@ test('medication import maps all five columns and requires preview before execut
   }
   await page.getByRole('button', { name: 'معاينة الاستيراد', exact: true }).click()
   await expect(page.getByRole('button', { name: 'تأكيد استيراد الأدوية', exact: true })).toBeVisible()
-  expect(items(await (await page.request.get(`/api/v1/options/medications/?search=${encodeURIComponent(name)}`)).json())).toHaveLength(0)
+  expect(items(await (await page.request.get(`/api/v1/options/medications/?search=${encodeURIComponent(name)}`, { maxRetries: 2 })).json())).toHaveLength(0)
   await page.getByRole('button', { name: 'تأكيد استيراد الأدوية', exact: true }).click()
   await expect(page.locator('#mapGenericEnglish')).toHaveCount(0)
-  const medications = items(await (await page.request.get(`/api/v1/options/medications/?search=${encodeURIComponent(name)}`)).json())
+  const medications = items(await (await page.request.get(`/api/v1/options/medications/?search=${encodeURIComponent(name)}`, { maxRetries: 2 })).json())
   expect(medications).toHaveLength(1)
   expect(medications[0].generic_english).toBe(name)
   expect(medications[0].generic_arabic).toBe('دواء اصطناعي')
   expect(medications[0].dosage).toBe('10 mg')
+})
+
+
+test('draft visit archive uses one checkbox confirmation and the displayed opening version', async ({ page }, info) => {
+  const { patient, headers } = await setup(page, info, 'أرشفة اصطناعية')
+  const response = await page.request.post(`/api/v1/patients/${patient.id}/visits/`, {
+    headers: await headers(), data: { visit_date: '2026-10-12', main_complaints: 'Synthetic archive complaint' },
+  })
+  expect(response.status()).toBe(201)
+  const visit = (await response.json()).data
+  let writes = 0
+  page.on('request', request => { if (request.method() === 'DELETE' && request.url().endsWith(`/visits/${visit.id}/`)) writes++ })
+  await page.goto('/visits')
+  const row = page.locator('tbody tr').filter({ hasText: patient.surname })
+  await expect(row).toBeVisible()
+  await row.getByTitle('أرشفة المسودة', { exact: true }).click()
+  let dialog = page.getByRole('dialog')
+  await dialog.getByRole('button', { name: 'إلغاء', exact: true }).click()
+  expect(writes).toBe(0)
+  await row.getByTitle('أرشفة المسودة', { exact: true }).click()
+  dialog = page.getByRole('dialog')
+  await expect(dialog.getByRole('button', { name: 'نعم', exact: true })).toBeDisabled()
+  await dialog.getByRole('checkbox').check()
+  const pending = page.waitForResponse(value => value.request().method() === 'DELETE' && value.url().endsWith(`/visits/${visit.id}/`))
+  await dialog.getByRole('button', { name: 'نعم', exact: true }).click()
+  const archived = await pending
+  expect(archived.status()).toBe(204)
+  expect(archived.request().postDataJSON()).toEqual({ version: visit.version })
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(row).toHaveCount(0)
+  expect(writes).toBe(1)
 })

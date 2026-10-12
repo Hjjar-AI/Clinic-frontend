@@ -50,6 +50,7 @@
             :show-edit="canEdit && ['draft', 'amended'].includes(item.status)"
             :edit-to="{ name: 'VisitEdit', params: { id: item.id } }"
             :show-delete="canDelete && item.status === 'draft'"
+            delete-title="أرشفة المسودة"
             confirm-message="سيتم أرشفة مسودة الزيارة. يمكن لمسؤول النظام استعادتها من النسخة الاحتياطية عند الحاجة. هل تريد المتابعة؟"
             @delete="$emit('delete-visit', item)"
           >

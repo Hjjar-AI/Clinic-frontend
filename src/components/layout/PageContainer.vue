@@ -37,22 +37,7 @@
       class="error-state-card card"
     >
       <div class="card__body text-center">
-        <Icon
-          icon="exclamation-triangle"
-          class="text-danger text-2xl mb-2"
-        />
-        <h3 class="text-danger">
-          حدث خطأ أثناء تحميل البيانات
-        </h3>
-        <p class="text-muted text-sm">
-          {{ errorMessage || 'يرجى المحاولة مرة أخرى.' }}
-        </p>
-        <button
-          class="btn btn--secondary mt-2"
-          @click="$emit('retry')"
-        >
-          إعادة المحاولة
-        </button>
+        <ResourceFeedback :error="errorMessage || 'حدث خطأ أثناء تحميل البيانات'" retryable @retry="$emit('retry')" />
       </div>
     </div>
 
@@ -68,7 +53,7 @@
 <script setup>
 import SkeletonLoader from '@/components/common/SkeletonLoader.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
-import Icon from '@/components/ui/Icon.vue'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 
 defineProps({
   width: { type: String, default: 'standard', validator: value => ['standard', 'wide', 'form'].includes(value) },

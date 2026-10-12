@@ -1,5 +1,5 @@
 <template>
-  <p v-if="loadError" role="alert" class="text-danger">{{ loadError }} <button type="button" @click="fetchData">إعادة المحاولة</button></p>
+  <ResourceFeedback :error="loadError" retryable @retry="fetchData" />
   <StatisticsLayout
     :downloading-summary="downloadingSummary"
     :downloading-performance="downloadingPerformance"
@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { computed, onMounted,reactive,ref,onBeforeUnmount } from 'vue'
 
 import { useApi } from '@/composables/useApi'

@@ -1,6 +1,6 @@
 <!-- frontend/src/features/settings/views/UserForm.vue -->
 <template>
-  <p v-if="stampError" role="alert" class="text-danger">{{ stampError }}</p>
+  <ResourceFeedback :error="stampError" />
   <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry" width="sm"
     :header-title="isEdit ? 'تعديل مستخدم' : 'مستخدم جديد'"
     header-icon="user-plus"
@@ -62,6 +62,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed,onBeforeUnmount,onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

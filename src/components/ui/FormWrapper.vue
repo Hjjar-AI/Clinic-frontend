@@ -19,7 +19,7 @@
         />
       </template>
       <FormErrorSummary :errors="validationErrors" />
-      <p v-if="!ready" role="status" class="text-muted">{{ loadError || 'جاري تحميل البيانات…' }} <button v-if="loadError" type="button" @click="$emit('retry')">إعادة المحاولة</button></p>
+      <ResourceFeedback :loading="!ready" :error="loadError" retryable @retry="$emit('retry')" />
       <form @submit.prevent="ready && $emit('submit')">
         <fieldset class="form-load-fields" :disabled="!ready">
         <slot />
@@ -36,12 +36,7 @@
         />
         </fieldset>
       </form>
-      <div
-        v-if="submitError"
-        class="alert alert--danger mt-3"
-      >
-        {{ submitError }}
-      </div>
+      <AlertBar v-if="submitError" severity="danger" :title="submitError" role="alert" class="mt-3" />
     </BaseCard>
   </div>
 </template>
@@ -51,6 +46,8 @@ import BackLink from './BackLink.vue'
 import BaseCard from './BaseCard.vue'
 import CardHeader from './CardHeader.vue'
 import FormActions from './FormActions.vue'
+import ResourceFeedback from './ResourceFeedback.vue'
+import AlertBar from './AlertBar.vue'
 import FormErrorSummary from './FormErrorSummary.vue'
 
 defineProps({

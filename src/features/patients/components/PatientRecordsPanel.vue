@@ -6,20 +6,21 @@
       </select>
     </FormField>
     <p class="text-muted">هذه معلومات مستمرة؛ لا تعدّل معلومات الزيارات أو المستندات الموقعة.</p>
-    <AlertBar v-if="error" severity="danger" :title="error" />
-    <p v-if="loading" role="status">جار تحميل السجلات…</p>
+    <ResourceFeedback :error="error" :loading="loading" loading-text="جار تحميل السجلات…" />
     <BaseButton v-if="canEdit && !editing" @click="start()">إضافة سجل</BaseButton>
     <form v-if="editing" class="card p-3 mt-3" @submit.prevent="save">
       <div v-if="operation === 'save'" class="grid-2">
-        <FormField v-for="field in definition.fields" :key="field.name" :label="field.label" :required="field.required">
+        <template v-for="field in definition.fields" :key="field.name">
+        <FormTextarea v-if="field.type === 'textarea'" v-model="draft[field.name]" :label="field.label" :required="field.required" />
+        <FormField v-else :label="field.label" :required="field.required">
           <select v-if="options(field)" v-model="draft[field.name]" class="form-control" :required="field.required">
             <option :value="emptyValue(field)">غير محدد</option>
             <option v-for="option in options(field)" :key="option.value" :value="option.value" :disabled="option.disabled">{{ option.label }}</option>
           </select>
-          <textarea v-else-if="field.type === 'textarea'" v-model="draft[field.name]" class="form-control" rows="3" />
           <input v-else-if="field.type === 'checkbox'" v-model="draft[field.name]" type="checkbox">
           <input v-else v-model="draft[field.name]" :type="field.type" :maxlength="field.maxLength" class="form-control" :required="field.required">
         </FormField>
+        </template>
       </div>
       <FormField label="سبب الإضافة أو التعديل أو إنهاء السجل" :required="!!selected || operation === 'retire'">
         <input v-model="reason" class="form-control" maxlength="500" :required="!!selected || operation === 'retire'">
@@ -35,10 +36,10 @@
       <p v-if="row.legacy_visit_follow_up" class="text-muted">متابعة مرتبطة بالزيارة؛ تعديل تاريخها ونتيجتها من شاشة الزيارة.</p>
       <dl class="patient-record-values">
         <template v-for="field in definition.fields" :key="field.name">
-          <dt>{{ field.label }}</dt><dd>{{ display(row[field.name], field) }}</dd>
+          <dt>{{ field.label }}</dt><dd><DateCell v-if="field.type === 'date'" :date="row[field.name]" :relative="false" empty-text="غير معروف" /><template v-else>{{ display(row[field.name], field) }}</template></dd>
         </template>
       </dl>
-      <p class="text-muted text-xs">أضيف: {{ row.created_at }} · آخر تعديل: {{ row.updated_at }}</p>
+      <p class="text-muted text-xs">أضيف: <DateCell :date="row.created_at" :relative="false" show-time empty-text="غير مسجل" /> · آخر تعديل: <DateCell :date="row.updated_at" :relative="false" show-time empty-text="غير مسجل" /></p>
       <div v-if="canEdit && row.is_active && !row.legacy_visit_follow_up" class="flex flex--wrap gap-2">
         <BaseButton size="sm" @click="start(row)">تعديل</BaseButton>
         <BaseButton size="sm" variant="secondary" @click="start(row, 'retire')">إنهاء السجل</BaseButton>
@@ -52,7 +53,10 @@
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import FormField from '@/components/ui/FormField.vue'
-import AlertBar from '@/components/ui/AlertBar.vue'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
+import FormTextarea from '@/components/ui/FormTextarea.vue'
+import DateCell from '@/components/ui/DateCell.vue'
+import { formatDisplayValue } from '@/utils/formatters'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import patientService from '@/features/patients/services/patientService'
 import { recordKinds, defaultRecord } from '@/features/patients/config/recordFields'
@@ -80,7 +84,7 @@ function options(field) {
   return null
 }
 function emptyValue(field) { return ['date','visit','member','appointment'].includes(field.type) ? null : '' }
-function display(value,field) { if(value===true)return 'نعم';if(value===false)return 'لا';return (field.type==='member' ? props.members.find(row=>row.user===value)?.user_name : options(field)?.find(row=>row.value===value)?.label) || value || 'غير معروف' }
+function display(value,field) { return formatDisplayValue((field.type==='member' ? props.members.find(row=>row.user===value)?.user_name : options(field)?.find(row=>row.value===value)?.label) ?? value) }
 function start(row=null, mode='save') {
   selected.value=row;operation.value=mode;reason.value='';editing.value=true;openingVersion=props.patient.version
   for(const key of Object.keys(draft)) delete draft[key]

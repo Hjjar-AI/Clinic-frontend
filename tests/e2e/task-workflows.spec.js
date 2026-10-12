@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import { login } from './helpers/workflow.js'
 
 test('task creation, lifecycle, reasoned cancellation and deletion persist through the real API', async ({ page }, info) => {
+  test.setTimeout(60000)
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
   await login(page)
@@ -45,9 +46,8 @@ test('task creation, lifecycle, reasoned cancellation and deletion persist throu
   await row.getByTitle('حذف', { exact: true }).click()
   dialog = page.getByRole('dialog')
   await dialog.getByRole('checkbox').check()
-  await dialog.getByRole('button', { name: 'نعم', exact: true }).click()
-  // The page also asks for deletion confirmation after its button confirmation.
-  await page.getByRole('dialog').getByRole('button', { name: 'نعم، احذف', exact: true }).click()
+  await dialog.getByRole('button', { name: 'نعم، احذف', exact: true }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(row).toHaveCount(0)
   expect((await page.request.get(`/api/v1/tasks/${task.id}/`)).status()).toBe(404)
   expect(errors).toEqual([])

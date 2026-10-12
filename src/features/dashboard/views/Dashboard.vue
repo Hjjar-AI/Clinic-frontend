@@ -1,6 +1,6 @@
 <!-- frontend/src/features/dashboard/views/Dashboard.vue -->
 <template>
-  <p v-if="analyticsStore.error" role="alert" class="text-danger">{{ analyticsStore.error }}</p>
+  <ResourceFeedback :error="analyticsStore.error" />
   <DashboardLayout
     :greeting="dynamicGreeting"
     :can-edit-visit="authStore.can('edit_visit')"
@@ -19,6 +19,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { computed, onMounted } from 'vue'
 
 import { useConfirmDialog } from '@/composables/useConfirmDialog'

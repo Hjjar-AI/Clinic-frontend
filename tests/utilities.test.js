@@ -1,3 +1,4 @@
+import { formatDisplayValue } from '@/utils/formatters'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createLRUCache } from '@/utils/lruCache'
@@ -85,4 +86,14 @@ test('async state clears previous errors on retry and success', () => {
   assert.deepEqual(state, { loading: true, error: null })
   actions.setSuccess()
   assert.deepEqual(state, { loading: false, error: null })
+})
+
+
+test('display values retain explicit negatives and zero while distinguishing absence contexts', () => {
+  assert.equal(formatDisplayValue(false), 'لا')
+  assert.equal(formatDisplayValue(true), 'نعم')
+  assert.equal(formatDisplayValue(0), '0')
+  assert.equal(formatDisplayValue(null), 'غير معروف')
+  assert.equal(formatDisplayValue('', 'غير مسجل'), 'غير مسجل')
+  assert.equal(formatDisplayValue(undefined, 'غير منطبق'), 'غير منطبق')
 })

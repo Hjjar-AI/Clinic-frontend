@@ -1,0 +1,5 @@
+.prescription-paper-options { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); margin-block: var(--space-3); min-inline-size: 0; }
+.prescription-paper-options legend { font-weight: 700; padding-inline: var(--space-2); }
+.prescription-paper-guide { position: relative; inline-size: 100%; max-inline-size: 340px; margin-inline: auto; border: 1px solid var(--color-border); background: #fff; color: #000; }
+.prescription-paper-guide img { display: block; inline-size: 100%; block-size: 100%; object-fit: fill; }
+.paper-marker { position: absolute; inline-size: 28%; font-size: 7px; line-height: 1; overflow-wrap: anywhere; text-align: start; }

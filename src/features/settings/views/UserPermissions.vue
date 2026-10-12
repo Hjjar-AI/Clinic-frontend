@@ -12,7 +12,7 @@
             spin
           />
         </div>
-        <p v-if="loadError" role="alert">{{ loadError }} <button type="button" @click="resource.retry">إعادة المحاولة</button></p>
+        <ResourceFeedback v-if="loadError" :error="loadError" retryable @retry="resource.retry" />
         <form
           v-else-if="ready"
           @submit.prevent="savePermissions"
@@ -65,6 +65,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed, onMounted,ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

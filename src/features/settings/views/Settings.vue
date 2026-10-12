@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-view">
+  <PageContainer status="content" class="settings-view">
     <Breadcrumb />
     <PageHeader
       title="الإعدادات العامة"
@@ -14,24 +14,9 @@
           :open="true"
         >
           <div class="grid-2 gap-3">
-            <FormField label="اسم العيادة">
-              <input
-                v-model="form.clinic_name"
-                class="form-control"
-              >
-            </FormField>
-            <FormField label="عنوان العيادة">
-              <input
-                v-model="form.clinic_address"
-                class="form-control"
-              >
-            </FormField>
-            <FormField label="هاتف العيادة">
-              <input
-                v-model="form.clinic_phone"
-                class="form-control"
-              >
-            </FormField>
+            <FormInput v-model="form.clinic_name" label="اسم العيادة" />
+            <FormInput v-model="form.clinic_address" label="عنوان العيادة" />
+            <FormInput v-model="form.clinic_phone" label="هاتف العيادة" type="tel" />
           </div>
         </CollapsibleSection>
 
@@ -159,7 +144,7 @@
         </div>
       </div>
     </BaseCard>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup>
@@ -167,7 +152,7 @@ import { onMounted, ref, watch } from 'vue'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
-import FormField from '@/components/ui/FormField.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
 import MultiSelect from '@/components/ui/MultiSelect.vue'
 import FormInput from '@/components/ui/FormInput.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'

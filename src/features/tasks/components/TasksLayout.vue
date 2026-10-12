@@ -1,5 +1,5 @@
 <template>
-  <div class="tasks-page">
+  <PageContainer status="content" class="tasks-page">
     <Breadcrumb />
     <PageHeader
       title="إدارة المهام"
@@ -19,25 +19,8 @@
     >
       <form @submit.prevent="$emit('add-task', newTaskTitle, newTaskDueDate)">
         <div class="task-add-row flex gap-3 flex--end">
-          <FormField
-            label="عنوان المهمة"
-            required
-            class="flex--1"
-          >
-            <input
-              v-model="newTaskTitle"
-              class="form-control"
-              required
-              placeholder="عنوان..."
-            >
-          </FormField>
-          <FormField label="تاريخ الاستحقاق">
-            <input
-              v-model="newTaskDueDate"
-              type="date"
-              class="form-control"
-            >
-          </FormField>
+          <FormInput v-model="newTaskTitle" label="عنوان المهمة" required class="flex--1" placeholder="عنوان..." />
+          <FormInput v-model="newTaskDueDate" type="date" label="تاريخ الاستحقاق" />
           <BaseButton
             type="submit"
             variant="success"
@@ -78,10 +61,7 @@
           />
         </template>
         <template #status="{ item }">
-          <span
-            class="tag"
-            :class="statusTagClass(item.status)"
-          >{{ statusLabel(item.status) }}</span>
+          <Badge :status="item.status" status-type="task" />
         </template>
         <template #actions="{ item }">
           <BaseButton
@@ -119,15 +99,13 @@
             variant="ghost"
             icon="trash"
             :disabled="!['completed', 'cancelled'].includes(item.status)"
-            :confirm-message="CONFIRM.DELETE_WITH_NAME(item.title)"
-            :confirm-checkbox="true"
             title="حذف"
-            @confirmed="$emit('delete-task', item)"
+            @click="$emit('delete-task', item)"
           />
         </template>
       </ListView>
     </BaseCard>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup>
@@ -135,10 +113,11 @@ import { ref } from 'vue'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import DateCell from '@/components/ui/DateCell.vue'
-import FormField from '@/components/ui/FormField.vue'
+import FormInput from '@/components/ui/FormInput.vue'
+import Badge from '@/components/ui/Badge.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
 import ListView from '@/components/ui/ListView.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import { CONFIRM } from '@/utils/confirmMessages'
 
 defineProps({
   showAddForm: { type: Boolean, default: false },
@@ -159,12 +138,6 @@ defineEmits([
 const newTaskTitle = ref('')
 const newTaskDueDate = ref('')
 
-function statusTagClass(status) {
-  return status === 'open' ? 'tag--warning-soft' : status === 'in_progress' ? 'tag--info-soft' : status === 'completed' ? 'tag--success-soft' : 'tag--danger-soft'
-}
-function statusLabel(status) {
-  return status === 'open' ? 'مفتوحة' : status === 'in_progress' ? 'قيد التنفيذ' : status === 'completed' ? 'مكتملة' : 'ملغية'
-}
 </script>
 
 <style scoped src="../../../styles/features/tasks/components/tasks-layout.css"></style>

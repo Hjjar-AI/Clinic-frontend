@@ -1,5 +1,5 @@
 <template>
-  <p v-if="sectionErrors.length" role="alert" class="text-danger">{{ sectionErrors.join('؛ ') }} <button type="button" @click="loadPatient">إعادة المحاولة</button></p>
+  <ResourceFeedback :error="sectionErrors.join('؛ ')" retryable @retry="loadPatient" />
   <PatientDetailLayout
     :status="pageStatus"
     @retry="loadPatient"
@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { computed, onMounted,ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 

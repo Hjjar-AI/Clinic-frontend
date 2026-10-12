@@ -147,19 +147,16 @@ function exportVisitPdf(visitId) {
 }
 
 const listRefresh = ref(0)
-const { execute: doDelete } = useApi((id) => visitService.delete(id))
+const { execute: doDelete } = useApi((visit) => visitService.delete(visit.id, visit.version), { silent: true })
 
 async function deleteVisit(visit) {
-  const ok = await confirm(
-    `سيتم أرشفة مسودة زيارة ${visit.patient?.full_name || 'المريض'}. هل تريد المتابعة؟`,
-    { confirmText: 'أرشفة المسودة' }
-  )
-
-  if (!ok) return
-
-  await doDelete(visit.id)
-  listRefresh.value += 1
-  notify('تمت أرشفة مسودة الزيارة', 'success')
+  try {
+    await doDelete(visit)
+    listRefresh.value += 1
+    notify('تمت أرشفة مسودة الزيارة', 'success')
+  } catch {
+    // Shared API handling presents failure/conflict; retain the displayed list.
+  }
 }
 
 async function confirmResetFilters() {

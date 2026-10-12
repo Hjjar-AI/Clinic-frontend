@@ -16,7 +16,7 @@
       <div class="flex flex--wrap gap-2 mt-3"><BaseButton type="submit" :loading="loading">{{ selected?'حفظ بيانات المستند':'رفع المستند' }}</BaseButton><BaseButton v-if="selected" variant="secondary" @click="reset">إلغاء</BaseButton></div>
     </form>
     <article v-for="row in documents" :key="row.id" class="card p-3 mt-3">
-      <p>{{ row.original_filename }} · {{ row.document_date || 'تاريخ غير معروف' }}</p>
+      <p>{{ row.original_filename }} · <DateCell :date="row.document_date" :relative="false" empty-text="تاريخ غير معروف" /></p>
       <p>المصدر: {{ row.source || 'غير معروف' }} · مقدم الخدمة: {{ row.provider || 'غير معروف' }}</p>
       <p>{{ row.verification==='verified'?'تم التحقق':row.verification==='reported'?'معلومات مبلّغة':'التحقق غير معروف' }} · {{ row.description }}</p>
       <div class="flex flex--wrap gap-2"><BaseButton size="sm" @click="download(row)">تنزيل</BaseButton><BaseButton v-if="patient.is_active" size="sm" @click="edit(row)">تعديل البيانات</BaseButton><BaseButton v-if="patient.is_active" size="sm" variant="secondary" @click="archive(row)">أرشفة المستند</BaseButton></div>
@@ -24,6 +24,7 @@
   </section>
 </template>
 <script setup>
+import DateCell from '@/components/ui/DateCell.vue'
 import { onMounted,reactive,ref } from 'vue'
 import FormField from '@/components/ui/FormField.vue'
 import AlertBar from '@/components/ui/AlertBar.vue'

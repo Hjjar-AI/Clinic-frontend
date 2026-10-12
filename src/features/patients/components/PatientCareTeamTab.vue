@@ -20,7 +20,7 @@
             variant="soft"
             class="mr-2"
           />
-          <p class="text-xs text-muted">الدور: {{ roleLabels[member.role] || member.role }} · أضافه: {{ member.assigned_by_name || 'غير مسجل' }} · بدء العضوية: {{ member.started_at }}<span v-if="member.ended_at"> · انتهت: {{ member.ended_at }} · أنهاها: {{ member.ended_by_name || 'غير مسجل' }}</span></p>
+          <p class="text-xs text-muted">الدور: {{ roleLabels[member.role] || member.role }} · أضافه: {{ formatDisplayValue(member.assigned_by_name, 'غير مسجل') }} · بدء العضوية: <DateCell :date="member.started_at" :relative="false" show-time empty-text="غير مسجل" /><span v-if="member.ended_at"> · انتهت: <DateCell :date="member.ended_at" :relative="false" show-time empty-text="غير مسجل" /> · أنهاها: {{ formatDisplayValue(member.ended_by_name, 'غير مسجل') }}</span></p>
         </div>
         <BaseButton
           v-if="!member.ended_at && authStore.can('manage_users')"
@@ -39,10 +39,7 @@
       title="لا يوجد أعضاء في الفريق"
     />
 
-    <div v-if="candidateError" role="alert">
-      {{ candidateError }}
-      <BaseButton variant="secondary" @click="retryCandidates">إعادة المحاولة</BaseButton>
-    </div>
+    <ResourceFeedback :loading="!candidatesReady && authStore.can('manage_users')" :error="candidateError" retryable @retry="retryCandidates" />
 
     <!-- Add form -->
     <div v-if="authStore.can('manage_users')" class="care-team-add-row mt-3 flex gap-2 flex--end">
@@ -84,6 +81,9 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
+import DateCell from '@/components/ui/DateCell.vue'
+import { formatDisplayValue } from '@/utils/formatters'
 
 import { useAuthStore } from '@/features/auth/stores/auth'
 import Badge from '@/components/ui/Badge.vue'

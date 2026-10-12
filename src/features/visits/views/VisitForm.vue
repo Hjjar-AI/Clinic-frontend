@@ -14,10 +14,7 @@
     </BaseButton>
   </div>
 
-  <div
-    v-else
-    class="visit-form-wrapper"
-  >
+  <PageContainer v-else status="content" width="standard" class="visit-form-wrapper">
     <Breadcrumb />
     <PageHeader :title="isEdit ? 'تعديل الزيارة' : 'توثيق زيارة جديدة'">
       <p
@@ -38,7 +35,7 @@
 
       <BaseCard class="visit-card-main">
         <div class="card__body">
-          <p v-if="!resourceReady" role="status">{{ resourceError || 'جاري تحميل البيانات…' }} <button v-if="resourceError" type="button" @click="resource.retry">إعادة المحاولة</button></p>
+          <ResourceFeedback :loading="!resourceReady" :error="resourceError" retryable @retry="resource.retry" />
           <form @submit.prevent="handleSubmit">
             <fieldset class="form-load-fields" :disabled="!resourceReady">
             <FormErrorSummary :errors="errors" />
@@ -68,7 +65,7 @@
               @remove-scale="removeScale"
               @update-scale-field="handleScaleFieldUpdate"
             />
-            <p v-if="lookupError" role="alert" class="text-danger">{{ lookupError }} <button type="button" @click="retryLookups">إعادة المحاولة</button></p>
+            <ResourceFeedback :error="lookupError" retryable @retry="retryLookups" />
             <VisitDiagnosesLabs
               :form="form"
               :search-diagnoses-fn="searchDiagnoses"
@@ -105,10 +102,12 @@
       @select="onScaleSelected"
       @close="showScalePicker = false"
     />
-  </div>
+  </PageContainer>
 </template>
 
 <script setup>
+import PageContainer from '@/components/layout/PageContainer.vue'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed, defineAsyncComponent,onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
