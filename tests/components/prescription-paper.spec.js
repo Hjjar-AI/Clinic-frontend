@@ -41,7 +41,9 @@ describe('prescription physical paper controls', () => {
     expect(print).toHaveBeenCalledOnce()
     expect(wrapper.get('a[download]').attributes('download')).toBe('synthetic.pdf')
     print.mockImplementation(() => { throw new Error('Viewer denied') })
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
     await wrapper.get('button').trigger('click')
+    expect(open).toHaveBeenCalledWith('about:blank', '_blank')
     expect(wrapper.get('[role="status"]').text()).toContain('نافذة جديدة')
   })
 
