@@ -1,3 +1,4 @@
+import { onSessionChange } from '@/services/sessionState'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -6,6 +7,13 @@ let resolveId = 0
 export const useConfirmStore = defineStore('confirm', () => {
   const queue = ref([])
   const active = ref(null)
+
+  onSessionChange(() => {
+    active.value?.resolve(false)
+    for (const entry of queue.value) entry.resolve(false)
+    active.value = null
+    queue.value = []
+  })
 
   function confirm(message, options = {}) {
     return new Promise((resolve) => {

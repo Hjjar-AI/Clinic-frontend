@@ -88,24 +88,27 @@ export const useAnalyticsStore = defineStore('analytics', () => {
   }
 
   async function fetchStatistics(dateFrom, dateTo) {
+    const epoch = sessionGeneration()
     const params = {}
     if (dateFrom) params.date_from = dateFrom
     if (dateTo) params.date_to = dateTo
     const data = await dashboardService.getDashboard(params)
-    statistics.value = { ...statistics.value, ...data }
+    if (epoch === sessionGeneration()) statistics.value = { ...statistics.value, ...data }
   }
 
   async function markAllOverdue() {
+    const epoch = sessionGeneration()
+    pending += 1
     loading.value = true
     error.value = null
     try {
       const res = await apiClient.post('/visits/mark-all-overdue/')
       return res.data
     } catch (e) {
-      error.value = e.message || 'فشل العملية'
+      if (epoch === sessionGeneration()) error.value = e.message || 'فشل العملية'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) { pending = Math.max(0, pending - 1); loading.value = pending > 0 }
     }
   }
 

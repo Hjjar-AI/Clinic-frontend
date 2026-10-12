@@ -15,7 +15,7 @@ pnpm dev
 | --- | --- |
 | Working rules | [AGENTS](AGENTS.md) |
 | Remaining work / completed evidence | [Current](docs/workCurrent.md) / [completed](docs/doneCurrent.md) |
-| Open source findings | [Review](docs/review.md) |
+| Review dispositions | [Review](docs/review.md) |
 | CSS, layout, RTL and interaction ownership | [UI](docs/ui.md) |
 | Test commands and browser coverage | [Verification](docs/verification.md) |
 | API and hosting | [Backend contracts](../backend/docs/contracts.md) / [setup](../backend/docs/setup.md) |

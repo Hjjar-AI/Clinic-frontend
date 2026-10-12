@@ -2,9 +2,9 @@
 
 | Work | Remaining action |
 | --- | --- |
-| Open source findings | Address F01–F35/F37–F43 and L01–L10 from [review](review.md); N6/N7 are tracked once under F43. F36 currency reconciliation is completed. |
-| Backend coordination | After authorized schema application, render-check per-currency totals, 100-question limit, unknown age, clinical narrative permissions and content-import notice. [Backend current](../../backend/docs/workCurrent.md). |
-| Final runtime matrix | Repeat full component/browser suites after the last paired-calendar correction; broader RTL/LTR, engines, zoom/native-popup/safe-area/accessibility/print checks remain open. [Coverage](verification.md), [recorded outcomes](doneCurrent.md). |
-| Deployment | Supported pinned backend runtime, external DB/cache concurrency and production bundles remain unverified. Builds/schema/version changes need their explicit scope. |
+| Runtime verification | Under explicit test authorization, repeat component/browser coverage after the 2026-10-12 source corrections: account changes/drafts/retries, clinical catalogs/scales/signatures, forms, calendar paging, preview consent and keyboard contracts. [Coverage and rendered matrix](verification.md), [source evidence](doneCurrent.md). |
+| Rendered UI | Check contrast across eight themes/light-dark, reduced motion, narrow layouts, RTL/LTR, engines, zoom/native popups, focus/tabs/rows, long clinical text and print. Source color arithmetic does not certify rendering. |
+| Backend coordination | After authorized schema application, verify per-currency totals, scale limits, unknown age, clinical permissions and import notices with the paired API. [Backend current](../../backend/docs/workCurrent.md). |
+| Deployment | Pinned backend runtime, external DB/cache concurrency and production bundles remain unverified; builds/schema/version changes require their explicit scope. |
 
-No implementation task is active. Source completion is not runtime verification; [working limits](../AGENTS.md) still apply.
+Source review implementation is complete; [dispositions](review.md). No build, suite, migration or version work was performed in this fix pass. [Working limits](../AGENTS.md).

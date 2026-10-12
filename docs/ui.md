@@ -1,6 +1,6 @@
 # UI ownership
 
-Open defects live in [review](review.md), results in [completed](doneCurrent.md), future checks in [verification](verification.md). D1–D15/S1–S11 and N1–N5/N8 have source corrections; do not reopen them without evidence.
+Review dispositions live in [review](review.md), results in [completed](doneCurrent.md), future checks in [verification](verification.md). D1–D15/S1–S11 and N1–N5/N8 have source corrections; do not reopen them without evidence.
 
 ## CSS and layout
 
@@ -22,4 +22,4 @@ Shell owns gutters and viewport/safe-area budget; PageContainer owns standard/wi
 | Shared forms/tables | Native button event/href/number-step contracts, error/dirty-state handling, LTR-isolated machine values, zero local sticky-table offset and RTL scroll edges. At narrow widths patient context becomes static and tabs retain local scroll width. |
 | Documents/print | Current chrome/banners/overlays hidden; widths/offsets/sticky/fixed/clipping reset. Server PDF uses a separate renderer/font contract. |
 
-Completed behavior above has selected source/component/browser evidence, not exhaustive rendering. The later review identifies remaining gaps in cards, selectors, dates, permissions, theme ownership and other controls; consult the specific finding before relying on a broad component description.
+Completed behavior above has selected source/component/browser evidence, not exhaustive rendering. The 2026-10-12 review corrections cover cards, selectors, dates, permissions, theme ownership and other controls; their current evidence is source checks and isolated probes, pending rendered verification.
