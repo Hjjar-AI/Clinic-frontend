@@ -2,7 +2,7 @@
   <section v-if="url" class="prescription-pdf-preview" :aria-label="title">
     <h3>{{ title }}</h3>
     <p>راجع الصفحات، ثم اطبع بالحجم الفعلي (100%) وبنفس أبعاد الورق.</p>
-    <div class="flex gap-2 flex-wrap mb-3">
+    <div class="preview-actions flex gap-2 mb-3">
       <BaseButton variant="primary" :disabled="!ready" @click="printPdf">طباعة {{ calibration ? 'ورقة المعايرة' : 'الوصفة' }}</BaseButton>
       <BaseButton :href="url" :download="filename">تنزيل {{ calibration ? 'ورقة المعايرة' : 'الوصفة' }}</BaseButton>
       <BaseButton :href="url">فتح PDF في نافذة جديدة</BaseButton>

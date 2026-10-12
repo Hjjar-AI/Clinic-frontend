@@ -31,7 +31,9 @@
         />
       </div>
 
-      <PrescriptionPaperOptions v-model="paperOptions" :snapshot="snapshot" :disabled="generating" @validity="paperReady = $event" />
+      <PrescriptionPaperOptions v-model="paperOptions" :snapshot="snapshot" :disabled="generating || calibrating" @validity="paperReady = $event" />
+      <BaseButton :disabled="!paperReady || generating" :loading="calibrating" @click="createCalibration">إنشاء ورقة معايرة</BaseButton>
+      <PrescriptionPdfPreview v-if="calibrationUrl" :url="calibrationUrl" filename="prescription-calibration.pdf" calibration />
 
       <ControlledSubstanceCard
         v-for="med in controlledMeds"
@@ -90,12 +92,12 @@
             <BaseButton
               variant="primary"
               :loading="generating"
-              :disabled="!paperReady || !previewToken"
+              :disabled="!paperReady || !previewToken || calibrating"
               @click="generatePdf"
             >
-              <Icon icon="file-pdf" /> إنشاء وطباعة الروشتة
+              <Icon icon="file-pdf" /> إنشاء ومعاينة الروشتة
             </BaseButton>
-            <BaseButton v-if="!previewToken" variant="secondary" @click="loadPreview">معاينة جديدة لطباعة نسخة أخرى</BaseButton>
+            <BaseButton v-if="!previewToken" variant="secondary" :loading="previewLoading" @click="loadPreview">معاينة جديدة لطباعة نسخة أخرى</BaseButton>
             <BaseButton
               variant="secondary"
               :to="`/patients/${snapshot.patient_id}`"
@@ -103,6 +105,8 @@
               إلغاء
             </BaseButton>
           </div>
+          <p>تُحفظ نسخة معتمدة عند الإنشاء. المعاينة والطباعة والتنزيل تستخدم هذه النسخة نفسها؛ تغيير الورق أو التوقيع يحتاج نسخة جديدة.</p>
+          <PrescriptionPdfPreview v-if="prescriptionUrl" :url="prescriptionUrl" :filename="`prescription_${visitId}.pdf`" />
           <AlertBar
             v-if="statusMsg"
             :severity="statusType"
@@ -115,7 +119,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, computed,onMounted, ref } from 'vue'
+import { onBeforeUnmount, computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AlertBar from '@/components/ui/AlertBar.vue'
@@ -126,23 +130,49 @@ import CardHeader from '@/components/ui/CardHeader.vue'
 import Icon from '@/components/ui/Icon.vue'
 import SignaturePad from '@/components/ui/SignaturePad.vue'
 import { useApi } from '@/composables/useApi'
+import { useAuthStore } from '@/features/auth/stores/auth'
 import ControlledSubstanceCard from '@/features/clinical/components/ControlledSubstanceCard.vue'
 import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'
 import MedicationList from '@/features/clinical/components/MedicationList.vue'
 import PrescriptionPaperOptions from '@/features/prescription/components/PrescriptionPaperOptions.vue'
-import { defaultPaperOptions, normalizePaperOptions } from '@/features/prescription/services/prescriptionPaper'
+import PrescriptionPdfPreview from '@/features/prescription/components/PrescriptionPdfPreview.vue'
+import { loadPaperOptions, normalizePaperOptions, rememberPaperOptions } from '@/features/prescription/services/prescriptionPaper'
 import prescriptionService from '@/features/prescription/services/prescriptionService'
 import { unwrapResponse } from '@/services/apiClient'
+import { onSessionChange, sessionGeneration } from '@/services/sessionState'
 
 const route = useRoute()
 const visitId = route.params.visitId
+const auth = useAuthStore()
 const snapshot = ref(null)
 const previewToken = ref('')
-const paperOptions = ref(defaultPaperOptions())
+const previewLoading = ref(false)
+const paperOptions = ref(loadPaperOptions(auth.user?.id))
+watch(() => auth.user?.id, id => { paperOptions.value = loadPaperOptions(id) }, { flush: 'sync' })
+watch(paperOptions, paper => rememberPaperOptions(auth.user?.id, paper), { deep: true })
 const paperReady = ref(true)
+const prescriptionUrl = ref('')
+const calibrationUrl = ref('')
+const calibrating = ref(false)
+function releaseUrl(target) { if (target.value) window.URL.revokeObjectURL(target.value); target.value = '' }
+function replacePdf(target, data) {
+  const url = window.URL.createObjectURL(new Blob([data], { type: 'application/pdf' }))
+  releaseUrl(target)
+  target.value = url
+}
 let disposed = false
 let stampGeneration = 0
-onBeforeUnmount(() => { stampGeneration += 1; disposed = true })
+const removeSessionListener = onSessionChange(() => {
+  stampGeneration += 1
+  releaseUrl(prescriptionUrl); releaseUrl(calibrationUrl)
+  snapshot.value = null; previewToken.value = ''; signatureData.value = null
+  previewLoading.value = false
+  stampFile.value = null; stampPreview.value = null; statusMsg.value = ''
+})
+onBeforeUnmount(() => {
+  stampGeneration += 1; disposed = true; removeSessionListener()
+  releaseUrl(prescriptionUrl); releaseUrl(calibrationUrl)
+})
 const stampFile = ref(null)
 const stampPreview = ref(null)
 const signatureData = ref(null)
@@ -170,18 +200,22 @@ const scheduleMeds = computed(() => snapshot.value?.medications?.map(m => ({
 })) || [])
 
 async function loadPreview() {
+  if (previewLoading.value) return
+  const epoch = sessionGeneration()
+  previewLoading.value = true
   statusMsg.value = ''
   try {
     const response = await prescriptionService.preview(visitId)
     const data = unwrapResponse(response)
-    if (disposed) return
+    if (disposed || epoch !== sessionGeneration()) return
+    releaseUrl(prescriptionUrl)
     snapshot.value = data
     previewToken.value = data.preview_token
   } catch {
-    if (disposed) return
+    if (disposed || epoch !== sessionGeneration()) return
     statusMsg.value = 'تعذر تحميل معاينة الوصفة'
     statusType.value = 'danger'
-  }
+  } finally { if (!disposed && epoch === sessionGeneration()) previewLoading.value = false }
 }
 onMounted(loadPreview)
 
@@ -209,6 +243,7 @@ function clearStamp() { stampGeneration += 1; stampFile.value = null; stampPrevi
 function onSignatureSave(dataUrl) { signatureData.value = dataUrl; signatureError.value = '' }
 
 const { loading: generating, execute: doGenerate } = useApi(async () => {
+  const epoch = sessionGeneration()
   if (!signatureData.value) { signatureError.value = 'يجب توقيع الروشتة أولاً'; throw new Error('no signature') }
   const printOptions = normalizePaperOptions(paperOptions.value)
   if (!printOptions || !previewToken.value) throw new Error('تحقق من الورق وافتح معاينة صالحة قبل الطباعة')
@@ -232,15 +267,27 @@ const { loading: generating, execute: doGenerate } = useApi(async () => {
     payload.stamp = dataUrl
   }
 
+  if (disposed || epoch !== sessionGeneration()) return
   const response = await prescriptionService.generate(payload)
-  const url = window.URL.createObjectURL(new Blob([response.data]))
-  const a = document.createElement('a')
-  a.href = url; a.download = `prescription_${visitId}.pdf`
-  document.body.appendChild(a); a.click(); a.remove()
-  window.URL.revokeObjectURL(url)
+  if (disposed || epoch !== sessionGeneration()) return
+  replacePdf(prescriptionUrl, response.data)
   previewToken.value = ''
   statusMsg.value = 'تم إنشاء الروشتة بنجاح'; statusType.value = 'success'
 })
+
+async function createCalibration() {
+  if (calibrating.value || generating.value) return
+  const options = normalizePaperOptions(paperOptions.value)
+  if (!options) return
+  const epoch = sessionGeneration()
+  calibrating.value = true
+  try {
+    const response = await prescriptionService.calibration(options)
+    if (!disposed && epoch === sessionGeneration()) replacePdf(calibrationUrl, response.data)
+  } catch {
+    if (!disposed && epoch === sessionGeneration()) { statusMsg.value = 'تعذر إنشاء ورقة المعايرة؛ حاول مجدداً'; statusType.value = 'danger' }
+  } finally { calibrating.value = false }
+}
 
 async function generatePdf() {
   try { await doGenerate() } catch { /* error already handled by useApi */ }

@@ -11,3 +11,4 @@
   border-radius: var(--radius-md);
   background: #fff;
 }
+.preview-actions { flex-wrap: wrap; }

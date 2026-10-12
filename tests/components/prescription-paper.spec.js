@@ -4,10 +4,46 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { defineComponent, ref } from 'vue'
 import PrescriptionPaperOptions from '@/features/prescription/components/PrescriptionPaperOptions.vue'
 import PrescriptionPreview from '@/features/prescription/views/PrescriptionPreview.vue'
+import PrescriptionPdfPreview from '@/features/prescription/components/PrescriptionPdfPreview.vue'
 import prescriptionService from '@/features/prescription/services/prescriptionService'
-import { defaultPaperOptions, normalizePaperOptions } from '@/features/prescription/services/prescriptionPaper'
+import { defaultPaperOptions, normalizePaperOptions, loadPaperOptions, rememberPaperOptions } from '@/features/prescription/services/prescriptionPaper'
+import { changeSession } from '@/services/sessionState'
 
 describe('prescription physical paper controls', () => {
+  it('remembers only normalized paper settings for the current account on this device', () => {
+    const paper = { ...defaultPaperOptions(), mode: 'preprinted', height_mm: 198, offset_x_mm: 2 }
+    expect(rememberPaperOptions(7, { ...paper, patient_name: 'SYNTHETIC-PRIVATE' })).toBe(true)
+    expect(loadPaperOptions(7)).toEqual(paper)
+    expect(loadPaperOptions(8)).toEqual(defaultPaperOptions())
+    expect(localStorage.getItem('clinic:prescription-paper:7')).not.toContain('PRIVATE')
+    expect(rememberPaperOptions(null, paper)).toBe(false)
+    expect(rememberPaperOptions(7, { ...paper, width_mm: 0 })).toBe(false)
+    expect(loadPaperOptions(7)).toEqual(paper)
+  })
+
+  it('handles corrupt or unavailable browser storage and restores the custom preset', () => {
+    localStorage.setItem('clinic:prescription-paper:7', 'invalid-json')
+    expect(loadPaperOptions(7)).toEqual(defaultPaperOptions())
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('Storage unavailable') })
+    expect(rememberPaperOptions(7, defaultPaperOptions())).toBe(false)
+    const wrapper = mount(PrescriptionPaperOptions, { props: { modelValue: { ...defaultPaperOptions(), height_mm: 198 } } })
+    expect(wrapper.findAll('select')[1].element.value).toBe('custom')
+    expect(wrapper.findAll('input')[1].element.value).toBe('198')
+  })
+
+  it('prints the loaded PDF directly and provides a fallback when the viewer denies printing', async () => {
+    const wrapper = mount(PrescriptionPdfPreview, { props: { url: 'about:blank', filename: 'synthetic.pdf' }, attachTo: document.body })
+    const frame = wrapper.get('iframe')
+    await frame.trigger('load')
+    const print = vi.spyOn(frame.element.contentWindow, 'print').mockImplementation(() => {})
+    vi.spyOn(frame.element.contentWindow, 'focus').mockImplementation(() => {})
+    await wrapper.get('button').trigger('click')
+    expect(print).toHaveBeenCalledOnce()
+    expect(wrapper.get('a[download]').attributes('download')).toBe('synthetic.pdf')
+    print.mockImplementation(() => { throw new Error('Viewer denied') })
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.get('[role="status"]').text()).toContain('نافذة جديدة')
+  })
   it('defaults to A6 and validates finite sizes, precision and offsets', () => {
     expect(normalizePaperOptions(defaultPaperOptions())).toEqual(defaultPaperOptions())
     for (const changes of [{ width_mm: '' }, { height_mm: true }, { width_mm: 79 }, { height_mm: 351 }, { width_mm: Infinity }, { offset_x_mm: 6 }, { width_mm: 105.001 }, { mode: 'scan' }]) {
@@ -53,16 +89,20 @@ describe('prescription physical paper controls', () => {
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     const wrapper = mount(PrescriptionPreview, { global: { plugins: [router], stubs: { SignaturePad: { template: '<button @click="$emit(\'save\', \'synthetic-signature\')">Save synthetic signature</button>' } } } })
     await flushPromises()
-    await wrapper.get('button').trigger('click')
-    const issue = () => wrapper.findAll('button').find(button => button.text().includes('إنشاء وطباعة'))
+    await wrapper.findAll('button').find(button => button.text().includes('Save synthetic')).trigger('click')
+    const issue = () => wrapper.findAll('button').find(button => button.text().includes('إنشاء ومعاينة'))
     await issue().trigger('click')
     await flushPromises()
     expect(generate).toHaveBeenCalledWith(expect.objectContaining({ visit_id: '7', preview_token: 'synthetic-token', print_options: defaultPaperOptions() }))
     expect(issue().element.disabled).toBe(true)
-    expect(revoke).toHaveBeenCalledWith('blob:synthetic')
+    expect(wrapper.get('iframe').attributes('src')).toBe('blob:synthetic')
+    expect(wrapper.get('a[download]').attributes('href')).toBe('blob:synthetic')
+    expect(revoke).not.toHaveBeenCalled()
     await wrapper.findAll('button').find(button => button.text().includes('معاينة جديدة')).trigger('click')
     await flushPromises()
     expect(preview).toHaveBeenCalledTimes(2)
     expect(issue().element.disabled).toBe(false)
+    expect(revoke).toHaveBeenCalledWith('blob:synthetic')
+    expect(generate).toHaveBeenCalledOnce()
   })
 })
