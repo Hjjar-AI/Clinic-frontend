@@ -23,7 +23,7 @@
 <script setup>
 import RelativeDate from '@/components/ui/RelativeDate.vue'
 
-import VerticalEventList from './VerticalEventList.vue'
+import VerticalEventList from '@/components/ui/VerticalEventList.vue'
 
 defineProps({ entries: { type: Array, required: true } })
 

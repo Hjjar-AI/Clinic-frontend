@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 // frontend/src/composables/useForm.js
 import { useForm as useVeeForm, useIsFormDirty } from 'vee-validate'
 import { computed, reactive, ref, toRaw,watch } from 'vue'
@@ -22,7 +23,7 @@ function buildYupSchema(schemaRules) {
   for (const rule of schemaRules) {
     if (!rule || !rule.field) {
       if (import.meta.env.DEV) {
-        console.warn('[useForm] skipping malformed schema rule:', rule)
+        reportError('useForm', undefined)
       }
       continue
     }

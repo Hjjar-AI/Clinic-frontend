@@ -31,6 +31,7 @@
           {{ getLabel(opt) }}
         </option>
       </select>
+      <small v-if="loadError" role="alert" class="text-danger">{{ loadError }} <button type="button" @click="fetchOptions()">إعادة المحاولة</button></small>
       <span
         v-if="loading"
         class="api-select-spinner"
@@ -46,6 +47,7 @@ import { computed, onBeforeUnmount,onMounted, ref, useId, watch } from 'vue'
 
 import FormField from '@/components/ui/FormField.vue'
 import apiClient from '@/services/apiClient'
+import { optionList } from '@/utils/optionList'
 
 const props = defineProps({
   modelValue: { type: [String, Number], default: '' },
@@ -68,6 +70,8 @@ const loading = ref(false)
 const fallbackId = `api-select-${useId()}`
 const computedId = computed(() => props.fieldId || fallbackId)
 let cancelTokenSource = null
+let disposed = false
+const loadError = ref('')
 
 function getLabel(opt) {
   if (props.labelFn) return props.labelFn(opt)
@@ -82,22 +86,20 @@ async function fetchOptions() {
   cancelTokenSource = source
 
   loading.value = true
+  loadError.value = ''
+  options.value = []
   try {
     const response = await apiClient.get(props.url, {
       cancelToken: source.token
     })
-    const inner = response.data?.data || response.data
-    const result = Array.isArray(inner)
-      ? inner
-      : (inner[Object.keys(inner)[0]] || inner.results || [])
+    if (disposed || source !== cancelTokenSource) return []
+    const result = optionList(response)
     options.value = result
   } catch (e) {
-    if (!apiClient.isCancel?.(e)) {
-      console.error('ApiSelect load error', e)
-    }
+    if (!disposed && source === cancelTokenSource && !apiClient.isCancel(e)) loadError.value = 'تعذر تحميل الخيارات'
+    return []
   } finally {
-    loading.value = false
-    cancelTokenSource = null
+    if (source === cancelTokenSource) { loading.value = false; cancelTokenSource = null }
   }
 }
 
@@ -108,6 +110,7 @@ watch(() => props.url, () => {
 onMounted(() => { fetchOptions() })
 
 onBeforeUnmount(() => {
+  disposed = true
   if (cancelTokenSource) {
     cancelTokenSource.cancel('Component unmounted')
   }

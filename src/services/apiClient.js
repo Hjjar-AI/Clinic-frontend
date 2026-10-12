@@ -1,5 +1,6 @@
 // frontend/src/services/apiClient.js
 import axios from 'axios'
+import { onSessionChange, sessionGeneration } from '@/services/sessionState'
 
 import { API_EVENTS, emit } from '@/services/apiEvents'
 import { useLoadingStore } from '@/stores/loading'
@@ -137,8 +138,9 @@ apiClient.interceptors.request.use(config => {
     const version = explicit ?? observedVersions.get(path)
     if (version != null && !config.headers['If-Match']) config.headers['If-Match'] = String(version)
   }
-  const loadingStore = useLoadingStore()
-  loadingStore.start()
+  config._sessionGeneration = sessionGeneration()
+  config._foreground = config.background !== true && config.method !== 'get'
+  if (config._foreground) useLoadingStore().start()
 
   // Only create our own cancel source when the caller did not provide one.
   // Overwriting a caller-supplied cancelToken silently breaks their
@@ -148,6 +150,7 @@ apiClient.interceptors.request.use(config => {
     source = axios.CancelToken.source()
     config.cancelToken = source.token
   }
+  config.cancelToken?.subscribe(reason => { if (!reason.config) reason.config = config })
   config._requestSource = source
 
   const isPersistent = config.__persistent === true
@@ -155,6 +158,9 @@ apiClient.interceptors.request.use(config => {
 
   // A rapid duplicate mutation is the same logical operation. Reuse the
   // first operation's key so the backend can safely collapse both requests.
+  for (const [oldKey, value] of uncertainOperations) {
+    if (value.expiresAt <= Date.now()) uncertainOperations.delete(oldKey)
+  }
   const uncertain = uncertainOperations.get(key)
   if (uncertain && uncertain.expiresAt > Date.now() && !config.idempotencyKey) {
     config.idempotencyKey = uncertain.key
@@ -186,7 +192,7 @@ apiClient.interceptors.request.use(config => {
       }
     }
     if (source && !config._duplicateRequest) {
-      pendingRequests.set(key, { source, idempotencyKey: config.idempotencyKey })
+      pendingRequests.set(key, { source, method: config.method, idempotencyKey: config.idempotencyKey })
     }
   } else {
     // Store the source so we can delete it later; storing the token instead
@@ -207,8 +213,9 @@ apiClient.interceptors.request.use(config => {
 
 apiClient.interceptors.response.use(
   response => {
+    if (response.config._foreground && response.config._sessionGeneration === sessionGeneration()) useLoadingStore().stop()
+    if (response.config._sessionGeneration !== sessionGeneration()) throw new axios.CanceledError('Session changed', response.config)
     observeVersions(response)
-    useLoadingStore().stop()
 
     const cfg = response.config
     uncertainOperations.delete(cfg._requestKey)
@@ -227,7 +234,7 @@ apiClient.interceptors.response.use(
     return response
   },
   async error => {
-    useLoadingStore().stop()
+    if (error.config?._foreground && error.config._sessionGeneration === sessionGeneration()) useLoadingStore().stop()
 
     // Download endpoints use responseType=blob. Axios therefore also exposes
     // structured JSON failures as Blob objects; normalize those before the
@@ -243,10 +250,9 @@ apiClient.interceptors.response.use(
       }
     }
 
-    if (axios.isCancel(error)) return Promise.reject(error)
-
     const config = error.config
-    if (config?.idempotencyKey && config._requestKey && (!error.response || error.response?.data?.error?.code === 'request_in_progress')) {
+    const stale = config && config._sessionGeneration !== sessionGeneration()
+    if (!stale && !config?._duplicateRequest && config?.idempotencyKey && config._requestKey && (!error.response || error.response?.data?.error?.code === 'request_in_progress')) {
       uncertainOperations.set(config._requestKey, { key: config.idempotencyKey, expiresAt: Date.now() + 30 * 60 * 1000 })
     }
     if (config?._isPersistent) {
@@ -254,6 +260,9 @@ apiClient.interceptors.response.use(
     } else if (config?._requestKey) {
       clearPendingRequest(config)
     }
+
+    if (stale) return Promise.reject(new axios.CanceledError('Session changed', config))
+    if (axios.isCancel(error)) return Promise.reject(error)
 
     if (error.response && error.response.status === 409) {
       // Optimistic-lock conflict. Emit an event; the app layer shows the
@@ -271,12 +280,25 @@ apiClient.interceptors.response.use(
   }
 )
 
+onSessionChange(() => {
+  useLoadingStore().reset()
+  for (const request of pendingRequests.values()) {
+    if (request.method === 'get') request.source?.cancel('Session changed')
+  }
+  for (const source of persistentRequests) source.cancel('Session changed')
+  pendingRequests.clear()
+  persistentRequests.clear()
+  observedVersions.clear()
+  uncertainOperations.clear()
+})
+
 // ----- Named exports -----
 function cancelAllPending() {
   for (const [, request] of pendingRequests.entries()) {
-    request.source?.cancel('Navigation cancelled')
+    if (request.method === 'get') {
+      request.source?.cancel('Navigation cancelled')
+    }
   }
-  pendingRequests.clear()
 }
 
 function cancelPendingRequests(urlPattern = '') {

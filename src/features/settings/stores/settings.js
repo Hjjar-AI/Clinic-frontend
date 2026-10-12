@@ -1,10 +1,11 @@
+import { sessionGeneration } from '@/services/sessionState'
 // frontend/src/features/settings/stores/settings.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import settingsService from '@/features/settings/services/settingsService'
 import { unwrapResponse } from '@/services/apiClient'
-import { themeService } from '@/services/themeService'
+import { useUiStore } from '@/stores/ui'
 
 export const useSettingsStore = defineStore('settings', () => {
   const settings = ref({
@@ -23,6 +24,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   async function fetchSettings() {
+    const epoch = sessionGeneration()
     if (settings.value.clinic_name) return
 
     loading.value = true
@@ -39,9 +41,10 @@ export const useSettingsStore = defineStore('settings', () => {
         }
       }
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e?.message || 'فشل تحميل الإعدادات'
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
@@ -52,13 +55,13 @@ export const useSettingsStore = defineStore('settings', () => {
       ...settings.value,
       ...updated,
     }
+    if (updated.theme) useUiStore().setTheme(updated.theme)
   }
 
   async function setTheme(theme) {
     const updated = await settingsService.setTheme(theme)
 
-    themeService.save({ theme, darkMode: false })
-    themeService.apply(theme, false)
+    useUiStore().setTheme(updated.theme || theme)
 
     settings.value = { ...settings.value, ...updated }
   }

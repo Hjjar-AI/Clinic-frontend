@@ -7,6 +7,7 @@
       variant="secondary"
       class="pagination-btn"
       :disabled="page === 1"
+      aria-label="الصفحة السابقة"
       @click="$emit('prev')"
     >
       <Icon icon="chevron-right" />
@@ -16,6 +17,8 @@
       :key="p"
       :variant="p === page ? 'primary' : 'secondary'"
       class="pagination-btn"
+      :aria-label="`الصفحة ${p}`"
+      :aria-current="p === page ? 'page' : undefined"
       @click="$emit('go', p)"
     >
       {{ formatNumber(p) }}
@@ -24,6 +27,7 @@
       variant="secondary"
       class="pagination-btn"
       :disabled="page === totalPages"
+      aria-label="الصفحة التالية"
       @click="$emit('next')"
     >
       <Icon icon="chevron-left" />

@@ -48,6 +48,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/utils/reportError'
 import { onErrorCaptured, ref, watch } from 'vue'
 import { useRoute,useRouter } from 'vue-router'
 
@@ -61,8 +62,8 @@ const showDetails = ref(import.meta.env.DEV)
 
 const friendlyMessage = ref('يرجى المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية.')
 
-onErrorCaptured((err, instance, info) => {
-  console.error('[ErrorBoundary]', err, info)
+onErrorCaptured((err) => {
+  reportError('ErrorBoundary', err)
   error.value = err
   friendlyMessage.value = err.message || 'حدث خطأ غير متوقع.'
   return false

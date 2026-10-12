@@ -9,7 +9,7 @@ let idCounter = 0
 export function useToast() {
   function showToast(message, type = 'info', options = {}) {
     const duration = options.duration ?? TOAST_DEFAULTS.duration
-    const persistent = options.persistent ?? false
+    const persistent = options.persistent ?? duration === 0
     const actions = options.actions || []
 
     const normalizedMessage = (message || '').trim()

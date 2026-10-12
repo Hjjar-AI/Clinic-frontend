@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 // frontend/src/main.js
 // Application CSS entry point owns the shared cascade order.
 import '../public/static/css/app.css'
@@ -5,7 +6,8 @@ import '../public/static/css/app.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'flatpickr/dist/flatpickr.min.css'
 
-import { VueQueryPlugin } from '@tanstack/vue-query'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { onSessionChange, sessionStorePlugin } from '@/services/sessionState'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
@@ -31,17 +33,17 @@ async function mount() {
     await initializeApp()
   } catch (error) {
     if (APP_CONFIG.isDevelopment) {
-      console.error('[Bootstrap] Initialisation failed:', error)
+      reportError('main', error)
     }
   }
 
   const app = createApp(App)
   const pinia = createPinia()
   pinia.use(persistPlugin)
+  pinia.use(sessionStorePlugin)
 
   // Vue Query
-  app.use(VueQueryPlugin, {
-    queryClientConfig: {
+  const queryClient = new QueryClient({
       defaultOptions: {
         queries: {
           retry: 1,
@@ -49,8 +51,9 @@ async function mount() {
           staleTime: 1000 * 60 * 5, // 5 minutes
         },
       },
-    },
   })
+  app.use(VueQueryPlugin, { queryClient })
+  onSessionChange(() => { queryClient.cancelQueries(); queryClient.clear() })
 
   app.directive('autofocus', autofocus)
   app.directive('auto-title', autoTitle)
@@ -72,8 +75,8 @@ async function mount() {
   registerApiHandlers()
 
   // Global error handler
-  app.config.errorHandler = (err, instance, info) => {
-    console.error('[Global Error Handler]', err, info)
+  app.config.errorHandler = (err) => {
+    reportError('main', err)
   }
 
   await router.isReady()
@@ -81,7 +84,7 @@ async function mount() {
   // Load constants in the background (non-blocking)
   const constantsStore = useConstantsStore()
   constantsStore.fetch().catch((err) => {
-    if (APP_CONFIG.isDevelopment) console.warn('Failed to load clinical constants', err)
+    if (APP_CONFIG.isDevelopment) reportError('main', err)
   })
 
   // Fetch system config (non-blocking)

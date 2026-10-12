@@ -83,7 +83,7 @@
                   v-if="confirmText"
                   :variant="confirmClass"
                   :disabled="loading"
-                  @click="$emit('confirm')"
+                  @click="confirm"
                 >
                   {{ confirmText }}
                 </BaseButton>
@@ -139,7 +139,15 @@ const headerIcon = computed(() => ({ info: 'info-circle', success: 'check-circle
 
 useOverlay(() => props.modelValue, () => modalOverlay.value, close)
 
-function close() { emit('update:modelValue', false) }
+function confirm() {
+  if (props.loading) return
+  const element = modalContent.value?.$el
+  for (const control of element?.querySelectorAll('input,select,textarea') || []) {
+    if (control.willValidate && !control.reportValidity()) return
+  }
+  emit('confirm')
+}
+function close() { if (!props.loading) emit('update:modelValue', false) }
 </script>
 
 <style scoped src="../../styles/components/ui/base-modal.css"></style>

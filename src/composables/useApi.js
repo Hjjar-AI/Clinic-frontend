@@ -39,8 +39,8 @@ export function useApi(apiFn, options = {}) {
 
   if (mutation) {
     const mutationResult = useMutation({
-      mutationFn: async (...args) => {
-        const result = await apiFn(...args);
+      mutationFn: async (variables) => {
+        const result = await apiFn(variables);
         return result;
       },
       onSuccess: (data) => {
@@ -129,7 +129,7 @@ export function useApi(apiFn, options = {}) {
     error: computed(() => queryResult.error.value),
     status: computed(() => queryResult.status.value),
     execute: async () => {
-      await queryResult.refetch();
+      return await queryResult.refetch();
     },
     refresh: queryResult.refetch,
   };

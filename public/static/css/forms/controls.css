@@ -102,3 +102,6 @@
 .form-group.has-success .form-group__label { color: var(--color-success); }
 .form-group.has-warning .form-group__label { color: var(--color-warning); }
 
+
+/* Shared hydration gate must not add native fieldset gutters or borders. */
+.form-load-fields { border: 0; padding: 0; margin: 0; min-inline-size: 0; }

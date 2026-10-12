@@ -6,7 +6,7 @@ import { createLookupStore } from '@/stores/lookupStoreFactory'
 
 const useScaleLookupBase = createLookupStore(
   'scaleLookup',
-  () => scaleService.getAll(),
+  (params) => scaleService.getAll(params),
   'scales'
 )
 

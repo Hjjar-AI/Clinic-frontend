@@ -15,7 +15,7 @@
       >
         <div class="flex flex--justify-between mb-3">
           <strong>{{ scale.name }}</strong>
-          <button
+          <button type="button"
             class="btn btn--danger btn--small"
             @click="$emit('remove-scale', idx)"
           >
@@ -33,8 +33,8 @@
               type="slider"
               :model-value="field.value"
               :label="field.label"
-              :min="field.min_val || 0"
-              :max="field.max_val || 10"
+              :min="field.min_val ?? 0"
+              :max="field.max_val ?? 10"
               :step="field.step || 1"
               :disabled="false"
               @update:model-value="onFieldUpdate(idx, field, $event)"
@@ -52,7 +52,7 @@
         </div>
       </div>
     </div>
-    <button
+    <button type="button"
       class="btn btn--secondary btn--small mt-2"
       @click="$emit('add-scale')"
     >

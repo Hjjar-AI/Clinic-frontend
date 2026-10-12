@@ -16,7 +16,6 @@
         <tr><td><kbd class="kbd">Alt</kbd> + <kbd class="kbd">T</kbd></td><td>المهام</td></tr>
         <tr><td><kbd class="kbd">Alt</kbd> + <kbd class="kbd">R</kbd></td><td>الإحصائيات</td></tr>
         <tr><td><kbd class="kbd">Alt</kbd> + <kbd class="kbd">S</kbd></td><td>الإعدادات</td></tr>
-        <tr><td><kbd class="kbd">Alt</kbd> + <kbd class="kbd">Q</kbd></td><td>نافذة الإضافة السريعة</td></tr>
         <tr><td><kbd class="kbd">Alt</kbd> + <kbd class="kbd">K</kbd></td><td>اختصارات لوحة المفاتيح</td></tr>
         <tr><td><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">S</kbd></td><td>حفظ النموذج الحالي</td></tr>
         <tr><td><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">F</kbd></td><td>البحث عن مريض</td></tr>

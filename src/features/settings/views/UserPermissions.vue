@@ -12,8 +12,9 @@
             spin
           />
         </div>
+        <p v-if="loadError" role="alert">{{ loadError }} <button type="button" @click="resource.retry">إعادة المحاولة</button></p>
         <form
-          v-else
+          v-else-if="ready"
           @submit.prevent="savePermissions"
         >
           <DataTable
@@ -64,6 +65,7 @@
 </template>
 
 <script setup>
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed, onMounted,ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -80,6 +82,8 @@ const userId = route.params.id
 
 const user = ref(null)
 const loading = ref(true)
+const resource = useResourceLoad()
+const { ready, error: loadError } = resource
 
 const selectedPerms = ref([])
 const allPermissions = ref([])
@@ -100,12 +104,15 @@ const permissionRows = computed(() => {
   }))
 })
 
-onMounted(async () => {
+onMounted(() => resource.load(async (isCurrent) => {
+  loading.value = true
   try {
     const userResult = await userService.getById(userId)
     const permissionsResult = await userService.getPermissions(userId)
 
+    if (!isCurrent()) return
     const userData = unwrapResponse(userResult)
+    if (!userData?.id || !Number.isInteger(userData.version) || userData.version < 1) throw new Error('تعذر تحميل إصدار المستخدم')
     const permissionsData = unwrapResponse(permissionsResult)
 
     user.value = userData
@@ -118,10 +125,11 @@ onMounted(async () => {
     user.value = null
     allPermissions.value = []
     selectedPerms.value = []
+    throw new Error('تعذر تحميل الصلاحيات')
   } finally {
     loading.value = false
   }
-})
+}))
 
 const { loading: saving, execute: doSave } = useApi(async () => {
   await userService.updatePermissions(userId, {
@@ -132,5 +140,5 @@ const { loading: saving, execute: doSave } = useApi(async () => {
   router.push('/users')
 })
 
-const savePermissions = () => doSave()
+const savePermissions = () => ready.value && doSave()
 </script>

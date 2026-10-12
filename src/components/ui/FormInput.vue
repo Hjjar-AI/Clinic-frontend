@@ -23,6 +23,10 @@
       :autocomplete="autocomplete"
       :inputmode="inputmode"
       :step="step"
+      :min="min"
+      :max="max"
+      :maxlength="maxlength"
+      :readonly="readonly"
       :aria-invalid="Boolean(error)"
       @blur="$emit('blur')"
     >
@@ -40,6 +44,10 @@ const props = defineProps({
   placeholder: { type: String, default: '' },
   autocomplete: { type: String, default: undefined },
   inputmode: { type: String, default: undefined },
+  min: { type: [String, Number], default: undefined },
+  max: { type: [String, Number], default: undefined },
+  maxlength: { type: [String, Number], default: undefined },
+  readonly: Boolean,
   step: { type: [String, Number], default: undefined },
   label: { type: String, default: '' },
   required: { type: Boolean, default: false },

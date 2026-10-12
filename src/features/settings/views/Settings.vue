@@ -46,6 +46,7 @@
           <div class="grid-3 gap-3">
             <FormInput
               v-model.number="form.appointment_reminder_days"
+              :error="fieldErrors.appointment_reminder_days"
               type="number"
               min="0"
               max="30"
@@ -53,6 +54,7 @@
             />
             <FormInput
               v-model.number="form.appointment_reminder_hours"
+              :error="fieldErrors.appointment_reminder_hours"
               type="number"
               min="1"
               max="12"
@@ -60,6 +62,7 @@
             />
             <FormInput
               v-model.number="form.task_reminder_days"
+              :error="fieldErrors.task_reminder_days"
               type="number"
               min="0"
               max="30"
@@ -74,7 +77,7 @@
           icon="palette"
         >
           <ThemeSwitcher
-            :model-value="store.settings.theme || 'default'"
+            :model-value="theme"
             @update:model-value="onThemeChange"
           />
         </CollapsibleSection>
@@ -169,6 +172,7 @@ import MultiSelect from '@/components/ui/MultiSelect.vue'
 import FormInput from '@/components/ui/FormInput.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
+import { useAppTheme } from '@/composables/useAppTheme'
 import { useApi } from '@/composables/useApi'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useFormDirty } from '@/composables/useFormDirty'
@@ -179,6 +183,7 @@ import { useSettingsStore } from '@/features/settings/stores/settings'
 import { CONFIRM } from '@/utils/confirmMessages'
 
 const store = useSettingsStore()
+const { theme } = useAppTheme()
 const authStore = useAuthStore()
 const { notify } = useNotify()
 const { confirm } = useConfirmDialog()
@@ -195,6 +200,7 @@ const form = ref({
   patient_completeness_fields: ['dob_year','gender','registration_date'],
 })
 const isDirty = ref(false)
+const fieldErrors = ref({})
 
 watch(form, () => { isDirty.value = true }, { deep: true })
 useFormDirty(isDirty)
@@ -225,6 +231,7 @@ async function onThemeChange(theme) {
 const { loading: saving, execute: doSave } = useApi(
   () => store.updateSettings(form.value),
   {
+    silent: true,
     onSuccess: () => {
       notify('تم الحفظ', 'success')
       form.value = { ...store.settings }
@@ -238,7 +245,17 @@ const { loading: demoLoading, execute: doDemo } = useApi(
   { onSuccess: () => notify('تم الإنشاء', 'success') }
 )
 
-const saveSettings = () => doSave()
+async function saveSettings() {
+  if (saving.value) return
+  const errors = {}
+  for (const [key, min, max] of [['appointment_reminder_days', 0, 30], ['appointment_reminder_hours', 1, 12], ['task_reminder_days', 0, 30]]) {
+    const value = form.value[key]
+    if (value === '' || value == null || !Number.isInteger(Number(value)) || Number(value) < min || Number(value) > max) errors[key] = `أدخل عدداً صحيحاً بين ${min} و${max}`
+  }
+  fieldErrors.value = errors
+  if (Object.keys(errors).length) return
+  try { await doSave() } catch { notify('تعذر حفظ الإعدادات', 'danger') }
+}
 
 const generateDemo = async () => {
   const ok = await confirm(CONFIRM.GENERATE_DEMO)

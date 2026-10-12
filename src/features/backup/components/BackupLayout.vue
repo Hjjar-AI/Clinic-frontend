@@ -63,6 +63,7 @@
             <input
               id="restoreFile"
               type="file"
+            :disabled="restoreLoading"
               accept=".json,.zip"
               class="form-control"
               required
@@ -189,7 +190,7 @@ import FormCheckbox from '@/components/ui/FormCheckbox.vue'
 import FormField from '@/components/ui/FormField.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 
-defineProps({
+const props = defineProps({
   backupLoading: { type: Boolean, default: false },
   previewLoading: { type: Boolean, default: false },
   restoreLoading: { type: Boolean, default: false },
@@ -204,5 +205,6 @@ const confirmClear = ref(false)
 const confirmExecute = ref(false)
 const confirmationPhrase = ref('')
 const options = ref({ patients: true, medications: true, diagnoses: true })
-watch(options, () => { confirmExecute.value = false; emit('preview-reset') }, { deep: true })
+watch(() => props.previewData, () => { confirmExecute.value = false; confirmationPhrase.value = '' }, { flush: 'sync' })
+watch(options, () => { confirmExecute.value = false; emit('preview-reset') }, { deep: true, flush: 'sync' })
 </script>

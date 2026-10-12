@@ -19,8 +19,8 @@ export default {
     const res = await apiClient.get(`/patients/${id}`, { params: { include } })
     return unwrapResponse(res)
   },
-  async getVisits(patientId) {
-    const res = await apiClient.get(`/patients/${patientId}/visits/`)
+  async getVisits(patientId, params = {}) {
+    const res = await apiClient.get(`/patients/${patientId}/visits/`, { params })
     return unwrapResponse(res)
   },
   async getDocuments(patientId) {

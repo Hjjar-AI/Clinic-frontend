@@ -83,6 +83,7 @@
       v-model="showCreateModal"
       title="مقياس جديد"
       confirm-text="إنشاء"
+      :loading="creating"
       size="sm"
       @confirm="createScale"
     >
@@ -108,6 +109,7 @@
       v-model="showFieldModal"
       :title="'إضافة سؤال إلى ' + (selectedScale?.name || '')"
       confirm-text="إضافة"
+      :loading="addingField"
       size="sm"
       @confirm="saveField"
     >
@@ -169,6 +171,7 @@
 </template>
 
 <script setup>
+import { useScaleLookup } from '@/stores/scaleLookup'
 import { computed, ref } from 'vue'
 
 import BaseModal from '@/components/ui/BaseModal.vue'
@@ -263,7 +266,7 @@ function openCreateScaleModal() {
   showCreateModal.value = true
 }
 
-const { execute: doCreate } = useApi(async () => {
+const { loading: creating, execute: doCreate } = useApi(async () => {
   await scaleService.create(newScale.value)
 
   showCreateModal.value = false
@@ -273,6 +276,7 @@ const { execute: doCreate } = useApi(async () => {
     description: '',
   }
 
+  useScaleLookup().invalidateAll()
   refreshKey.value++
 })
 
@@ -294,7 +298,7 @@ function openAddFieldModal(scale) {
   showFieldModal.value = true
 }
 
-const { execute: doAddField } = useApi(async () => {
+const { loading: addingField, execute: doAddField } = useApi(async () => {
   const payload = {
     version: selectedScale.value.version,
     label: newField.value.label,
@@ -320,6 +324,7 @@ const { execute: doAddField } = useApi(async () => {
     options: '',
   }
 
+  useScaleLookup().invalidateAll()
   refreshKey.value++
 })
 
@@ -327,11 +332,13 @@ const saveField = () => doAddField().catch(() => {}) // Shared error handling pr
 
 async function deactivateScale(id) {
   await scaleService.delete(id)
+  useScaleLookup().invalidateAll()
   refreshKey.value++
 }
 
 async function reactivateScale(id) {
   await scaleService.reactivate(id)
+  useScaleLookup().invalidateAll()
   refreshKey.value++
 }
 

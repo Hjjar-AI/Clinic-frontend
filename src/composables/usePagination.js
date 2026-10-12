@@ -1,5 +1,5 @@
 // frontend/src/composables/usePagination.js
-import { computed,ref } from 'vue'
+import { computed,ref,onScopeDispose } from 'vue'
 
 /**
  * Pagination composable.
@@ -91,6 +91,8 @@ export function usePagination(options = {}) {
 
   const currentPage = ref(1)
   const totalPages = ref(1)
+  let generation = 0
+  onScopeDispose(() => { generation += 1 })
 
   function normalizeResult(result) {
     const source = result || {}
@@ -151,12 +153,11 @@ export function usePagination(options = {}) {
     if (append) {
       if (!hasMore.value || !nextCursor.value) return
       if (loading.value || loadingMore.value) return
-    } else {
-      if (loading.value) return
     }
 
-    if (append) loadingMore.value = true
-    loading.value = true
+    const request = ++generation
+    loadingMore.value = append
+    loading.value = !append
     error.value = null
 
     try {
@@ -166,6 +167,7 @@ export function usePagination(options = {}) {
         perPage,
       })
 
+      if (request !== generation) return
       const normalized = normalizeResult(rawResult)
 
       if (append) {
@@ -181,10 +183,9 @@ export function usePagination(options = {}) {
         total.value = normalized.total
       }
     } catch (e) {
-      error.value = e
+      if (request === generation) error.value = e
     } finally {
-      loading.value = false
-      loadingMore.value = false
+      if (request === generation) { loading.value = false; loadingMore.value = false }
     }
   }
 
@@ -196,6 +197,7 @@ export function usePagination(options = {}) {
       return
     }
 
+    const request = ++generation
     loading.value = true
     error.value = null
 
@@ -206,6 +208,7 @@ export function usePagination(options = {}) {
         perPage,
       })
 
+      if (request !== generation) return
       const normalized = normalizeResult(rawResult)
 
       items.value = normalized.items
@@ -220,9 +223,9 @@ export function usePagination(options = {}) {
 
       hasMore.value = currentPage.value < totalPages.value
     } catch (e) {
-      error.value = e
+      if (request === generation) error.value = e
     } finally {
-      loading.value = false
+      if (request === generation) loading.value = false
     }
   }
 

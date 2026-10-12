@@ -26,9 +26,10 @@ export function useFormDirty(isDirtyRef) {
   }
 
   const confirmStore = useConfirmStore()
+  let active = true
 
   onBeforeRouteLeave(async (to, from, next) => {
-    if (isDirtyRef.value) {
+    if (active && isDirtyRef.value) {
       const ok = await confirmStore.confirm(
         'لديك تغييرات غير محفوظة. هل تريد المغادرة؟',
         {
@@ -47,5 +48,5 @@ export function useFormDirty(isDirtyRef) {
     }
   })
 
-  return { isDirty: isDirtyRef, stop: () => {} }
+  return { isDirty: isDirtyRef, stop: () => { active = false } }
 }

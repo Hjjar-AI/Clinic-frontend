@@ -2,3 +2,7 @@
 /dist/
 /.test-artifacts/
 /coverage/
+
+# Local browser configuration must stay private.
+.env.local
+.env.*.local

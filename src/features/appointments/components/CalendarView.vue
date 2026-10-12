@@ -6,13 +6,13 @@
     :appointments="appointments"
     :loading="loading"
     :can-manage="canManage"
-    @drop-slot="$emit('drop-slot', $event)"
+    @drop-slot="(...args) => $emit('drop-slot', ...args)"
   />
   <WeekViewGrid
     v-else-if="view === 'week'"
     :weekly-view-data="weeklyViewData"
     :can-manage="canManage"
-    @drop-week="$emit('drop-week', $event)"
+    @drop-week="(...args) => $emit('drop-week', ...args)"
     @day-click="$emit('day-click', $event)"
   />
   <MonthViewGrid

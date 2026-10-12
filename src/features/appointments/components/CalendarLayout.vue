@@ -99,8 +99,8 @@
           :year="year"
           :month-index="monthIndex"
           :can-manage="canManageAppointments"
-          @drop-slot="$emit('drop-slot', $event)"
-          @drop-week="$emit('drop-week', $event)"
+          @drop-slot="(...args) => $emit('drop-slot', ...args)"
+          @drop-week="(...args) => $emit('drop-week', ...args)"
           @day-click="$emit('day-click', $event)"
         />
       </Transition>

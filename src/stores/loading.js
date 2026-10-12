@@ -28,7 +28,9 @@ export const useLoadingStore = defineStore('loading', () => {
     }
   }
 
+  function reset() { clearTimeout(pendingTimer); pendingTimer = null; requestCount.value = 0; visible.value = false }
+
   const isLoading = computed(() => visible.value)
 
-  return { isLoading, start, stop }
+  return { isLoading, start, stop, reset }
 })

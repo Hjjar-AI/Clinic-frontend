@@ -15,14 +15,14 @@
 }
 
 /* Solid variants – use semantic colours directly */
-.tag--danger { background: var(--color-danger); color: var(--color-text-inverse); }
-.tag--success { background: var(--color-success); color: var(--color-text-inverse); }
-.tag--info { background: var(--color-info); color: var(--color-text-inverse); }
-.tag--warning { background: var(--color-warning); color: var(--color-text-inverse); }
-.tag--primary { background: var(--color-primary); color: var(--color-text-inverse); }
-.tag--purple { background: var(--color-purple); color: var(--color-text-inverse); }
-.tag--secondary { background: var(--color-secondary); color: var(--color-text-inverse); }
-.tag--grey { background: var(--color-neutral); color: var(--color-text-inverse); }
+.tag--danger { background: var(--color-danger); color: var(--color-on-danger); }
+.tag--success { background: var(--color-success); color: var(--color-on-success); }
+.tag--info { background: var(--color-info); color: var(--color-on-info); }
+.tag--warning { background: var(--color-warning); color: var(--color-on-warning); }
+.tag--primary { background: var(--color-primary); color: var(--color-on-primary); }
+.tag--purple { background: var(--color-purple); color: var(--color-on-purple); }
+.tag--secondary { background: var(--color-secondary); color: var(--color-on-secondary); }
+.tag--grey { background: var(--color-neutral); color: var(--color-on-neutral); }
 
 /* Soft variants – use semantic light backgrounds and dark text */
 .tag--danger-soft { background: var(--color-danger-light); color: var(--color-danger-dark); border-color: var(--color-danger-soft); }

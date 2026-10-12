@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 // frontend/src/composables/useSystemConfig.js
 import { ref } from 'vue'
 
@@ -29,7 +30,7 @@ export function useSystemConfig() {
         Object.assign(config.value, inner)
         loaded = true
       } catch (e) {
-        console.warn('Failed to load system config, using defaults', e)
+        reportError('useSystemConfig', e)
       } finally {
         loadingPromise = null
       }

@@ -1,6 +1,6 @@
 <!-- frontend/src/features/clinical/views/TemplateForm.vue -->
 <template>
-  <FormWrapper
+  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry"
     :header-title="isEdit ? 'تعديل قالب' : 'قالب جديد'"
     header-icon="file-alt"
     back-label="العودة للقوالب"
@@ -83,6 +83,7 @@
 </template>
 
 <script setup>
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed,onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -103,6 +104,8 @@ const route = useRoute()
 const router = useRouter()
 
 const isEdit = !!route.params.id
+const resource = useResourceLoad(!isEdit)
+const { ready: resourceReady, error: resourceError } = resource
 const submitError = ref('')
 
 const categoryOptions = [
@@ -181,12 +184,14 @@ const breadcrumbs = computed(() => [
   { label: isEdit ? 'تعديل قالب' : 'قالب جديد' },
 ])
 
-onMounted(async () => {
+onMounted(() => resource.load(async (isCurrent) => {
   if (!isEdit) return
 
   try {
     const result = await templateService.getById(route.params.id)
     const template = unwrapResponse(result)
+    if (!template?.id || !Number.isInteger(template.version) || template.version < 1) throw new Error('تعذر تحميل إصدار السجل')
+    if (!isCurrent()) return
 
     const content = template.content || {}
 
@@ -207,11 +212,12 @@ onMounted(async () => {
 
     markClean()
   } catch {
-    // Keep empty form if loading fails.
+    throw new Error('تعذر تحميل السجل')
   }
-})
+}))
 
 async function handleSubmit() {
+  if (!resourceReady.value) return
   submitError.value = ''
   const success = await submit()
   if (success) {

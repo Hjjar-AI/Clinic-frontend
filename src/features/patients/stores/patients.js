@@ -1,5 +1,6 @@
 // frontend/src/features/patients/stores/patients.js
 import { computed,ref } from 'vue';
+import { onSessionChange, sessionGeneration } from '@/services/sessionState';
 
 import patientService from '@/features/patients/services/patientService';
 import { createCrudStore } from '@/stores/crudStoreFactory';
@@ -8,6 +9,7 @@ import { createLRUCache } from '@/utils/lruCache';
 
 const MAX_CACHED_PATIENTS = 100;
 const patientCache = createLRUCache(MAX_CACHED_PATIENTS);
+onSessionChange(() => patientCache.clear());
 const HIGHLIGHT_DURATION_MS = 2000;
 
 /**
@@ -33,6 +35,10 @@ export const usePatientStore = createCrudStore('patients', {
     setup() {
       const currentPatientId = ref(null);
       const highlightTimers = {};
+      onSessionChange(() => {
+        for (const timer of Object.values(highlightTimers)) clearTimeout(timer);
+        patientsById.value = {}; allIds.value = []; currentPatientId.value = null;
+      });
 
       const patientsById = ref({});
       const allIds = ref([]);
@@ -87,6 +93,7 @@ export const usePatientStore = createCrudStore('patients', {
       }
 
       async function updatePatient(id, patientData) {
+        const epoch = sessionGeneration();
         // Capture a clean snapshot (no `_highlight`) so a rollback restores the
         // actual last-known-good state, not a mid-highlight variant.
         const old = withoutHighlight(patientsById.value[id]);
@@ -111,7 +118,7 @@ export const usePatientStore = createCrudStore('patients', {
 
           return updated;
         } catch (error) {
-          if (old) {
+          if (old && epoch === sessionGeneration()) {
             patientsById.value[id] = old;
             patientCache.set(id, old);
           }
@@ -126,6 +133,7 @@ export const usePatientStore = createCrudStore('patients', {
       }
 
       async function deletePatient(id) {
+        const epoch = sessionGeneration();
         const old = withoutHighlight(patientsById.value[id]);
         delete patientsById.value[id];
         allIds.value = allIds.value.filter((x) => x !== id);
@@ -142,7 +150,7 @@ export const usePatientStore = createCrudStore('patients', {
           await patientService.delete(id);
           announce('تم حذف المريض');
         } catch (error) {
-          if (old) {
+          if (old && epoch === sessionGeneration()) {
             patientsById.value[id] = old;
             allIds.value.push(id);
             patientCache.set(id, old);

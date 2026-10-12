@@ -80,6 +80,7 @@
               :required="true"
               :error="signatureError"
               @save="onSignatureSave"
+              @change="signatureData = null"
             />
           </div>
 
@@ -110,7 +111,7 @@
 </template>
 
 <script setup>
-import { computed,onMounted, ref } from 'vue'
+import { onBeforeUnmount, computed,onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AlertBar from '@/components/ui/AlertBar.vue'
@@ -131,6 +132,8 @@ const route = useRoute()
 const visitId = route.params.visitId
 const snapshot = ref(null)
 const previewToken = ref('')
+let stampGeneration = 0
+onBeforeUnmount(() => { stampGeneration += 1 })
 const stampFile = ref(null)
 const stampPreview = ref(null)
 const signatureData = ref(null)
@@ -170,6 +173,9 @@ onMounted(async () => {
 })
 
 function handleStampUpload(event) {
+  const request = ++stampGeneration
+  stampPreview.value = null
+  stampFile.value = null
   const file = event.target.files[0]
   if (!file) return
   if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 2 * 1024 * 1024) {
@@ -180,11 +186,12 @@ function handleStampUpload(event) {
   }
   stampFile.value = file
   const reader = new FileReader()
-  reader.onload = (e) => { stampPreview.value = e.target.result }
+  reader.onload = (e) => { if (request === stampGeneration) stampPreview.value = e.target.result }
+  reader.onerror = reader.onabort = () => { if (request === stampGeneration) { statusMsg.value = 'تعذر قراءة الختم'; statusType.value = 'danger' } }
   reader.readAsDataURL(file)
 }
 
-function clearStamp() { stampFile.value = null; stampPreview.value = null }
+function clearStamp() { stampGeneration += 1; stampFile.value = null; stampPreview.value = null }
 
 function onSignatureSave(dataUrl) { signatureData.value = dataUrl; signatureError.value = '' }
 
@@ -198,11 +205,13 @@ const { loading: generating, execute: doGenerate } = useApi(async () => {
     preview_token: previewToken.value,
     signature: signatureData.value,
   }
-  if (stampFile.value) {
-    const dataUrl = await new Promise((resolve) => {
+  const currentStamp = stampFile.value
+  if (currentStamp) {
+    const dataUrl = await new Promise((resolve, reject) => {
       const reader = new FileReader()
+      reader.onerror = reader.onabort = () => reject(new Error('تعذر قراءة الختم'))
       reader.onload = (e) => resolve(e.target.result)
-      reader.readAsDataURL(stampFile.value)
+      reader.readAsDataURL(currentStamp)
     })
     payload.stamp = dataUrl
   }

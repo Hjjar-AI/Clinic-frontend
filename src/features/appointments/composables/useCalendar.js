@@ -3,13 +3,15 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
 
 import { useDate } from '@/composables/useDate'
 import { useAuthStore } from '@/features/auth/stores/auth'
-import apiClient, { cancelPendingRequests } from '@/services/apiClient'
+import apiClient from '@/services/apiClient'
 
 export function useCalendar() {
   const view = ref('day')
   const currentDate = ref(new Date())
   const appointments = shallowRef([])
   const loading = ref(false)
+  const error = ref('')
+  let disposed = false
   const { toISODate } = useDate()
   const authStore = useAuthStore()
 
@@ -20,37 +22,35 @@ export function useCalendar() {
     // Only fetch if authenticated
     if (!authStore.isAuthenticated) return
 
-    if (fetchController) {
-      fetchController.abort()
-    }
-    fetchController = new AbortController()
-    cancelPendingRequests('/appointments/raw')
-
+    fetchController?.abort()
+    const controller = new AbortController()
+    fetchController = controller
     loading.value = true
+    error.value = ''
+    appointments.value = []
     lastFetchParams = { start: startDate, end: endDate, doctorId }
-
     try {
-      const params = {
-        start_date: toISODate(startDate),
-        end_date: toISODate(endDate),
-        per_page: 500,
+      const rows = []
+      let offset = 0, total = Infinity
+      while (offset < total) {
+        const params = { start_date: toISODate(startDate), end_date: toISODate(endDate), limit: 200, offset }
+        if (doctorId) params.doctor_id = doctorId
+        const response = await apiClient.get('/appointments/raw', { params, signal: controller.signal })
+        if (disposed || controller !== fetchController) return false
+        const inner = response.data?.data ?? response.data
+        if (!Array.isArray(inner?.appointments)) throw new Error('استجابة مواعيد غير صالحة')
+        rows.push(...inner.appointments)
+        total = inner.meta?.total ?? rows.length
+        if (!inner.appointments.length && rows.length < total) throw new Error('قائمة المواعيد غير مكتملة')
+        offset += inner.appointments.length
       }
-      if (doctorId) params.doctor_id = doctorId
-
-      const { data } = await apiClient.get('/appointments/raw', {
-        params,
-        signal: fetchController.signal,
-      })
-
-      const inner = data?.data || data
-      appointments.value = inner?.appointments ? [...inner.appointments] : []
-    } catch (e) {
-      if (e.name !== 'AbortError' && e.name !== 'CanceledError') {
-        console.error('[Calendar] Fetch failed', e)
-      }
+      appointments.value = rows
+      return true
+    } catch (failure) {
+      if (!disposed && controller === fetchController && !apiClient.isCancel(failure)) error.value = 'تعذر تحميل المواعيد؛ أعد المحاولة'
+      return false
     } finally {
-      loading.value = false
-      fetchController = null
+      if (controller === fetchController) { loading.value = false; fetchController = null }
     }
   }
 
@@ -66,6 +66,7 @@ export function useCalendar() {
   })
 
   onBeforeUnmount(() => {
+    disposed = true
     if (visibilityHandler) {
       document.removeEventListener('visibilitychange', visibilityHandler)
     }
@@ -138,6 +139,7 @@ export function useCalendar() {
     currentDate,
     appointments,
     loading,
+    error,
     fetchAppointments,
     weeklyViewData,
     addAppointmentLocal,

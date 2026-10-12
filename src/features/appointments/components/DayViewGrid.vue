@@ -19,7 +19,7 @@
           class="day-appointments-list"
         >
           <div
-            v-for="slot in timeSlots"
+            v-for="slot in displaySlots"
             :key="slot"
             class="day-slot p-3 border-bottom flex flex--justify-between flex--center"
             :style="{ minHeight: slotHeight + 'px' }"
@@ -28,13 +28,15 @@
           >
             <span class="font-bold text-primary">{{ slot }}</span>
             <div
-              v-if="appointmentForSlot(slot)"
+              v-if="appointmentsForSlot(slot).length"
               class="flex gap-2 flex--center day-slot__appointment"
             >
               <AppointmentBlock
-                :appointment="appointmentForSlot(slot)"
+                v-for="appointment in appointmentsForSlot(slot)"
+                :key="appointment.id"
+                :appointment="appointment"
                 :can-manage="canManage"
-                @edit="editAppointment(appointmentForSlot(slot).id)"
+                @edit="editAppointment(appointment.id)"
               />
             </div>
             <SlotToken
@@ -105,17 +107,42 @@ const showTimeIndicator = computed(() => isToday.value)
 
 const currentTimeTop = computed(() => {
   const minutes = now.value.getHours() * 60 + now.value.getMinutes()
-  const startMinutes = 8 * 60
-  const endMinutes = 23*60 + 30
+  const startMinutes = clockMinutes(displaySlots.value[0])
+  const endMinutes = clockMinutes(displaySlots.value.at(-1)) + 30
   if (minutes < startMinutes || minutes > endMinutes) return -10
   const totalRange = endMinutes - startMinutes
   const elapsed = minutes - startMinutes
-  const totalHeight = props.timeSlots.length * slotHeight.value
+  const totalHeight = displaySlots.value.length * slotHeight.value
   return (elapsed / totalRange) * totalHeight
 })
 
-function appointmentForSlot(time) {
-  return props.appointments.find(a => a.appointment_date === props.currentDateStr && a.appointment_time === time)
+function clockMinutes(clock) {
+  const [hour, minute] = String(clock || '').split(':').map(Number)
+  return hour * 60 + minute
+}
+const displaySlots = computed(() => {
+  const base = props.timeSlots.map(clockMinutes).filter(Number.isFinite)
+  if (!base.length) return []
+  const step = base.length > 1 ? base[1] - base[0] : 30
+  if (step <= 0) return props.timeSlots
+  const bookings = props.appointments.filter(row => row.appointment_date === props.currentDateStr && Number.isFinite(clockMinutes(row.appointment_time)))
+  const first = Math.min(base[0], ...bookings.map(row => Math.floor(clockMinutes(row.appointment_time) / step) * step))
+  const last = Math.min(1439, Math.max(base.at(-1), ...bookings.map(row => Math.floor((clockMinutes(row.appointment_time) + (row.duration_minutes ?? 30) - 1) / step) * step)))
+  const slots = []
+  for (let minute = first; minute <= last; minute += step) slots.push(`${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`)
+  return slots
+})
+
+function appointmentsForSlot(slot) {
+  const minutes = clockMinutes
+  const start = minutes(slot)
+  const index = displaySlots.value.indexOf(slot)
+  const end = index + 1 < displaySlots.value.length ? minutes(displaySlots.value[index + 1]) : start + 30
+  return props.appointments.filter(appointment => {
+    if (appointment.appointment_date !== props.currentDateStr) return false
+    const time = minutes(appointment.appointment_time)
+    return time < end && time + (appointment.duration_minutes ?? 30) > start
+  })
 }
 
 function onDrop(event, time) {

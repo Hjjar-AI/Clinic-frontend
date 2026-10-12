@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 // frontend/src/stores/constants.js
 import { defineStore } from 'pinia'
 import { shallowRef } from 'vue'
@@ -44,7 +45,7 @@ export const useConstantsStore = defineStore('constants', () => {
         }
         fetched = true
       } catch (e) {
-        console.warn('Failed to load clinical constants; using fallbacks', e)
+        reportError('constants', e)
       } finally {
         fetchPromise = null
       }

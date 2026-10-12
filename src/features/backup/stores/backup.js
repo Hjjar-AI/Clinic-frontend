@@ -1,3 +1,4 @@
+import { sessionGeneration } from '@/services/sessionState'
 // frontend/src/features/backup/stores/backup.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -14,43 +15,49 @@ export const useBackupStore = defineStore('backup', () => {
   }
 
   async function createBackup(type) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
       const res = await backupService.createBackup(type)
       return res
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'فشل النسخ الاحتياطي'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function previewRestore(file) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
       const data = await backupService.previewRestore(file)
       return data
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'فشل المعاينة'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function executeRestore(options) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
       await backupService.executeRestore(options)
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'فشل الاستعادة'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 

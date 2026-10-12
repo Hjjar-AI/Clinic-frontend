@@ -79,10 +79,13 @@
             v-for="item in safeItems"
             :key="item.id"
             :class="{
-              'clickable-row': $attrs['onRow-click'] !== undefined,
+              'clickable-row': clickableRows,
               'table-row--selected': selectedId === item.id
             }"
-            @click="$emit('row-click', item)"
+            :tabindex="clickableRows ? 0 : undefined"
+            @click="activateRow($event, item)"
+            @keydown.enter="activateRow($event, item)"
+            @keydown.space="activateRow($event, item)"
           >
             <td
               v-if="selectable"
@@ -136,7 +139,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, useSlots } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, getCurrentInstance } from 'vue'
 
 import SkeletonLoader from '../common/SkeletonLoader.vue'
 import Spinner from '../common/Spinner.vue'
@@ -156,7 +159,7 @@ const props = defineProps({
   emptyTitle: { type: String, default: '' },
   emptyDescription: { type: String, default: '' },
   emptyActionText: { type: String, default: '' },
-  emptyActionUrl: { type: String, default: '' },
+  emptyActionUrl: { type: [String, Object], default: '' },
   filters: { type: Array, default: null },
   filterValues: { type: Object, default: () => ({}) },
   striped: { type: Boolean, default: true },
@@ -169,6 +172,13 @@ const emit = defineEmits([
   'update:filterValues', 'filter-apply', 'filter-reset'
 ])
 const slots = useSlots()
+const instance = getCurrentInstance()
+const clickableRows = computed(() => Boolean(instance.vnode.props?.onRowClick || instance.vnode.props?.['onRow-click']))
+function activateRow(event, item) {
+  if (!clickableRows.value || event.target.closest('a,button,input,select,textarea,[role=button]')) return
+  if (event.type === 'keydown') event.preventDefault()
+  emit('row-click', item)
+}
 
 const wrapper = ref(null)
 

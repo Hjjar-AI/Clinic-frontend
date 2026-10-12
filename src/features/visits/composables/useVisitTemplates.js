@@ -1,3 +1,5 @@
+import { fetchCatalog } from '@/utils/catalogFetch'
+import { onBeforeUnmount } from 'vue'
 // frontend/src/features/visits/composables/useVisitTemplates.js
 import { onMounted,ref } from 'vue'
 import { isRef } from 'vue'
@@ -17,18 +19,13 @@ import templateService from '@/features/clinical/services/templateService'
 export function useVisitTemplates() {
   const templates = ref([])
 
+  let disposed = false
+  onBeforeUnmount(() => { disposed = true })
   onMounted(async () => {
     try {
-      const payload = await templateService.getAll()
-      // `payload` is already unwrapped by the service layer.
-      if (Array.isArray(payload)) {
-        templates.value = payload
-      } else if (payload && typeof payload === 'object') {
-        templates.value = payload.items || payload.templates || []
-      }
-    } catch {
-      templates.value = []
-    }
+      const rows = await fetchCatalog(params => templateService.getAll(params), 'templates')
+      if (!disposed) templates.value = rows
+    } catch { if (!disposed) templates.value = [] }
   })
 
   function applyTemplate(form, templateId) {

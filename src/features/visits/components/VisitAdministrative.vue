@@ -8,7 +8,8 @@
     <div class="grid-2">
       <FormDate
         v-model="form.date_signed"
-        label="تاريخ التوقيع"
+        label="تاريخ التوقيع (يحدده النظام)"
+        disabled
       />
       <ApiSelect
         v-model="form.supervisor_id"
@@ -22,7 +23,8 @@
         url="/auth/users/doctors"
         value-key="id"
         label-key="full_name"
-        label="المُوقِع"
+        label="المُوقِع (يحدده النظام)"
+        disabled
       />
       <FormField label="نوقش التشخيص"><select v-model="form.diagnosis_discussed" class="form-control"><option :value="null">غير مسجل</option><option :value="true">نعم</option><option :value="false">لا</option></select></FormField>
       <FormField label="نوقشت الخطة"><select v-model="form.plan_discussed" class="form-control"><option :value="null">غير مسجل</option><option :value="true">نعم</option><option :value="false">لا</option></select></FormField>

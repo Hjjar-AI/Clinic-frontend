@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 // frontend/src/services/apiEvents.js
 /**
  * Tiny event bus for API-layer notifications.
@@ -45,7 +46,7 @@ export function emit(event, payload) {
       handler(payload)
     } catch (err) {
        
-      console.error(`[apiEvents] handler for "${event}" threw`, err)
+      reportError('apiEvents', err)
     }
   }
 }

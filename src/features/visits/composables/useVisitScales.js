@@ -94,15 +94,26 @@ export function useVisitScales() {
   watch(
     () => unref(lookupStore.scales),
     () => {
-      if (rawResponses.value.length) buildFromRaw()
+      const definitions = unref(lookupStore.scales) || []
+      for (const scale of addedScales.value) {
+        if (scale.fields.length) continue
+        const raw = rawResponses.value.find(row => row.scale_id === scale.scale_id)
+        const definition = definitions.find(row => row.id === scale.scale_id)
+        const answers = readAnswers(raw)
+        scale.fields = (answers.__definition || definition?.fields || []).map(field => ({ ...field, value: answers[field.id] ?? field.default ?? 0 }))
+      }
     }
   )
+
+  function readAnswers(raw) {
+    try { return typeof raw?.responses_json === 'string' ? JSON.parse(raw.responses_json) : raw?.responses_json || {} } catch { return {} }
+  }
 
   function toPayload() {
     return addedScales.value.map((scale) => ({
       scale_id: scale.scale_id,
       scale_name: scale.scale_name || scale.name || '',
-      responses: {
+      responses: !scale.fields?.length ? readAnswers(rawResponses.value.find(row => row.scale_id === scale.scale_id)) : {
         ...Object.fromEntries((scale.fields || []).map((f) => [String(f.id), f.value])),
         __definition: (scale.fields || []).map((f) => ({
           id: f.id,

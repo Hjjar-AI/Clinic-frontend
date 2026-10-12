@@ -5,7 +5,9 @@
       :key="item.to.name"
       :to="item.to"
       class="bottom-nav__item"
-      active-class="bottom-nav__item--active"
+      active-class=""
+      :class="{ 'bottom-nav__item--active': sectionCurrent(item) }"
+      :aria-current="sectionCurrent(item)"
     >
       <Icon :icon="item.icon" />
       <span>{{ item.label }}</span>
@@ -27,7 +29,7 @@ import Badge from '@/components/ui/Badge.vue';
 import Icon from '@/components/ui/Icon.vue';
 import { useNavigationItems } from '@/composables/useNavigationItems';
 
-const { allItems } = useNavigationItems();
+const { allItems, sectionCurrent } = useNavigationItems();
 const preferredRoutes = ['Dashboard', 'PatientsList', 'VisitsList', 'AppointmentsCalendar', 'Tasks'];
 const navItems = computed(() =>
   preferredRoutes

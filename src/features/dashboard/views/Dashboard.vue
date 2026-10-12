@@ -1,5 +1,6 @@
 <!-- frontend/src/features/dashboard/views/Dashboard.vue -->
 <template>
+  <p v-if="analyticsStore.error" role="alert" class="text-danger">{{ analyticsStore.error }}</p>
   <DashboardLayout
     :greeting="dynamicGreeting"
     :can-edit-visit="authStore.can('edit_visit')"
@@ -64,7 +65,7 @@ const marking = computed(() => analyticsStore.loading)
 
 async function refreshAll() {
   try {
-    await analyticsStore.fetchDashboard()
+    if (!await analyticsStore.fetchDashboard()) return
     refreshStore.touch()
     notify('تم تحديث لوحة التحكم', 'success')
   } catch {

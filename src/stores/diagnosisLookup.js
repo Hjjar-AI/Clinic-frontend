@@ -6,7 +6,7 @@ import { createLookupStore } from '@/stores/lookupStoreFactory'
 
 const useDiagnosisLookupBase = createLookupStore(
   'diagnosisLookup',
-  () => diagnosisService.getAll(),
+  (params) => diagnosisService.getAll(params),
   'diagnoses'
 )
 

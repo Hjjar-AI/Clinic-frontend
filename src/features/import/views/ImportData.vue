@@ -43,6 +43,7 @@
           <FormField label="تعيين جميع المرضى إلى الطبيب (اختياري)">
             <select
               v-model="doctorId"
+              :disabled="importing"
               class="form-control form-control--select"
               aria-label="الطبيب المسؤول"
               @change="selectedFile && previewFile(selectedFile)"
@@ -156,7 +157,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 
 import FileUpload from '@/components/common/FileUpload.vue'
 import AlertBar from '@/components/ui/AlertBar.vue'
@@ -172,6 +173,9 @@ import importService from '@/features/import/services/importService'
 import { useUserStore } from '@/features/settings/stores/users'
 
 const userStore = useUserStore()
+let generation = 0
+let disposed = false
+onBeforeUnmount(() => { disposed = true; generation += 1 })
 const doctorId = ref('')
 const previewResult = ref(null)
 const currentStep = ref(0)
@@ -181,20 +185,25 @@ const importing = ref(false)
 const { notify } = useNotify()
 
 if (!userStore.doctors.length) {
-  userStore.fetchDoctors()
+  userStore.fetchDoctors().catch(() => {})
 }
 
 const previewFile = async (file) => {
+  if (importing.value) return
+  const request = ++generation
+  const doctor = doctorId.value
   selectedFile.value = file
   previewResult.value = null
+  currentStep.value = 0
   if (!file) return
   previewing.value = true
   try {
-    previewResult.value = await importService.previewPatients(file, doctorId.value)
+    const result = await importService.previewPatients(file, doctor)
+    if (!disposed && request === generation) previewResult.value = result
   } catch {
     notify('تعذر فحص الملف. تحقق من صيغته وحاول مجدداً.', 'danger')
   } finally {
-    previewing.value = false
+    if (request === generation) previewing.value = false
   }
 }
 
@@ -205,7 +214,7 @@ function goToReview() {
 }
 
 const confirmImport = async () => {
-  if (!selectedFile.value) return
+  if (importing.value || previewing.value || !selectedFile.value || !previewResult.value?.preview_token) return
   importing.value = true
   try {
     previewResult.value = await importService.importPatients(
@@ -220,6 +229,8 @@ const confirmImport = async () => {
     importing.value = false
   }
 }
+
+watch(doctorId, () => { generation += 1; previewResult.value = null; currentStep.value = 0; previewing.value = false }, { flush: 'sync' })
 
 async function downloadTemplate() {
   const blob = await importService.downloadPatientTemplate()

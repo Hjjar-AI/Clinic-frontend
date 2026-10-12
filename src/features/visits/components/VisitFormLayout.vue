@@ -52,6 +52,7 @@
               :scales="addedScales"
               @add-scale="$emit('add-scale')"
               @remove-scale="$emit('remove-scale', $event)"
+      @update-scale-field="$emit('update-scale-field', $event)"
             />
 
             <VisitDiagnosesLabs
@@ -96,6 +97,7 @@
 </template>
 
 <script setup>
+import ScalePickerModal from '@/features/clinical/components/ScalePickerModal.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import FormActions from '@/components/ui/FormActions.vue'
 import FormErrorSummary from '@/components/ui/FormErrorSummary.vue'
@@ -133,6 +135,6 @@ defineProps({
 defineEmits([
   'submit', 'cancel', 'add-scale', 'remove-scale',
   'select-scale', 'add-goal', 'remove-goal', 'apply-template',
-  'update:showScalePicker'
+  'update:showScalePicker', 'update-scale-field'
 ])
 </script>

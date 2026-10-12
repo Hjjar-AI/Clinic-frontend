@@ -11,7 +11,7 @@
       <input
         :id="computedId"
         ref="inputEl"
-        :value="modelValue"
+        :value="formatDate(modelValue) || modelValue"
         type="text"
         class="form-control form-control--date"
         placeholder="يوم/شهر/سنة"
@@ -19,6 +19,7 @@
         :aria-invalid="Boolean(error)"
         autocomplete="off"
         :disabled="disabled"
+        :required="required"
         @input="$emit('update:modelValue', $event.target.value)"
         @blur="handleBlur"
       >
@@ -27,6 +28,7 @@
         type="button"
         class="date-clear-btn"
         aria-label="مسح التاريخ"
+        :disabled="disabled"
         @click="clear"
       >
         <Icon icon="times" />
@@ -61,8 +63,9 @@ const emit = defineEmits(['update:modelValue'])
 const inputEl = ref(null)
 const fallbackId = `date-${useId()}`
 const computedId = computed(() => props.fieldId || fallbackId)
-const { initDatePicker, getFlatpickrDefaults } = useDate()
+const { initDatePicker, getFlatpickrDefaults, parseDate, formatDate } = useDate()
 let flatpickrInstance = null
+let disposed = false
 
 function addTodayButton(fp) {
   let footer = fp.calendarContainer.querySelector('.flatpickr-footer')
@@ -85,8 +88,8 @@ function addTodayButton(fp) {
 
 onMounted(async () => {
   if (inputEl.value) {
-    flatpickrInstance = await initDatePicker(inputEl.value, getFlatpickrDefaults({
-      defaultDate: props.modelValue || undefined,
+    const instance = await initDatePicker(inputEl.value, getFlatpickrDefaults({
+      defaultDate: parseDate(props.modelValue) || undefined,
       onChange: function(selectedDates, dateStr) {
         emit('update:modelValue', dateStr)
       },
@@ -94,10 +97,13 @@ onMounted(async () => {
         addTodayButton(instance)
       }
     }))
+    if (disposed) instance?.destroy()
+    else { flatpickrInstance = instance; instance?.setDate(parseDate(props.modelValue), false) }
   }
 })
 
 onBeforeUnmount(() => {
+  disposed = true
   if (flatpickrInstance) {
     flatpickrInstance.destroy()
     flatpickrInstance = null
@@ -106,16 +112,22 @@ onBeforeUnmount(() => {
 
 watch(() => props.modelValue, (newVal) => {
   if (flatpickrInstance && newVal !== flatpickrInstance.input.value) {
-    flatpickrInstance.setDate(newVal, false)
+    flatpickrInstance.setDate(parseDate(newVal), false)
   }
 })
 
 function clear() {
+  if (props.disabled) return
   if (flatpickrInstance) {
     flatpickrInstance.clear()
   }
+  inputEl.value?.setCustomValidity('')
   emit('update:modelValue', '')
 }
 
-function handleBlur() { /* optional manual validation */ }
+function handleBlur() {
+  const value = inputEl.value?.value || ''
+  const valid = !value || parseDate(value)
+  inputEl.value?.setCustomValidity(valid ? '' : 'تاريخ غير صالح')
+}
 </script>

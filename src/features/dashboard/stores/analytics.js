@@ -1,3 +1,4 @@
+import { onSessionChange, sessionGeneration } from '@/services/sessionState'
 // frontend/src/features/dashboard/stores/analytics.js
 import { defineStore } from 'pinia'
 import { reactive,ref } from 'vue'
@@ -21,30 +22,51 @@ export const useAnalyticsStore = defineStore('analytics', () => {
 
   const cache = reactive({ dashboard: null, charts: null })
 
+  let dashboardRequest = null
+  let chartGeneration = 0
+  let pending = 0
   function reset() {
+    dashboardRequest = null
+    chartGeneration += 1
+    pending = 0
+    dashboard.value = { high_risk_patients: [], recent_patients: [], today_appointments: [] }
+    chartData.value = { months_labels: [], visits_counts: [] }
+    cache.dashboard = null; cache.charts = null
     loading.value = false
     error.value = null
   }
 
-  async function fetchDashboard(dateFrom, dateTo) {
-    loading.value = true
+  onSessionChange(reset)
+  async function fetchDashboard(dateFrom, dateTo, { background = false } = {}) {
+    const key = JSON.stringify([dateFrom, dateTo])
+    if (dashboardRequest?.key === key) return dashboardRequest.promise
+    const epoch = sessionGeneration()
+    const request = { key, promise: null }
+    if (!background) { pending += 1; loading.value = true }
     error.value = null
-    try {
-      const params = {}
-      if (dateFrom) params.date_from = dateFrom
-      if (dateTo) params.date_to = dateTo
-
-      const data = await dashboardService.getDashboard(params)
-      dashboard.value = data
-      cache.dashboard = data
-    } catch (e) {
-      error.value = e.message || 'خطأ في التحميل'
-    } finally {
-      loading.value = false
-    }
+    request.promise = (async () => {
+      try {
+        const params = { ...(dateFrom ? { date_from: dateFrom } : {}), ...(dateTo ? { date_to: dateTo } : {}) }
+        const data = await dashboardService.getDashboard(params)
+        if (epoch !== sessionGeneration() || request !== dashboardRequest) return false
+        dashboard.value = data; cache.dashboard = data
+        return true
+      } catch (failure) {
+        if (epoch === sessionGeneration() && request === dashboardRequest) error.value = 'تعذر تحديث لوحة التحكم'
+        throw failure
+      } finally {
+        if (epoch === sessionGeneration() && !background) { pending = Math.max(0, pending - 1); loading.value = pending > 0 }
+        if (dashboardRequest === request) dashboardRequest = null
+      }
+    })()
+    dashboardRequest = request
+    return request.promise
   }
 
   async function fetchCharts(dateFrom, dateTo) {
+    const request = ++chartGeneration
+    const epoch = sessionGeneration()
+    pending += 1
     loading.value = true
     error.value = null
     try {
@@ -53,12 +75,15 @@ export const useAnalyticsStore = defineStore('analytics', () => {
       if (dateTo) params.date_to = dateTo
 
       const data = await dashboardService.getCharts(params)
+      if (epoch !== sessionGeneration() || request !== chartGeneration) return false
       chartData.value = data
       cache.charts = data
+      return true
     } catch (e) {
-      error.value = e.message || 'خطأ في التحميل'
+      if (request === chartGeneration) error.value = 'تعذر تحميل الرسم'
+      throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) { pending = Math.max(0, pending - 1); loading.value = pending > 0 }
     }
   }
 

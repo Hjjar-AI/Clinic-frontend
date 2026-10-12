@@ -11,11 +11,13 @@ import { onBeforeUnmount,onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+let finishTimer = null
 const progress = ref(0)
 const show = ref(false)
 let timer = null
 
 function start() {
+  clearTimeout(finishTimer)
   show.value = true
   progress.value = 0
   clearInterval(timer)
@@ -29,7 +31,8 @@ function finish() {
   clearInterval(timer)
   timer = null
   progress.value = 100
-  setTimeout(() => {
+  clearTimeout(finishTimer)
+  finishTimer = setTimeout(() => {
     show.value = false
     progress.value = 0
   }, 400)
@@ -46,6 +49,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  clearTimeout(finishTimer)
   clearInterval(timer)
   timer = null
   if (removeBefore) removeBefore()

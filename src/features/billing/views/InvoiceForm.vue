@@ -1,6 +1,6 @@
 <!-- frontend/src/features/billing/views/InvoiceForm.vue -->
 <template>
-  <FormWrapper
+  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry"
     :header-title="isEdit ? 'تحديث الفاتورة' : 'فاتورة جديدة'"
     header-icon="file-invoice"
     back-label="العودة للفواتير"
@@ -94,6 +94,7 @@
 </template>
 
 <script setup>
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -121,6 +122,8 @@ const { formatDate, normalizeFormDates } = useDate()
 const { formatMoney } = useFormatters()
 
 const isEdit = !!route.params.id
+const resource = useResourceLoad(!isEdit)
+const { ready: resourceReady, error: resourceError } = resource
 
 const paymentOptions = [
   { value: 'cash', label: 'نقدي' },
@@ -218,12 +221,14 @@ function visitLabel(option) {
   return `${option.visit_date} – ${option.main_complaints || ''}`
 }
 
-onMounted(async () => {
+onMounted(() => resource.load(async (isCurrent) => {
   if (!isEdit) return
 
   try {
     const result = await invoiceService.getById(route.params.id)
     const invoice = unwrapResponse(result)
+    if (!invoice?.id || !Number.isInteger(invoice.version) || invoice.version < 1) throw new Error('تعذر تحميل إصدار السجل')
+    if (!isCurrent()) return
 
     Object.assign(form, invoice)
 
@@ -247,11 +252,12 @@ onMounted(async () => {
 
     markClean()
   } catch {
-    // Keep empty form if loading fails.
+    throw new Error('تعذر تحميل السجل')
   }
-})
+}))
 
 async function handleSubmit() {
+  if (!resourceReady.value) return
   const success = await submit()
   if (success) {
     markClean()

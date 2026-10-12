@@ -11,8 +11,8 @@ import { safeGetItem, safeJsonParse,safeSetItem } from '@/utils/storage'
  *     persist: { key: 'my_store_key', paths: ['sidebarCollapsed', 'density'] }
  *   })
  */
-export function persistPlugin({ store }) {
-  const config = store.$options?.persist
+export function persistPlugin({ store, options }) {
+  const config = options.persist
   if (!config) return
 
   const paths = config.paths

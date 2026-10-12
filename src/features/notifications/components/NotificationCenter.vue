@@ -129,6 +129,7 @@ const { unreadCount } = useUnreadCount(180000)
 const authStore = useAuthStore()
 const router = useRouter()
 const hasNew = ref(false)
+let badgeTimer = null
 const { triggerRef, panelRef, open, positionStyle, toggle, close, onTriggerKey } = useDropdown()
 watch(() => router.currentRoute.value.fullPath, close)
 const { toISODate } = useDate()
@@ -143,14 +144,15 @@ watch(() => authStore.isAuthenticated, (authenticated) => {
 watch(() => unreadCount.value, (newVal, oldVal) => {
   if (newVal > oldVal) {
     hasNew.value = true
-    setTimeout(() => { hasNew.value = false }, 600)
+    clearTimeout(badgeTimer)
+    badgeTimer = setTimeout(() => { hasNew.value = false }, 600)
   }
 })
 
 onMounted(() => {
   notificationStore.startPolling(180000)
 })
-onBeforeUnmount(() => notificationStore.stopPolling())
+onBeforeUnmount(() => { clearTimeout(badgeTimer); notificationStore.stopPolling() })
 
 const iconForType = (type) => ({
   info: 'info-circle',

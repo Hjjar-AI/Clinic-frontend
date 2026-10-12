@@ -7,7 +7,7 @@
     />
 
     <BaseCard>
-      <ListView
+      <ListView :refresh-key="refreshKey"
         :columns="columns"
         :fetch-fn="fetchFn"
         :filters="tableFilters"
@@ -77,6 +77,7 @@ import StatusCell from '@/components/ui/StatusCell.vue'
 import TableActions from '@/components/ui/TableActions.vue'
 
 defineProps({
+  refreshKey: { type: Number, default: 0 },
   columns: { type: Array, required: true },
   fetchFn: { type: Function, required: true },
   tableFilters: { type: Array, required: true },

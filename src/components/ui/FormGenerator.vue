@@ -101,7 +101,12 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
 
 const form = reactive({ ...props.modelValue })
-// Sync back to parent
+// Controlled resets/hydration replace the local copy without echo loops.
 import { watch } from 'vue'
-watch(form, (val) => emit('update:modelValue', { ...val }), { deep: true })
+watch(() => props.modelValue, value => {
+  if (JSON.stringify(value) === JSON.stringify(form)) return
+  for (const key of Object.keys(form)) delete form[key]
+  Object.assign(form, value)
+}, { deep: true })
+watch(form, value => { if (JSON.stringify(value) !== JSON.stringify(props.modelValue)) emit('update:modelValue', { ...value }) }, { deep: true })
 </script>

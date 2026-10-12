@@ -1,4 +1,5 @@
 <template>
+  <p v-if="sectionErrors.length" role="alert" class="text-danger">{{ sectionErrors.join('؛ ') }} <button type="button" @click="loadPatient">إعادة المحاولة</button></p>
   <PatientDetailLayout
     :status="pageStatus"
     @retry="loadPatient"
@@ -29,11 +30,11 @@ import { useFormatters } from '@/composables/useFormatters'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useNotify } from '@/composables/useNotify'
 import { usePageStatus } from '@/composables/usePageStatus'
+import { fetchCatalog } from '@/utils/catalogFetch'
 import appointmentService from '@/features/appointments/services/appointmentService'
 import PatientDetailLayout from '@/features/patients/components/PatientDetailLayout.vue'
 import patientService from '@/features/patients/services/patientService'
 import { usePatientStore } from '@/features/patients/stores/patients'
-import { unwrapResponse } from '@/services/apiClient'
 import { fullName as getFullName } from '@/utils/normalize'
 
 const route = useRoute()
@@ -53,6 +54,7 @@ const {
   setError,
 } = usePageStatus()
 
+const sectionErrors = ref([])
 const patient = ref(null)
 const visits = ref([])
 const patientAppointments = ref([])
@@ -61,11 +63,12 @@ const careTeamMembers = ref([])
 const latestVisit = computed(() => visits.value[0] || null)
 
 const healthSummaryItems = computed(() => {
+  const unavailable = sectionErrors.value.some(message => message.includes('الزيارات'))
   const latest = latestVisit.value
   const diagnoses = latest?.diagnoses || []
   return [
-    { label: 'إجمالي الزيارات', value: toArabic(visits.value.length), numeric: true },
-    { label: 'آخر زيارة', value: latest ? formatDate(latest.visit_date) : 'لا توجد' },
+    { label: 'إجمالي الزيارات', value: unavailable ? 'غير متاح' : toArabic(visits.value.length), numeric: !unavailable },
+    { label: 'آخر زيارة', value: unavailable ? 'غير متاح' : latest ? formatDate(latest.visit_date) : 'لا توجد' },
     { label: 'آخر تشخيص', value: diagnoses[0]?.arabic_name || diagnoses[0]?.name || 'غير محدد' },
     { label: 'مستوى الرعاية', value: latest?.level_of_care || 'غير محدد' },
     {
@@ -96,6 +99,7 @@ onMounted(loadPatient)
 
 async function loadPatient() {
   setLoading()
+  sectionErrors.value = []
 
   try {
     patient.value = await patientStore.fetchPatient(route.params.id)
@@ -108,9 +112,7 @@ async function loadPatient() {
   if (patient.value) {
     const loadVisits = async () => {
       try {
-      const result = await patientService.getVisits(patient.value.id)
-      const payload = unwrapResponse(result)
-      const list = Array.isArray(payload) ? payload : payload?.items || []
+      const list = await fetchCatalog(params => patientService.getVisits(patient.value.id, params), 'visits')
       visits.value = [...list].sort((a, b) => {
         const da = parseDate(a.visit_date)
         const db = parseDate(b.visit_date)
@@ -119,19 +121,16 @@ async function loadPatient() {
       })
       } catch {
         visits.value = []
+        sectionErrors.value.push('تعذر تحميل الزيارات')
       }
     }
 
     const loadAppointments = async () => {
       try {
-      const result = await appointmentService.getByPatient(patient.value.id, { per_page: 10 })
-      const payload = unwrapResponse(result)
-      patientAppointments.value =
-        payload?.items ||
-        payload?.appointments ||
-        (Array.isArray(payload) ? payload : [])
+      patientAppointments.value = await fetchCatalog(params => appointmentService.getByPatient(patient.value.id, params), 'appointments')
       } catch {
         patientAppointments.value = []
+        sectionErrors.value.push('تعذر تحميل المواعيد')
       }
     }
 
@@ -147,8 +146,10 @@ async function fetchCareTeam() {
     const data = await patientService.getCareTeam(patient.value.id)
     careTeamMembers.value = data?.care_team || []
     if (data?.version) patient.value.version = data.version
+    patient.value = await patientStore.fetchPatient(patient.value.id)
   } catch {
     careTeamMembers.value = []
+    sectionErrors.value.push('تعذر تحميل فريق الرعاية')
   }
 }
 

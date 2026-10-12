@@ -5,8 +5,8 @@
     :role="clickable ? 'button' : undefined"
     :tabindex="clickable ? 0 : undefined"
     @click="$emit('click')"
-    @keydown.enter.prevent="$emit('click')"
-    @keydown.space.prevent="$emit('click')"
+    @keydown.enter="activate"
+    @keydown.space="activate"
   >
     <header
       v-if="$slots.header || headerTitle"
@@ -48,7 +48,7 @@ import SkeletonLoader from '@/components/common/SkeletonLoader.vue'
 import CardHeader from './CardHeader.vue'
 import EmptyState from './EmptyState.vue'
 
-defineProps({
+const props = defineProps({
   clickable: Boolean,
   loading: Boolean,
   skeletonType: { type: String, default: 'card' },
@@ -60,5 +60,10 @@ defineProps({
   headerVariant: { type: String, default: 'neutral' },
 })
 
-defineEmits(['click'])
+const emit = defineEmits(['click'])
+function activate(event) {
+  if (!props.clickable || event.target !== event.currentTarget) return
+  event.preventDefault()
+  emit('click', event)
+}
 </script>

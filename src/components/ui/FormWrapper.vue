@@ -19,7 +19,9 @@
         />
       </template>
       <FormErrorSummary :errors="validationErrors" />
-      <form @submit.prevent="$emit('submit')">
+      <p v-if="!ready" role="status" class="text-muted">{{ loadError || 'جاري تحميل البيانات…' }} <button v-if="loadError" type="button" @click="$emit('retry')">إعادة المحاولة</button></p>
+      <form @submit.prevent="ready && $emit('submit')">
+        <fieldset class="form-load-fields" :disabled="!ready">
         <slot />
         <FormActions
           :submitting="submitting"
@@ -32,6 +34,7 @@
           :cancel-fn="cancelFn"
           @cancel="$emit('cancel')"
         />
+        </fieldset>
       </form>
       <div
         v-if="submitError"
@@ -51,6 +54,8 @@ import FormActions from './FormActions.vue'
 import FormErrorSummary from './FormErrorSummary.vue'
 
 defineProps({
+  ready: { type: Boolean, default: true },
+  loadError: { type: String, default: '' },
   width: { type: String, default: 'lg' },
   backLabel: { type: String, default: '' },
   showBackLink: { type: Boolean, default: true },
@@ -69,5 +74,5 @@ defineProps({
   submitError: { type: String, default: '' },
 })
 
-defineEmits(['submit', 'cancel'])
+defineEmits(['submit', 'cancel', 'retry'])
 </script>

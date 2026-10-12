@@ -127,7 +127,7 @@ function buildCalendarWeeks() {
   }
 
   const weeks = []
-  let lead = firstDay === 0 ? 6 : firstDay - 1
+  let lead = firstDay
   let startDay = prevMonthDays - lead + 1
 
   let currentWeek = []

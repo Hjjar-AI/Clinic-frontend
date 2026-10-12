@@ -12,6 +12,7 @@
       @reset="$emit('filter-reset')"
     />
 
+    <p v-if="error" role="alert" class="text-danger">تعذر تحميل القائمة <BaseButton @click="initialLoad">إعادة المحاولة</BaseButton></p>
     <!-- Table -->
     <DataTable
       :columns="columns"
@@ -26,9 +27,9 @@
       :empty-description="emptyDescription"
       :empty-action-text="emptyActionText"
       :empty-action-url="emptyActionUrl"
-      @toggle-all="$emit('toggle-all', $event)"
+      @toggle-all="(checked, ids) => $emit('toggle-all', checked, ids)"
       @toggle-item="(id) => $emit('toggle-item', id)"
-      @row-click="(item) => $emit('row-click', item)"
+      :on-row-click="hasRowHandler ? (item) => $emit('row-click', item) : undefined"
     >
       <template
         v-for="(_, slot) in $slots"
@@ -64,7 +65,7 @@
 </template>
 
 <script setup>
-import { onMounted,ref, watch } from 'vue'
+import { computed,getCurrentInstance,onBeforeUnmount,onMounted,ref, watch } from 'vue'
 
 import { useDate } from '@/composables/useDate'
 import { usePagination } from '@/composables/usePagination'
@@ -80,7 +81,7 @@ const props = defineProps({
   filterValues: { type: Object, default: () => ({}) },
   perPage: { type: Number, default: 20 },
   selectable: { type: Boolean, default: false },
-  selectedIds: { type: Set, default: () => new Set() },
+  selectedIds: { type: [Set, Array], default: () => new Set() },
   selectedId: { type: [Number, String], default: null },
   emptyType: { type: String, default: 'default' },
   emptyTitle: { type: String, default: '' },
@@ -100,10 +101,11 @@ const emit = defineEmits([
   'filter-reset',
 ])
 
+const hasRowHandler = Boolean(getCurrentInstance()?.vnode.props?.onRowClick)
 const { toISODate, parseDate } = useDate()
 
 const currentFilters = ref({ ...props.filterValues })
-const pageStatus = ref('loading')
+const pageStatus = computed(() => error.value ? 'error' : loading.value ? 'loading' : items.value.length ? 'content' : 'empty')
 
 function normalizeFilters(filters) {
   const normalized = { ...filters }
@@ -131,7 +133,9 @@ const fetchWrapper = async ({ cursor, limit }) => {
 
 const {
   items,
-  loading: loadingMore,
+  loading,
+  loadingMore,
+  error,
   hasMore,
   loadNext: loadMore,
   refresh,
@@ -150,13 +154,10 @@ function onFilterChange(newFilters) {
 }
 
 async function initialLoad() {
-  try {
-    await refresh()
-    pageStatus.value = items.value.length ? 'content' : 'empty'
-  } catch {
-    pageStatus.value = 'error'
-  }
+  await refresh()
 }
+
+onBeforeUnmount(() => debouncedRefresh.cancel())
 
 onMounted(() => {
   initialLoad()
@@ -165,8 +166,9 @@ onMounted(() => {
 watch(
   () => props.filterValues,
   (newValues) => {
+    if (JSON.stringify(newValues) === JSON.stringify(currentFilters.value)) return
     currentFilters.value = { ...newValues }
-    refresh()
+    debouncedRefresh()
   },
   { deep: true }
 )

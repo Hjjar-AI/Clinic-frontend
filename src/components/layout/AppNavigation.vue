@@ -28,7 +28,9 @@
         :aria-label="item.label"
         :title="collapsed ? item.label : undefined"
         class="sidebar-link"
-        active-class="router-link-active"
+        active-class=""
+        :class="{ 'router-link-active': sectionCurrent(item) }"
+        :aria-current="sectionCurrent(item)"
         @click="$emit('close-mobile')"
       >
         <Icon :icon="item.icon" />
@@ -71,7 +73,7 @@ defineProps({ collapsed: Boolean, mobileOpen: Boolean });
 defineEmits(['toggle', 'close-mobile']);
 
 const settingsStore = useSettingsStore();
-const { allItems: navItems } = useNavigationItems();
+const { allItems: navItems, sectionCurrent } = useNavigationItems();
 
 const clinicName = computed(() => settingsStore.settings.clinic_name || 'عيادة الإتزان');
 </script>

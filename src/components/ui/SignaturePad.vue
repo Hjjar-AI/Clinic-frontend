@@ -78,7 +78,7 @@ defineProps({
   error: { type: String, default: '' },
 })
 
-const emit = defineEmits(['save'])
+const emit = defineEmits(['save', 'change'])
 
 const padRef = ref(null)
 const svgRef = ref(null)
@@ -86,6 +86,7 @@ const pathData = ref('')
 const hasDrawn = ref(false)
 const drawing = ref(false)
 const points = ref([])
+const strokes = ref([])
 const keyboardPenPos = ref({ x: 150, y: 50 }) // Starting point for keyboard drawing
 
 function getPos(e) {
@@ -103,14 +104,17 @@ function getPos(e) {
 function startDraw(e) {
   drawing.value = true
   const { x, y } = getPos(e)
+  emit('change')
   points.value = [{ x, y }]
-  pathData.value = `M ${x} ${y}`
+  strokes.value.push(points.value)
+  pathData.value += ` M ${x} ${y}`
   hasDrawn.value = true
 }
 
 function draw(e) {
   if (!drawing.value) return
   const { x, y } = getPos(e)
+  emit('change')
   points.value.push({ x, y })
   pathData.value += ` L ${x} ${y}`
 }
@@ -126,7 +130,9 @@ function drawTouch(e) { draw(e) }
 function startKeyboardDraw() {
   if (!hasDrawn.value) {
     // Start a new path at the current pen position
+    emit('change')
     points.value = [{ ...keyboardPenPos.value }]
+    strokes.value.push(points.value)
     pathData.value = `M ${keyboardPenPos.value.x} ${keyboardPenPos.value.y}`
     hasDrawn.value = true
   } else {
@@ -151,6 +157,7 @@ function moveKeyboardPen(direction) {
   keyboardPenPos.value = newPos
 
   if (hasDrawn.value) {
+    emit('change')
     // Continue the path to the new point
     points.value.push({ ...newPos })
     pathData.value += ` L ${newPos.x} ${newPos.y}`
@@ -158,6 +165,9 @@ function moveKeyboardPen(direction) {
 }
 
 function clear() {
+  emit('change')
+  strokes.value = []
+  drawing.value = false
   pathData.value = ''
   points.value = []
   hasDrawn.value = false
@@ -173,15 +183,16 @@ function save() {
   canvas.width = 300
   canvas.height = 100
   const context = canvas.getContext('2d')
+  if (!context) { emit('change'); return }
   context.strokeStyle = '#172033'
   context.lineWidth = 2
   context.lineCap = 'round'
   context.lineJoin = 'round'
   context.beginPath()
-  points.value.forEach((point, index) => {
+  strokes.value.forEach(stroke => stroke.forEach((point, index) => {
     if (index === 0) context.moveTo(point.x, point.y)
     else context.lineTo(point.x, point.y)
-  })
+  }))
   context.stroke()
   emit('save', canvas.toDataURL('image/png'))
 }

@@ -46,6 +46,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/utils/reportError'
 import { onBeforeUnmount,ref, watch } from 'vue'
 
 import FormField from '@/components/ui/FormField.vue'
@@ -104,7 +105,7 @@ async function fetchSlots() {
     }
   } catch (e) {
     if (!apiClient.isCancel(e)) {
-      console.error('Failed to load slots', e)
+      reportError('TimeSlotPicker', e)
       slots.value = []
     }
   } finally {

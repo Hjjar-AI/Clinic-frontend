@@ -12,7 +12,7 @@
     :target="href && !href.startsWith('#') ? '_blank' : undefined"
     :rel="href ? 'noopener noreferrer' : undefined"
     prefetch
-    @click="handleClick"
+    @click.capture="handleClick"
   >
     <Icon
       v-if="icon && !loading"
@@ -29,7 +29,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 
 import { useConfirmStore } from '@/stores/confirm'
 
@@ -72,22 +72,25 @@ const sizeClass = computed(() => {
 })
 
 const confirmStore = useConfirmStore()
+const router = useRouter()
 
 async function handleClick(event) {
+  if (props.disabled || props.loading) { event.preventDefault(); event.stopImmediatePropagation(); return }
+  const confirmedLink = props.confirmMessage && (props.to || props.href)
+  if (confirmedLink) { event.preventDefault(); event.stopImmediatePropagation() }
   if (props.confirmMessage) {
     const ok = await confirmStore.confirm(props.confirmMessage, {
-      confirmText: props.confirmOkText,
-      cancelText: props.confirmCancelText,
-      headerVariant: props.confirmHeaderVariant,
-      requireCheckbox: props.confirmCheckbox,
+      confirmText: props.confirmOkText, cancelText: props.confirmCancelText,
+      headerVariant: props.confirmHeaderVariant, requireCheckbox: props.confirmCheckbox,
       checkboxLabel: 'أفهم العواقب',
     })
     if (!ok) return
     emit('confirmed')
   }
-
-  if (!props.to) {
-    emit('click', event)
+  emit('click', event)
+  if (confirmedLink) {
+    if (props.to) await router.push(props.to)
+    else window.open(props.href, props.href.startsWith('#') ? '_self' : '_blank', 'noopener,noreferrer')
   }
 }
 </script>

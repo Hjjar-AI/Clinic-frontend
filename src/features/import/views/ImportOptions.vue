@@ -28,6 +28,7 @@
               <input
                 id="diagFile"
                 ref="diagFile"
+                :disabled="diagLoading"
                 type="file"
                 accept=".csv,.xlsx,.xls"
                 class="form-control"
@@ -46,6 +47,7 @@
                   <label class="radio">
                     <input
                       v-model="diagMode"
+                      :disabled="diagLoading"
                       type="radio"
                       value="merge"
                       class="radio__input"
@@ -55,6 +57,7 @@
                   <label class="radio">
                     <input
                       v-model="diagMode"
+                      :disabled="diagLoading"
                       type="radio"
                       value="replace"
                       class="radio__input"
@@ -117,6 +120,8 @@
               <input
                 id="medFile"
                 ref="medFile"
+                :disabled="medMappingLoading || medUploadLoading"
+                @change="resetMedicationPreview"
                 type="file"
                 accept=".csv,.xlsx,.xls"
                 class="form-control"
@@ -184,6 +189,7 @@
               <select
                 id="mapGenericEnglish"
                 v-model="colMap.generic_english"
+                  :disabled="medMappingLoading || medUploadLoading"
                 class="form-control"
                 required
               >
@@ -207,6 +213,7 @@
               <select
                 id="mapGenericArabic"
                 v-model="colMap.generic_arabic"
+                  :disabled="medMappingLoading || medUploadLoading"
                 class="form-control"
               >
                 <option value="">
@@ -229,6 +236,7 @@
               <select
                 id="mapDosage"
                 v-model="colMap.dosage"
+                  :disabled="medMappingLoading || medUploadLoading"
                 class="form-control"
               >
                 <option value="">
@@ -251,6 +259,7 @@
               <select
                 id="mapBrandEnglish"
                 v-model="colMap.brand_english"
+                  :disabled="medMappingLoading || medUploadLoading"
                 class="form-control"
               >
                 <option value="">
@@ -273,6 +282,7 @@
               <select
                 id="mapBrandArabic"
                 v-model="colMap.brand_arabic"
+                  :disabled="medMappingLoading || medUploadLoading"
                 class="form-control"
               >
                 <option value="">
@@ -298,6 +308,7 @@
               <label class="radio">
                 <input
                   v-model="medMergeMode"
+                  :disabled="medMappingLoading || medUploadLoading"
                   type="radio"
                   value="merge"
                   class="radio__input"
@@ -307,6 +318,7 @@
               <label class="radio">
                 <input
                   v-model="medMergeMode"
+                  :disabled="medMappingLoading || medUploadLoading"
                   type="radio"
                   value="overwrite"
                   class="radio__input"
@@ -343,7 +355,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
@@ -355,6 +367,8 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { useApi } from '@/composables/useApi'
 import importService from '@/features/import/services/importService'
 
+let diagGeneration = 0, medGeneration = 0
+onBeforeUnmount(() => { diagGeneration += 1; medGeneration += 1 })
 const diagMode = ref('merge')
 const diagFile = ref(null)
 const diagPreview = ref(null)
@@ -372,8 +386,12 @@ const confirmOverwriteMeds = ref(false)
 const { loading: diagLoading, execute: doDiagImport } = useApi(async () => {
   const file = diagFile.value?.files?.[0]
   if (!file) return
+  const request = diagGeneration
+  const mode = diagMode.value
   if (!diagPreviewToken.value) {
-    diagPreview.value = await importService.previewDiagnoses(file, diagMode.value)
+    const result = await importService.previewDiagnoses(file, mode)
+    if (request !== diagGeneration) return
+    diagPreview.value = result
     diagPreviewToken.value = diagPreview.value?.preview_token || ''
     return
   }
@@ -381,17 +399,21 @@ const { loading: diagLoading, execute: doDiagImport } = useApi(async () => {
   resetDiagnosisPreview()
 })
 
-const importDiagnoses = () => doDiagImport()
+const importDiagnoses = () => { if (!diagLoading.value) doDiagImport().catch(() => {}) }
 const resetDiagnosisPreview = () => {
+  diagGeneration += 1
+  confirmReplaceDiag.value = false
   diagPreview.value = null
   diagPreviewToken.value = ''
 }
-watch(diagMode, resetDiagnosisPreview)
+watch(diagMode, resetDiagnosisPreview, { flush: 'sync' })
 
 const { loading: medUploadLoading, execute: doMedUpload } = useApi(async () => {
   const file = medFile.value?.files?.[0]
   if (!file) return
+  const request = medGeneration
   const res = await importService.uploadMedications(file)
+  if (request !== medGeneration) return
   const payload = res?.data?.data || res?.data || res
   mappedPreview.value = null
   medPreview.value = payload.preview_rows || []
@@ -400,14 +422,18 @@ const { loading: medUploadLoading, execute: doMedUpload } = useApi(async () => {
   colMap.value = { generic_english: null, generic_arabic: null, dosage: null, brand_english: null, brand_arabic: null }
 })
 
-const uploadMedications = () => doMedUpload()
+const uploadMedications = () => { if (!medUploadLoading.value && !medMappingLoading.value) doMedUpload().catch(() => {}) }
 
 const { loading: medMappingLoading, execute: doMedMapping } = useApi(async () => {
   const file = medFile.value?.files?.[0]
   if (!file) return
+  const request = medGeneration
+  const token = medPreviewToken.value
   const payload = { column_map: { ...colMap.value }, merge_mode: medMergeMode.value }
   if (!mappedPreview.value) {
-    mappedPreview.value = await importService.mapMedications(file, payload.column_map, payload.merge_mode, medPreviewToken.value, true)
+    const result = await importService.mapMedications(file, payload.column_map, payload.merge_mode, token, true)
+    if (request !== medGeneration) return
+    mappedPreview.value = result
     medPreviewToken.value = mappedPreview.value.preview_token
     return
   }
@@ -417,6 +443,7 @@ const { loading: medMappingLoading, execute: doMedMapping } = useApi(async () =>
   medPreviewToken.value = ''
 })
 
-watch([colMap, medMergeMode], () => { mappedPreview.value = null }, { deep: true })
-const mapMedications = () => doMedMapping()
+watch([colMap, medMergeMode], () => { medGeneration += 1; mappedPreview.value = null; confirmOverwriteMeds.value = false }, { deep: true, flush: 'sync' })
+function resetMedicationPreview() { medGeneration += 1; mappedPreview.value = null; medPreview.value = null; medPreviewToken.value = ''; columns.value = []; confirmOverwriteMeds.value = false }
+const mapMedications = () => { if (!medMappingLoading.value && !medUploadLoading.value) doMedMapping().catch(() => {}) }
 </script>

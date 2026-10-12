@@ -15,11 +15,11 @@
           :id="inputId"
           v-model.number="modelValue"
           type="number"
-          :min="0"
+          :min="min"
           :max="max"
           class="form-control score-input__input numeric"
           :disabled="disabled"
-          :placeholder="'0'"
+          :placeholder="'غير مقيم'"
           :aria-label="label || 'الدرجة'"
           :aria-invalid="Boolean(error)"
         >
@@ -27,7 +27,7 @@
           class="score-input__current"
           :for="inputId"
           aria-label="القيمة الحالية"
-        >{{ formatArabic(modelValue ?? 0) }}</output>
+        >{{ modelValue == null || modelValue === '' ? 'غير مقيم' : formatArabic(modelValue) }}</output>
         <span class="score-input__max">/ {{ formatArabic(max) }}</span>
       </div>
       <!-- Slider variant -->
@@ -51,8 +51,9 @@
           class="scale-slider__value"
           :for="inputId"
           aria-label="القيمة الحالية"
-        >{{ formatArabic(modelValue ?? 0) }}</output>
+        >{{ modelValue == null || modelValue === '' ? 'غير مقيم' : formatArabic(modelValue) }}</output>
       </div>
+      <button v-if="modelValue != null" type="button" class="btn btn--ghost btn--sm" :disabled="disabled" @click="modelValue = null">غير مقيم</button>
     </div>
   </FormField>
 </template>
@@ -76,7 +77,7 @@ defineProps({
 })
 
 const inputId = `score-${useId()}`
-const modelValue = defineModel({ type: Number, default: 0 })
+const modelValue = defineModel({ type: Number, default: null, set: value => value === '' ? null : value })
 
 const formatArabic = (value) => {
   return toArabicNumerals(value)

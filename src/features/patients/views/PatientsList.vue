@@ -60,7 +60,7 @@
       />
 
       <BaseCard>
-        <ListView
+        <ListView :refresh-key="listRefresh"
           :columns="visibleColumns"
           :fetch-fn="fetchPatients"
           :filters="tableFilters"
@@ -222,6 +222,7 @@ const { confirm } = useConfirmDialog()
 const { copy } = useCopy()
 const { notify } = useNotify()
 
+const listRefresh = ref(0)
 const refreshStore = useRefreshStore()
 const {
   status: pageStatus,
@@ -415,6 +416,8 @@ function missingFieldsLabel(fields = []) {
 async function deletePatient(patient) {
   try {
     await patientStore.deletePatient(patient.id)
+    listRefresh.value += 1
+    selectionStore.clearAll()
     notify('تم حذف المريض', 'success')
   } catch {
     notify('فشل حذف المريض', 'danger')

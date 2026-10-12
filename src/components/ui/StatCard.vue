@@ -73,6 +73,8 @@ const { formatNumber } = useFormatters()
 const cardRef = ref(null)
 const animated = ref(false)
 let observer = null
+let animationFrame = null
+let disposed = false
 
 const animatedValue = ref(0)
 const displayValue = computed(() => formatNumber(animatedValue.value))
@@ -81,7 +83,9 @@ const trendIcon = computed(() => props.trend >= 0 ? 'arrow-up' : 'arrow-down')
 const trendClass = computed(() => props.trend >= 0 ? 'trend-up' : 'trend-down')
 
 function animateValue(target) {
-  if (!props.animate || !animated.value) {
+  cancelAnimationFrame(animationFrame)
+  if (typeof target !== 'number' || !Number.isFinite(target)) { animatedValue.value = target; return }
+  if (!props.animate || !animated.value || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
     animatedValue.value = target
     return
   }
@@ -91,10 +95,10 @@ function animateValue(target) {
     if (!start) start = timestamp
     const progress = Math.min((timestamp - start) / duration, 1)
     animatedValue.value = Math.round(target * progress)
-    if (progress < 1) requestAnimationFrame(step)
+    if (progress < 1 && !disposed) animationFrame = requestAnimationFrame(step)
     else animatedValue.value = target
   }
-  requestAnimationFrame(step)
+  animationFrame = requestAnimationFrame(step)
 }
 
 onMounted(() => {
@@ -118,6 +122,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  disposed = true
+  cancelAnimationFrame(animationFrame)
   observer?.disconnect()
 })
 
@@ -130,6 +136,7 @@ function drawSparkline() {
   if (!props.sparkValues || !sparkCanvas.value) return
   const canvas = sparkCanvas.value
   const ctx = canvas.getContext('2d')
+  if (!ctx) return
   const values = props.sparkValues
   const maxVal = Math.max(...values)
   const minVal = Math.min(...values)
@@ -149,6 +156,6 @@ function drawSparkline() {
   ctx.stroke()
 }
 watch(() => props.sparkValues, () => {
-  nextTick(() => drawSparkline())
+  nextTick(() => { if (!disposed) drawSparkline() })
 })
 </script>

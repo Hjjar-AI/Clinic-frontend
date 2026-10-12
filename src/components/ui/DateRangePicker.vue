@@ -33,6 +33,7 @@
           @keydown.esc="closeCalendars"
         >
         <button
+          type="button"
           class="btn btn--secondary btn--sm"
           :disabled="invalidRange"
           @click="emitApply"
@@ -41,6 +42,7 @@
         </button>
         <button
           v-if="startDate || endDate"
+          type="button"
           class="btn btn--ghost btn--sm"
           @click="clear"
         >
@@ -51,7 +53,7 @@
         v-if="invalidRange"
         class="text-danger text-xs mt-1"
       >
-        تاريخ النهاية يجب أن يكون بعد تاريخ البداية
+        أدخل تاريخاً صالحاً ونهاية لا تسبق البداية
       </small>
     </div>
   </div>
@@ -78,35 +80,39 @@ const { initDatePicker, getFlatpickrDefaults, toISODate, parseDate, formatDate }
 
 const displayDate = value => formatDate(value) || value
 
+let disposed = false
 let startFlatpickr = null
 let endFlatpickr = null
 
 const invalidRange = computed(() => {
-  if (!props.startDate || !props.endDate) return false
-  const start = parseDate(props.startDate)
-  const end = parseDate(props.endDate)
-  if (!start || !end) return false
-  return start > end
+  const start = props.startDate ? parseDate(props.startDate) : null
+  const end = props.endDate ? parseDate(props.endDate) : null
+  if ((props.startDate && !start) || (props.endDate && !end)) return true
+  return start && end ? start > end : false
 })
 
 onMounted(async () => {
   if (startInput.value) {
-    startFlatpickr = await initDatePicker(startInput.value, getFlatpickrDefaults({
+    const instance = await initDatePicker(startInput.value, getFlatpickrDefaults({
       defaultDate: parseDate(props.startDate) || undefined,
       onChange: (selectedDates, dateStr) => {
         const d = parseDate(dateStr)
         emit('update:startDate', d ? toISODate(d) : dateStr)
       }
     }))
+    if (disposed) instance?.destroy()
+    else { startFlatpickr = instance; instance?.setDate(parseDate(props.startDate), false) }
   }
-  if (endInput.value) {
-    endFlatpickr = await initDatePicker(endInput.value, getFlatpickrDefaults({
+  if (!disposed && endInput.value) {
+    const instance = await initDatePicker(endInput.value, getFlatpickrDefaults({
       defaultDate: parseDate(props.endDate) || undefined,
       onChange: (selectedDates, dateStr) => {
         const d = parseDate(dateStr)
         emit('update:endDate', d ? toISODate(d) : dateStr)
       }
     }))
+    if (disposed) instance?.destroy()
+    else { endFlatpickr = instance; instance?.setDate(parseDate(props.endDate), false) }
   }
 })
 
@@ -114,6 +120,7 @@ watch(() => props.startDate, value => startFlatpickr?.setDate(parseDate(value), 
 watch(() => props.endDate, value => endFlatpickr?.setDate(parseDate(value), false))
 
 onBeforeUnmount(() => {
+  disposed = true
   if (startFlatpickr) {
     startFlatpickr.destroy()
     startFlatpickr = null

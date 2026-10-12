@@ -31,22 +31,22 @@
           آخر تحديث: <RelativeDate :date="patient.updated_at" />
         </p>
         <!-- Tabs -->
-        <AppTabs v-model="activeTab">
-          <AppTabPanel id="records" label="السجلات المستمرة" icon="address-card" />
-          <AppTabPanel v-if="authStore.can('manage_patient_documents')" id="documents" label="المستندات" icon="file" />
-          <AppTabPanel v-if="authStore.can('edit_patient')" id="duplicates" label="الملفات المتشابهة" icon="users" />
-          <AppTabPanel id="history" label="تاريخ التصحيح" icon="history" />
-          <AppTabPanel
+        <AppTabs v-model="activeTab" :id-prefix="tabPrefix">
+          <AppTabPanel external id="records" label="السجلات المستمرة" icon="address-card" />
+          <AppTabPanel external v-if="authStore.can('manage_patient_documents')" id="documents" label="المستندات" icon="file" />
+          <AppTabPanel external v-if="authStore.can('edit_patient')" id="duplicates" label="الملفات المتشابهة" icon="users" />
+          <AppTabPanel external id="history" label="تاريخ التصحيح" icon="history" />
+          <AppTabPanel external
             id="health"
             label="ملخص الصحة"
             icon="heartbeat"
           />
-          <AppTabPanel
+          <AppTabPanel external
             id="appointments"
             label="المواعيد"
             icon="calendar-check"
           />
-          <AppTabPanel
+          <AppTabPanel external
             id="team"
             label="فريق الرعاية"
             icon="user-md"
@@ -61,7 +61,7 @@
             :patient="patient"
             :latest-visit="latestVisit"
           />
-          <div class="profile-main">
+          <div class="profile-main" :id="`${tabPrefix}-panel-${activeTab}`" role="tabpanel" :aria-labelledby="`${tabPrefix}-tab-${activeTab}`">
             <PatientRecordsPanel v-if="activeTab === 'records'" :patient="patient" :visits="visits" :appointments="appointments" :members="careTeamMembers" @changed="(...args) => $emit('record-changed', ...args)" />
             <PatientDocumentsPanel v-if="activeTab === 'documents' && authStore.can('manage_patient_documents')" :patient="patient" />
             <PatientDuplicatePanel v-if="activeTab === 'duplicates' && authStore.can('edit_patient')" :patient="patient" @changed="(...args) => $emit('record-changed', ...args)" />
@@ -150,7 +150,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, useId, watch } from 'vue'
+import { useRouteQuery } from '@/composables/useRouteQuery'
 import { useRoute } from 'vue-router'
 
 import PageContainer from '@/components/layout/PageContainer.vue'
@@ -189,6 +190,10 @@ defineEmits([
 ])
 
 const route = useRoute()
+const tabPrefix = `patient-${useId()}`
+const tabQuery = useRouteQuery('tab', 'health')
 const activeTab = ref(['health','appointments','team','records','documents','duplicates','history'].includes(route.query.tab) ? route.query.tab : 'health')  // default tab
+watch(tabQuery, value => { if (['health','appointments','team','records','documents','duplicates','history'].includes(value)) activeTab.value = value })
+watch(activeTab, value => { tabQuery.value = value })
 const authStore = useAuthStore()
 </script>

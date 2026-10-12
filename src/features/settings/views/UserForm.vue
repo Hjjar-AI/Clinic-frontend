@@ -1,6 +1,7 @@
 <!-- frontend/src/features/settings/views/UserForm.vue -->
 <template>
-  <FormWrapper width="sm"
+  <p v-if="stampError" role="alert" class="text-danger">{{ stampError }}</p>
+  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry" width="sm"
     :header-title="isEdit ? 'تعديل مستخدم' : 'مستخدم جديد'"
     header-icon="user-plus"
     back-label="العودة للمستخدمين"
@@ -61,7 +62,8 @@
 </template>
 
 <script setup>
-import { computed,onMounted, ref } from 'vue'
+import { useResourceLoad } from '@/composables/useResourceLoad'
+import { computed,onBeforeUnmount,onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
@@ -80,6 +82,11 @@ const route = useRoute()
 const router = useRouter()
 
 const isEdit = !!route.params.id
+const resource = useResourceLoad(!isEdit)
+const { ready: resourceReady, error: resourceError } = resource
+const stampError = ref('')
+let stampGeneration = 0
+onBeforeUnmount(() => { stampGeneration += 1 })
 const stampData = ref('')
 
 const roleOptions = [
@@ -158,12 +165,14 @@ const breadcrumbs = computed(() => [
   { label: isEdit ? 'تعديل مستخدم' : 'مستخدم جديد' },
 ])
 
-onMounted(async () => {
+onMounted(() => resource.load(async (isCurrent) => {
   if (!isEdit) return
 
   try {
     const result = await userService.getById(route.params.id)
     const user = unwrapResponse(result)
+    if (!user?.id || !Number.isInteger(user.version) || user.version < 1) throw new Error('تعذر تحميل إصدار السجل')
+    if (!isCurrent()) return
 
     Object.assign(form, {
       username: user.username || '',
@@ -176,23 +185,29 @@ onMounted(async () => {
     // Loaded values become the new baseline.
     markClean()
   } catch {
-    // Keep empty form if loading fails.
+    throw new Error('تعذر تحميل السجل')
   }
-})
+}))
 
 function handleStamp(event) {
+  const request = ++stampGeneration
+  stampData.value = null
+  stampError.value = ''
   const file = event.target.files?.[0]
   if (!file) return
   if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 2 * 1024 * 1024) {
     event.target.value = ''
+    stampError.value = 'يلزم PNG أو JPEG بحجم حتى 2 ميغابايت'
     return
   }
   const reader = new FileReader()
-  reader.onload = () => { stampData.value = String(reader.result || '') }
+  reader.onload = () => { if (request === stampGeneration) stampData.value = String(reader.result || '') }
+  reader.onerror = reader.onabort = () => { if (request === stampGeneration) stampError.value = 'تعذر قراءة الختم' }
   reader.readAsDataURL(file)
 }
 
 async function handleSubmit() {
+  if (!resourceReady.value) return
   const success = await submit()
   if (success) {
     markClean()

@@ -15,6 +15,9 @@ export async function authGuard(to, from, next) {
   if (!authStore.isAuthenticated && to.meta.requiresAuth) {
     return next({ name: 'Login' })
   }
+  if (authStore.isAuthenticated && authStore.user?.force_password_change && to.name !== 'ChangePassword') {
+    return next({ name: 'ChangePassword' })
+  }
   if (authStore.isAuthenticated && to.meta.guestOnly) {
     return next({ name: 'Dashboard' })
   }

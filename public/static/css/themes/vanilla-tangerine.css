@@ -117,4 +117,45 @@ body.theme-vanilla-tangerine,
   --shadow-primary: 0 2px 12px rgba(241,156,121,0.25);
   --shadow-primary-hover: 0 4px 20px rgba(241,156,121,0.35);
   --shadow-danger: 0 2px 12px rgba(188,71,66,0.25);
+
+  /* Foreground on solid fills, independent of ordinary text colors. */
+  --color-on-primary: #000000;
+  --color-on-primary-hover: #000000;
+  --color-on-secondary: #000000;
+  --color-on-secondary-hover: #000000;
+  --color-on-accent: #ffffff;
+  --color-on-accent-hover: #ffffff;
+  --color-on-success: #000000;
+  --color-on-success-hover: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-danger-hover: #ffffff;
+  --color-on-warning: #000000;
+  --color-on-warning-hover: #000000;
+  --color-on-info: #ffffff;
+  --color-on-info-hover: #ffffff;
+  --color-on-purple: #ffffff;
+  --color-on-purple-hover: #ffffff;
+  --color-on-neutral: #000000;
+  --color-on-neutral-hover: #ffffff;
+}@supports (color: color-mix(in srgb, red, black)) {
+body.theme-vanilla-tangerine.dark-mode {
+  --color-on-primary: #000000;
+  --color-on-primary-hover: #ffffff;
+  --color-on-secondary: #000000;
+  --color-on-secondary-hover: #ffffff;
+  --color-on-accent: #ffffff;
+  --color-on-accent-hover: #ffffff;
+  --color-on-success: #ffffff;
+  --color-on-success-hover: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-danger-hover: #ffffff;
+  --color-on-warning: #000000;
+  --color-on-warning-hover: #ffffff;
+  --color-on-info: #ffffff;
+  --color-on-info-hover: #ffffff;
+  --color-on-purple: #ffffff;
+  --color-on-purple-hover: #ffffff;
+  --color-on-neutral: #ffffff;
+  --color-on-neutral-hover: #ffffff;
+}
 }

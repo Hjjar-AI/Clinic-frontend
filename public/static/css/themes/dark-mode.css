@@ -3,45 +3,47 @@
    UNIVERSAL DARK MODE – derives dark colors via color-mix()
    ================================================================= */
 body.dark-mode {
+  --color-link-hover: var(--color-link);
+  --color-link:               color-mix(in srgb, var(--palette-color-primary) 45%, white);
   --color-primary:            color-mix(in srgb, var(--palette-color-primary) 70%, black);
-  --color-primary-dark:       color-mix(in srgb, var(--palette-color-primary-dark) 70%, black);
+  --color-primary-dark:       color-mix(in srgb, var(--palette-color-primary) 45%, white);
   --color-primary-light:      color-mix(in srgb, var(--palette-color-primary-light) 50%, black);
   --color-primary-soft:       color-mix(in srgb, var(--palette-color-primary-soft) 50%, black);
   --color-primary-hover:      color-mix(in srgb, var(--palette-color-primary-hover) 60%, black);
   --color-primary-surface:    color-mix(in srgb, var(--palette-color-primary-surface) 50%, black);
 
   --color-secondary:          color-mix(in srgb, var(--palette-color-secondary) 70%, black);
-  --color-secondary-dark:     color-mix(in srgb, var(--palette-color-secondary-dark) 80%, black);
+  --color-secondary-dark:     color-mix(in srgb, var(--palette-color-secondary) 45%, white);
   --color-secondary-light:    color-mix(in srgb, var(--palette-color-secondary-light) 40%, black);
   --color-secondary-soft:     color-mix(in srgb, var(--palette-color-secondary-soft) 40%, black);
   --color-secondary-hover:    color-mix(in srgb, var(--palette-color-secondary-hover) 60%, black);
 
   --color-accent:             color-mix(in srgb, var(--palette-color-accent) 70%, black);
-  --color-accent-dark:        color-mix(in srgb, var(--palette-color-accent-dark) 80%, black);
+  --color-accent-dark:        color-mix(in srgb, var(--palette-color-accent) 45%, white);
   --color-accent-light:       color-mix(in srgb, var(--palette-color-accent-light) 40%, black);
   --color-accent-soft:        color-mix(in srgb, var(--palette-color-accent-soft) 40%, black);
   --color-accent-hover:       color-mix(in srgb, var(--palette-color-accent-hover) 60%, black);
 
   --color-success:            color-mix(in srgb, var(--palette-color-success) 70%, black);
-  --color-success-dark:       color-mix(in srgb, var(--palette-color-success-dark) 80%, black);
+  --color-success-dark:       color-mix(in srgb, var(--palette-color-success) 45%, white);
   --color-success-light:      color-mix(in srgb, var(--palette-color-success-light) 40%, black);
   --color-success-soft:       color-mix(in srgb, var(--palette-color-success-soft) 40%, black);
   --color-success-hover:      color-mix(in srgb, var(--palette-color-success-hover) 60%, black);
 
   --color-danger:             color-mix(in srgb, var(--palette-color-danger) 70%, black);
-  --color-danger-dark:        color-mix(in srgb, var(--palette-color-danger-dark) 80%, black);
+  --color-danger-dark:        color-mix(in srgb, var(--palette-color-danger) 45%, white);
   --color-danger-light:       color-mix(in srgb, var(--palette-color-danger-light) 40%, black);
   --color-danger-soft:        color-mix(in srgb, var(--palette-color-danger-soft) 40%, black);
   --color-danger-hover:       color-mix(in srgb, var(--palette-color-danger-hover) 60%, black);
 
   --color-warning:            color-mix(in srgb, var(--palette-color-warning) 70%, black);
-  --color-warning-dark:       color-mix(in srgb, var(--palette-color-warning-dark) 80%, black);
+  --color-warning-dark:       color-mix(in srgb, var(--palette-color-warning) 45%, white);
   --color-warning-light:      color-mix(in srgb, var(--palette-color-warning-light) 40%, black);
   --color-warning-soft:       color-mix(in srgb, var(--palette-color-warning-soft) 40%, black);
   --color-warning-hover:      color-mix(in srgb, var(--palette-color-warning-hover) 60%, black);
 
   --color-info:               color-mix(in srgb, var(--palette-color-info) 70%, black);
-  --color-info-dark:          color-mix(in srgb, var(--palette-color-info-dark) 80%, black);
+  --color-info-dark:          color-mix(in srgb, var(--palette-color-info) 45%, white);
   --color-info-light:         color-mix(in srgb, var(--palette-color-info-light) 40%, black);
   --color-info-soft:          color-mix(in srgb, var(--palette-color-info-soft) 40%, black);
   --color-info-hover:         color-mix(in srgb, var(--palette-color-info-hover) 60%, black);
@@ -50,7 +52,7 @@ body.dark-mode {
   --color-neutral-hover:      color-mix(in srgb, var(--palette-color-neutral-hover) 60%, black);
 
   --color-purple:             color-mix(in srgb, var(--palette-color-purple) 70%, black);
-  --color-purple-dark:        color-mix(in srgb, var(--palette-color-purple-dark) 80%, black);
+  --color-purple-dark:        color-mix(in srgb, var(--palette-color-purple) 45%, white);
   --color-purple-light:       color-mix(in srgb, var(--palette-color-purple-light) 40%, black);
   --color-purple-soft:        color-mix(in srgb, var(--palette-color-purple-soft) 40%, black);
   --color-purple-hover:       color-mix(in srgb, var(--palette-color-purple-hover) 60%, black);
@@ -100,6 +102,25 @@ body.dark-mode .heading-6 {
    ================================================================= */
 @supports not (color: color-mix(in srgb, red, black)) {
   body.dark-mode {
+  --color-on-primary: #000000;
+  --color-on-primary-hover: #ffffff;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-hover: #ffffff;
+  --color-on-accent: #000000;
+  --color-on-accent-hover: #ffffff;
+  --color-on-success: #000000;
+  --color-on-success-hover: #ffffff;
+  --color-on-danger: #000000;
+  --color-on-danger-hover: #ffffff;
+  --color-on-warning: #000000;
+  --color-on-warning-hover: #000000;
+  --color-on-info: #000000;
+  --color-on-info-hover: #ffffff;
+  --color-on-purple: #000000;
+  --color-on-purple-hover: #ffffff;
+  --color-on-neutral: #000000;
+  --color-on-neutral-hover: #ffffff;
+    --color-link: #a3d6d8;
     /* Hardcoded dark values for the default theme only */
     --color-primary: #4a9a9e;
     --color-primary-dark: #284b63;
@@ -187,4 +208,6 @@ body.dark-mode .heading-6 {
     --chart-color-11: #a08030;
     --chart-color-12: #5a8040;
   }
-}
+}body.dark-mode .text-primary { color: var(--color-link); }
+body.dark-mode .btn--outline-primary { color: var(--color-link); }
+body.dark-mode .btn--outline-primary:hover { color: var(--color-on-primary); }

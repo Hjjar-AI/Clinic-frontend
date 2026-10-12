@@ -5,7 +5,7 @@
     :back-label="isEdit ? 'العودة للملف' : 'العودة للقائمة'"
     :submitting="submitting"
     :submit-text="isEdit ? 'تحديث السجل الطبي' : 'حفظ وإنشاء الملف'"
-    :cancel-fn="$emit('cancel')"
+    :cancel-fn="() => $emit('cancel')"
     :validation-errors="errors"
     :submit-error="submitError"
     @submit="$emit('submit')"

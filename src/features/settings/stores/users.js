@@ -1,3 +1,4 @@
+import { onSessionChange, sessionGeneration } from '@/services/sessionState'
 // frontend/src/features/settings/stores/users.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -21,20 +22,25 @@ export const useUserStore = defineStore('users', () => {
     doctorsLoaded = false
   }
 
+  onSessionChange(reset)
+
   async function fetchAll(params = {}) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
       const data = await userService.getAll(params)
       items.value = Array.isArray(data) ? data : (data?.users || [])
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'خطأ في تحميل المستخدمين'
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function fetchOne(id) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
@@ -42,14 +48,16 @@ export const useUserStore = defineStore('users', () => {
       current.value = data
       return data
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'خطأ في تحميل المستخدم'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function create(payload) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
@@ -57,14 +65,16 @@ export const useUserStore = defineStore('users', () => {
       items.value.push(newItem)
       return newItem
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'خطأ في الحفظ'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function update(id, payload) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
@@ -74,14 +84,16 @@ export const useUserStore = defineStore('users', () => {
       if (current.value?.id === id) current.value = updated
       return updated
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'خطأ في التحديث'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function remove(id) {
+    const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
@@ -89,14 +101,16 @@ export const useUserStore = defineStore('users', () => {
       items.value = items.value.filter(u => u.id !== id)
       if (current.value?.id === id) current.value = null
     } catch (e) {
+      if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'خطأ في الحذف'
       throw e
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function fetchDoctors() {
+    const epoch = sessionGeneration()
     if (doctorsLoaded) return doctors.value
     try {
       const data = await userService.getDoctors()
@@ -105,6 +119,7 @@ export const useUserStore = defineStore('users', () => {
         : (data?.doctors || data?.users || [])
       doctorsLoaded = true
     } catch {
+      if (epoch !== sessionGeneration()) return []
       doctors.value = []   // ensure array even on error
     }
     return doctors.value

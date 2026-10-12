@@ -1,6 +1,6 @@
 <!-- frontend/src/features/patients/views/PatientForm.vue -->
 <template>
-  <FormWrapper
+  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry"
     :header-title="isEdit ? 'تعديل بيانات المريض' : 'فتح ملف طبي جديد'"
     header-icon="user-plus"
     :back-label="isEdit ? 'العودة للملف' : 'العودة للقائمة'"
@@ -55,6 +55,7 @@
 </template>
 
 <script setup>
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed, onBeforeUnmount,onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -90,6 +91,8 @@ const authStore = useAuthStore()
 const constantsStore = useConstantsStore()
 const { notify } = useNotify()
 const isEdit = !!route.params.id
+const resource = useResourceLoad(!isEdit)
+const { ready: resourceReady, error: resourceError } = resource
 const { normalizeFormDates } = useDate()
 const {
   validatePhone: validateConfiguredPhone,
@@ -186,12 +189,14 @@ const { submit, submitError, isSubmitting } = useFormSubmission(validate, execut
 
 let stopDraftWatcher = null
 
-onMounted(async () => {
+onMounted(() => resource.load(async (isCurrent) => {
   await constantsStore.fetch()
   if (!isEdit) { try { teamCandidates.value = await patientService.getTeamCandidates() } catch { notify('تعذر تحميل أعضاء الفريق؛ يمكنك إضافتهم بعد حفظ الملف', 'warning') } }
   if (isEdit) {
     try {
       const data = await patientStore.fetchPatient(route.params.id)
+    if (!data?.id || !Number.isInteger(data.version) || data.version < 1) throw new Error('تعذر تحميل إصدار السجل')
+      if (!isCurrent()) return
       Object.assign(form, {
         first_name: data.first_name || '',
         father_name: data.father_name || '',
@@ -215,20 +220,22 @@ onMounted(async () => {
       // Clear dirty after hydration: the loaded values are the new baseline.
       markClean()
     } catch {
-      notify('خطأ في تحميل بيانات المريض.', 'danger')
+      throw new Error('تعذر تحميل المريض')
     }
   }
 
+  if (!isCurrent()) return
   const restored = restoreDraftToForm()
   if (restored) {
     Object.assign(form, restored)
     notify('تم استعادة المسودة', 'info', { duration: 3000 })
   }
 
+  if (!isCurrent()) return
   resumeDraft()
 
   stopDraftWatcher = watch(form, (val) => { draft.value = val }, { deep: true, immediate: true })
-})
+}))
 
 onBeforeUnmount(() => {
   clearTimeout(duplicateTimer)
@@ -250,6 +257,7 @@ watch(() => [form.first_name, form.surname, form.national_id, form.phone, form.d
 })
 
 async function handleSubmit() {
+  if (!resourceReady.value) return
   pauseDraft()
   const success = await submit()
   if (success) {

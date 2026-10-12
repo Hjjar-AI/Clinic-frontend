@@ -1,5 +1,6 @@
 <!-- frontend/src/features/appointments/views/AppointmentsCalendar.vue -->
 <template>
+  <p v-if="error" role="alert" class="text-danger">{{ error }} <BaseButton @click="loadAppointments">إعادة المحاولة</BaseButton></p>
   <CalendarLayout
     :view="view"
     :can-manage-users="authStore.can('manage_users')"
@@ -44,7 +45,7 @@ import { useRefreshStore } from '@/stores/refresh'
 import { debounce } from '@/utils'
 import { CONFIRM } from '@/utils/confirmMessages'
 
-const { view, currentDate, loading, weeklyViewData, appointments, fetchAppointments } = useCalendar()
+const { view, currentDate, loading, error, weeklyViewData, appointments, fetchAppointments } = useCalendar()
 const { timeSlots } = useTimeSlots()
 const authStore = useAuthStore()
 const userStore = useUserStore()
@@ -84,18 +85,28 @@ const periodLabel = computed(() => {
   return `${currentMonthName.value} ${currentYear.value}`
 })
 
+let disposed = false
 onMounted(async () => {
-  if (routeView.value) view.value = routeView.value
-  if (routeDate.value) { const d = parseDate(routeDate.value); if (d) currentDate.value = d }
-  await userStore.fetchDoctors()
   window.addEventListener('resize', handleResize)
-  await loadAppointments()
+  if (['day','week','month'].includes(routeView.value)) view.value = routeView.value
+  if (routeDate.value) { const d = parseDate(routeDate.value); if (d) currentDate.value = d }
+  try { await userStore.fetchDoctors() } catch { /* Appointments can load without the optional doctor filter. */ }
+  if (!disposed) await loadAppointments()
 })
 
-onBeforeUnmount(() => window.removeEventListener('resize', handleResize))
+onBeforeUnmount(() => { disposed = true; window.removeEventListener('resize', handleResize); handleResize.cancel() })
 
 watch(view, (v) => { routeView.value = v })
 watch(currentDate, (d) => { routeDate.value = toISODate(d) })
+
+watch([routeView, routeDate], ([mode, date]) => {
+  const parsed = parseDate(date)
+  const nextView = ['day','week','month'].includes(mode) ? mode : 'day'
+  if (nextView === view.value && (!parsed || toISODate(parsed) === toISODate(currentDate.value))) return
+  view.value = nextView
+  if (parsed) currentDate.value = parsed
+  loadAppointments()
+})
 
 function getDateRange() {
   const start = new Date(currentDate.value)
@@ -108,8 +119,7 @@ async function loadAppointments() {
   const {start,end} = getDateRange()
   const docId = filters.value.doctor_id || null
   selectedDoctorId.value = docId
-  await fetchAppointments(start,end,docId)
-  refreshStore.touch()
+  if (await fetchAppointments(start,end,docId)) refreshStore.touch()
 }
 
 // Reassign a fresh Date so the ref identity changes. Mutating the Date in
@@ -128,11 +138,11 @@ function navigate(dir) {
   if (dir === 'prev') {
     if (view.value === 'day') d.setDate(d.getDate() - 1)
     else if (view.value === 'week') d.setDate(d.getDate() - 7)
-    else d.setMonth(d.getMonth() - 1)
+    else { d.setDate(1); d.setMonth(d.getMonth() - 1) }
   } else if (dir === 'next') {
     if (view.value === 'day') d.setDate(d.getDate() + 1)
     else if (view.value === 'week') d.setDate(d.getDate() + 7)
-    else d.setMonth(d.getMonth() + 1)
+    else { d.setDate(1); d.setMonth(d.getMonth() + 1) }
   }
   currentDate.value = d
   loadAppointments()

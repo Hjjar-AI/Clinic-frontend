@@ -38,7 +38,9 @@
 
       <BaseCard class="visit-card-main">
         <div class="card__body">
+          <p v-if="!resourceReady" role="status">{{ resourceError || 'جاري تحميل البيانات…' }} <button v-if="resourceError" type="button" @click="resource.retry">إعادة المحاولة</button></p>
           <form @submit.prevent="handleSubmit">
+            <fieldset class="form-load-fields" :disabled="!resourceReady">
             <FormErrorSummary :errors="errors" />
             <AlertBar
               v-if="route.query.duplicateFrom"
@@ -66,6 +68,7 @@
               @remove-scale="removeScale"
               @update-scale-field="handleScaleFieldUpdate"
             />
+            <p v-if="lookupError" role="alert" class="text-danger">{{ lookupError }} <button type="button" @click="retryLookups">إعادة المحاولة</button></p>
             <VisitDiagnosesLabs
               :form="form"
               :search-diagnoses-fn="searchDiagnoses"
@@ -91,6 +94,7 @@
               submit-icon="check-double"
               :cancel-fn="cancel"
             />
+          </fieldset>
           </form>
         </div>
       </BaseCard>
@@ -105,6 +109,7 @@
 </template>
 
 <script setup>
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed, defineAsyncComponent,onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -146,6 +151,8 @@ const router = useRouter()
 let patientId = route.params.patientId
 const visitId = route.params.id
 const isEdit = !!visitId
+const resource = useResourceLoad(!isEdit)
+const { ready: resourceReady, error: resourceError } = resource
 
 // ── Stores ────────────────────────────────────────────────────
 const patientStore = usePatientStore()
@@ -163,7 +170,7 @@ const {
 const {
   form, errors, fieldStates,
   ageDisplay, hydrateFromData, hydrateDuplicateFromData, patient, riskOptions,
-  isSubmitting, submitError, cancel, handleSubmit,
+  isSubmitting, submitError, cancel, handleSubmit: submitVisit,
   restoreDraftToForm, SAFE_DRAFT_FIELDS, resumeDraft,
 } = useVisitForm({
   getPatientId: () => patientId,
@@ -173,13 +180,15 @@ const {
 })
 
 const { templates, applyTemplate } = useVisitTemplates()
-const { diagnosesInitial, medicationsInitial, searchDiagnoses, searchMedications } = useVisitLookups()
+const { diagnosesInitial, medicationsInitial, searchDiagnoses, searchMedications, error: lookupError, retry: retryLookups } = useVisitLookups()
+
+async function handleSubmit() { if (resourceReady.value) return submitVisit() }
 
 // ── Computed ──────────────────────────────────────────────────
 const latestVisit = computed(() => patient.value?.visits?.[0] || null)
 
 // ── Lifecycle ─────────────────────────────────────────────────
-onMounted(async () => {
+onMounted(() => resource.load(async (isCurrent) => {
   if (!isEdit && !patientId) {
     router.replace({ name: 'PatientsList' })
     return
@@ -189,18 +198,20 @@ onMounted(async () => {
   if (isEdit) {
     try {
       const data = await visitStore.fetchVisit(visitId)
+    if (!data?.id || !Number.isInteger(data.version) || data.version < 1) throw new Error('تعذر تحميل إصدار السجل')
+      if (!isCurrent()) return
       hydrateFromData(data)
       hydrateScales(data)
       patientId = data.patient_id || data.patient?.id
     } catch {
-      notify('فشل تحميل بيانات الزيارة.', 'danger')
-      return
+      throw new Error('تعذر تحميل الزيارة')
     }
   }
 
   if (!isEdit && route.query.duplicateFrom) {
     try {
       const source = await visitStore.fetchVisit(route.query.duplicateFrom)
+      if (!isCurrent()) return
       hydrateDuplicateFromData(source)
       notify('تم تجهيز مسودة من الزيارة السابقة. راجعها ثم احفظها.', 'info')
     } catch {
@@ -212,6 +223,7 @@ onMounted(async () => {
     patient.value = await patientStore.fetchPatient(patientId).catch(() => null)
   }
 
+  if (!isCurrent()) return
   const restored = restoreDraftToForm()
   if (restored) {
     const safe = {}
@@ -221,8 +233,9 @@ onMounted(async () => {
     Object.assign(form, safe)
     notify('تم استعادة المسودة', 'info', { duration: 3000 })
   }
+  if (!isCurrent()) return
   resumeDraft()
-})
+}))
 
 // ── Scale field update handler ────────────────────────────────
 function handleScaleFieldUpdate({ scaleIndex, fieldId, value }) {

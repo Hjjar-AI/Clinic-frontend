@@ -1,4 +1,5 @@
 <template>
+  <p v-if="loadError" role="alert" class="text-danger">{{ loadError }} <button type="button" @click="fetchData">إعادة المحاولة</button></p>
   <StatisticsLayout
     :downloading-summary="downloadingSummary"
     :downloading-performance="downloadingPerformance"
@@ -19,7 +20,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted,reactive } from 'vue'
+import { computed, onMounted,reactive,ref,onBeforeUnmount } from 'vue'
 
 import { useApi } from '@/composables/useApi'
 import { useFormatters } from '@/composables/useFormatters'
@@ -28,6 +29,9 @@ import statisticsService from '@/features/reports/services/statisticsService'
 
 const { toArabicNumerals: toArabic } = useFormatters()
 
+const loadError = ref('')
+let generation = 0
+onBeforeUnmount(() => { generation += 1 })
 const filters = reactive({ dateFrom: '', dateTo: '' })
 const stats = reactive({
   total_patients: 0, total_visits: 0, total_appointments: 0,
@@ -87,11 +91,15 @@ const chartDefs = [
 ]
 
 async function fetchData() {
+  const request = ++generation
+  loadError.value = ''
+  try {
   const data = await statisticsService.getStatistics({
     date_from: filters.dateFrom,
     date_to: filters.dateTo
   })
   // `data` is already the inner data object (no extra wrapper)
+  if (request !== generation) return
   const inner = data
 
   if (inner.followup_stats) {
@@ -104,6 +112,7 @@ async function fetchData() {
   visitsCounts.splice(0, visitsCounts.length, ...(inner.visits_counts || []))
   stats.patients_acquisition = inner.patients_acquisition || []
   stats.patients_acquisition_labels = inner.patients_acquisition_labels || []
+  } catch { if (request === generation) loadError.value = 'تعذر تحديث الإحصائيات؛ البيانات السابقة لم تُحدّث' }
 }
 
 function clearDateFilter() {

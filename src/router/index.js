@@ -228,6 +228,16 @@ const routes = [
   }
 ]
 
+const sections = {
+  Patient: 'PatientsList', Visit: 'VisitsList', Prescription: 'VisitsList', Referral: 'VisitsList',
+  Appointment: 'AppointmentsCalendar', Invoice: 'InvoicesList', Template: 'Templates', User: 'Users',
+  Statistics: 'Statistics', Reconciliation: 'Statistics',
+}
+for (const route of routes) {
+  const prefix = Object.keys(sections).find(name => String(route.name).startsWith(name))
+  route.meta = { ...route.meta, section: prefix ? sections[prefix] : route.name }
+}
+
 const router = createRouter({
   history: createWebHistory('/'),
   routes,

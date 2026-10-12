@@ -1,6 +1,6 @@
 <!-- frontend/src/features/appointments/views/AppointmentForm.vue -->
 <template>
-  <FormWrapper width="sm"
+  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry" width="sm"
     :header-title="isEdit ? 'تعديل الموعد' : 'حجز موعد جديد'"
     header-icon="calendar-plus"
     :back-label="'العودة للتقويم'"
@@ -20,7 +20,7 @@
       required
       :error="errors.patient_id"
     >
-      <SearchInput
+      <SearchInput v-if="!isEdit"
         v-model="selectedPatient"
         :search-fn="searchPatients"
         :option-label="patientLabel"
@@ -30,10 +30,12 @@
         variant="inline"
         @select="onPatientSelected"
       />
+      <span v-else>{{ selectedPatient?.full_name || form.patient_id }}</span>
     </FormField>
 
     <ApiSelect
       v-model="form.doctor_id"
+      :disabled="isEdit"
       url="/auth/users/doctors/"
       value-key="id"
       label-key="full_name"
@@ -110,6 +112,7 @@
 </template>
 
 <script setup>
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed,nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -149,6 +152,8 @@ const {
 } = useFormDraft()
 
 const isEdit = !!route.params.id
+const resource = useResourceLoad(!isEdit)
+const { ready: resourceReady, error: resourceError } = resource
 
 const selectedPatient = ref(null)
 const originalTime = ref('')
@@ -264,7 +269,7 @@ function markDirty() {
 
 let stopDraftWatcher = null
 
-onMounted(async () => {
+onMounted(() => resource.load(async (isCurrent) => {
   if (route.query.date) {
     form.value.appointment_date = route.query.date
   }
@@ -284,6 +289,8 @@ onMounted(async () => {
   if (isEdit) {
     try {
       const data = await appointmentStore.fetchAppointment(route.params.id)
+    if (!data?.id || !Number.isInteger(data.version) || data.version < 1) throw new Error('تعذر تحميل إصدار السجل')
+      if (!isCurrent()) return
       Object.assign(form.value, data)
       originalStatus.value = data.status || 'scheduled'
       form.value.version = data.version || 1
@@ -310,16 +317,18 @@ onMounted(async () => {
         }
       }
     } catch {
-      notify('فشل تحميل الموعد.', 'danger')
+      throw new Error('تعذر تحميل الموعد')
     }
   }
 
+  if (!isCurrent()) return
   const restored = restoreDraftToForm()
   if (restored) {
     Object.assign(form.value, restored)
     notify('تم استعادة المسودة', 'info', { duration: 3000 })
   }
 
+  if (!isCurrent()) return
   resumeDraft()
 
   // Single draft watcher. Previously this file registered the same watcher
@@ -337,7 +346,7 @@ onMounted(async () => {
   await nextTick()
   isDirty.value = false
   trackingDirty.value = true
-})
+}))
 
 watch(form, () => {
   if (trackingDirty.value) isDirty.value = true
@@ -348,12 +357,14 @@ onBeforeUnmount(() => {
 })
 
 function onPatientSelected(patient) {
+  if (isEdit) return
   form.value.patient_id = patient ? patient.id : ''
   selectedPatient.value = patient
   markDirty()
 }
 
 async function handleSubmit() {
+  if (!resourceReady.value) return
   pauseDraft()
   const success = await submit()
   if (success) {

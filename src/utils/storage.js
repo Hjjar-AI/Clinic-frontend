@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 // frontend/src/utils/storage.js
 
 /**
@@ -20,10 +21,10 @@ export function safeSetItem(key, value) {
     return true
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
-      console.warn('localStorage quota exceeded')
+      reportError('storage', undefined)
       // Optionally: clear old items, notify user, etc.
     } else {
-      console.error('localStorage error:', e)
+      reportError('storage', e)
     }
     return false
   }

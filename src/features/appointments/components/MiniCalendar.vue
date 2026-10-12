@@ -56,12 +56,12 @@ const calendarDays = computed(() => {
   const daysInMonth = new Date(y, m+1, 0).getDate()
   const today = new Date()
   const days = []
-  const startOffset = firstDay === 0 ? 6 : firstDay - 1
+  const startOffset = firstDay
   for (let i=0; i<startOffset; i++) days.push({ day: null })
   for (let d=1; d<=daysInMonth; d++) {
     const date = new Date(y, m, d)
     const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-    const hasAppt = props.appointments.some(a => a.date === dateStr)
+    const hasAppt = props.appointments.some(a => a.appointment_date === dateStr)
     days.push({ day: d, isToday: date.toDateString() === today.toDateString(), hasAppointment: hasAppt })
   }
   return days

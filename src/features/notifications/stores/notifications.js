@@ -1,3 +1,5 @@
+import { onSessionChange, sessionGeneration } from '@/services/sessionState'
+import { reportError } from '@/utils/reportError'
 // frontend/src/features/notifications/stores/notifications.js
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
@@ -21,7 +23,10 @@ export const useNotificationStore = defineStore('notifications', () => {
     error.value = null
   }
 
+  onSessionChange(() => { stopPolling(); reset() })
+
   async function fetchAll() {
+    const epoch = sessionGeneration()
     if (!authStore.isAuthenticated) {
       reset()
       return
@@ -33,13 +38,15 @@ export const useNotificationStore = defineStore('notifications', () => {
       notifications.value = data?.items || []
       unreadCount.value = data?.meta?.unread_count ?? 0
     } catch (e) {
+      if (epoch !== sessionGeneration()) return
       error.value = e.message || 'خطأ في التحميل'
     } finally {
-      loading.value = false
+      if (epoch === sessionGeneration()) loading.value = false
     }
   }
 
   async function fetchAllPersistent() {
+    const epoch = sessionGeneration()
     if (!authStore.isAuthenticated) {
       reset()
       return
@@ -49,7 +56,8 @@ export const useNotificationStore = defineStore('notifications', () => {
       notifications.value = data?.items || []
       unreadCount.value = data?.meta?.unread_count ?? 0
     } catch (e) {
-      if (import.meta.env.DEV) console.warn('Persistent notification fetch failed, falling back', e)
+      if (epoch !== sessionGeneration()) return
+      if (import.meta.env.DEV) reportError('notifications', e)
       await fetchAll()
     }
   }
@@ -73,14 +81,14 @@ export const useNotificationStore = defineStore('notifications', () => {
   // This store owns the reaction to auth changes. Previously `auth.js`
   // reached into this store on logout; now the direction is one-way:
   // notifications -> auth, and the watch handles stopPolling + reset.
-  watch(() => authStore.isAuthenticated, (authenticated) => {
+  watch(() => authStore.user?.id, (authenticated) => {
     if (authenticated) {
       startPolling(30000)
     } else {
       stopPolling()
       reset()
     }
-  })
+  }, { flush: 'sync' })
 
   async function markRead(id) {
     await notificationService.markRead(id)

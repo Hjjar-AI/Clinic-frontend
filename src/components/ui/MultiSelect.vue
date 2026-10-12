@@ -50,6 +50,7 @@
           >
             {{ getOptionLabel(item) }}
             <button
+              type="button"
               class="icon-btn-danger ml-1"
               aria-label="إزالة"
               @click="removeItem(item)"
@@ -77,12 +78,7 @@
 
       <!-- Default dropdown mode -->
       <template v-else>
-        <BaseButton
-          class="multi-select__tags"
-          aria-haspopup="listbox"
-          :aria-expanded="open"
-          @click="toggleOpen"
-        >
+        <div class="multi-select__tags">
           <span
             v-for="val in modelValue"
             :key="val"
@@ -101,6 +97,7 @@
               />
             </button>
           </span>
+          <button type="button" aria-haspopup="listbox" :aria-expanded="open" @click="toggleOpen">
           <span
             v-if="!modelValue.length"
             class="text-muted"
@@ -109,10 +106,12 @@
             v-else
             class="multi-select__add-hint"
           >+ أضف</span>
-        </BaseButton>
+          </button>
+        </div>
         <div
           v-if="open"
           class="multi-select__dropdown"
+          role="listbox" aria-multiselectable="true"
         >
           <div
             v-if="searchable || fetchOptions"
@@ -144,13 +143,7 @@
             <span
               class="checkbox w-100"
             >
-              <input
-                type="checkbox"
-                :checked="isSelected(getOptionKey(opt))"
-                class="checkbox__input"
-                :aria-label="getOptionLabel(opt)"
-                @click.stop="toggleItem(getOptionKey(opt))"
-              >
+              <span aria-hidden="true">{{ isSelected(getOptionKey(opt)) ? '☑' : '☐' }}</span>
               {{ getOptionLabel(opt) }}
             </span>
           </button>
@@ -162,6 +155,7 @@
           </div>
         </div>
       </template>
+      <small v-if="loadError" role="alert" class="text-danger">{{ loadError }}</small>
     </div>
   </FormField>
 </template>
@@ -182,7 +176,7 @@ const props = defineProps({
   searchable: { type: Boolean, default: false },
   fetchOptions: { type: Function, default: null },
   optionLabel: { type: Function, default: (opt) => opt.label || opt.name || '' },
-  optionKey: { type: Function, default: (opt) => opt.value || opt.id || opt.code },
+  optionKey: { type: Function, default: (opt) => opt.value ?? opt.id ?? opt.code },
   error: { type: String, default: '' },
   help: { type: String, default: '' },
   required: { type: Boolean, default: false },
@@ -199,6 +193,10 @@ const open = ref(false)
 const searchQuery = ref('')
 const wrapper = ref(null)
 const loading = ref(false)
+const loadError = ref('')
+let generation = 0
+let disposed = false
+watch(open, visible => { if (!visible) { generation += 1; onSearch.cancel(); loading.value = false } }, { flush: 'sync' })
 const fetchedOptions = ref([])   // for dropdown async fetch
 const allOptions = ref(props.initialOptions || [])  // used in inline mode
 
@@ -215,7 +213,7 @@ const effectiveOptions = computed(() => {
 })
 
 const filteredOptions = computed(() => {
-  let opts = effectiveOptions.value.filter(o => props.optionKey(o) !== undefined)
+  let opts = effectiveOptions.value.filter(o => props.optionKey(o) != null)
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.trim().toLowerCase()
     opts = opts.filter(o => props.optionLabel(o).toLowerCase().includes(q))
@@ -236,33 +234,32 @@ function removeItem(value) { emit('update:modelValue', props.modelValue.filter(v
 
 function toggleOpen() {
   open.value = !open.value
-  if (open.value && props.fetchOptions && !fetchedOptions.value.length) loadOptions('')
+  if (open.value && props.fetchOptions && !fetchedOptions.value.length) loadOptions(searchQuery.value)
 }
 async function loadOptions(query) {
-  if (!props.fetchOptions) return
-  loading.value = true
-  try { const data = await props.fetchOptions(query); fetchedOptions.value = data } catch { fetchedOptions.value = [] } finally { loading.value = false }
+  const request = ++generation
+  loading.value = true; loadError.value = ''
+  try {
+    const data = await props.fetchOptions(query)
+    if (!disposed && request === generation) fetchedOptions.value = Array.isArray(data) ? data : []
+  } catch { if (request === generation) loadError.value = 'تعذر تحميل الخيارات' }
+  finally { if (request === generation) loading.value = false }
 }
-const onSearch = debounce(() => { if (props.fetchOptions) loadOptions(searchQuery.value) }, 300)
-
+const delayedSearch = debounce(() => { if (props.fetchOptions) loadOptions(searchQuery.value) }, 300)
+function onSearch() { generation += 1; delayedSearch() }
+onSearch.cancel = delayedSearch.cancel
 async function onSearchInput(val) {
   searchQuery.value = val
+  const request = ++generation
+  open.value = true
   if (props.mode !== 'inline' || !props.searchFn) return
-  if (val.trim().length >= props.minLength) {
-    loading.value = true
-    try {
-      const results = await props.searchFn(val.trim())
-      allOptions.value = results
-      open.value = true
-    } catch {
-      allOptions.value = props.initialOptions || []
-    } finally {
-      loading.value = false
-    }
-  } else {
-    allOptions.value = props.initialOptions || []
-    open.value = true
-  }
+  if (val.trim().length < props.minLength) { loading.value = false; loadError.value = ''; allOptions.value = props.initialOptions || []; return }
+  loading.value = true; loadError.value = ''
+  try {
+    const results = await props.searchFn(val.trim())
+    if (!disposed && request === generation) allOptions.value = Array.isArray(results) ? results : []
+  } catch { if (request === generation) { allOptions.value = []; loadError.value = 'تعذر البحث' } }
+  finally { if (request === generation) loading.value = false }
 }
 
 function select(opt) {
@@ -288,13 +285,12 @@ function addCustom() {
 
 function checkDuplicates(list) {
   const seen = new Set()
-  list.forEach(item => {
+  return list.map(item => {
     const key = props.optionKey(item)
-    if (!key) return
-    if (seen.has(key)) item.duplicate = true
-    else { seen.add(key); item.duplicate = false }
+    const duplicate = !!key && seen.has(key)
+    if (key) seen.add(key)
+    return { ...item, duplicate }
   })
-  return list
 }
 
 function handleClickOutside(event) {
@@ -303,5 +299,5 @@ function handleClickOutside(event) {
   }
 }
 onMounted(() => document.addEventListener('click', handleClickOutside))
-onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
+onBeforeUnmount(() => { disposed = true; generation += 1; delayedSearch.cancel(); document.removeEventListener('click', handleClickOutside) })
 </script>

@@ -1,86 +1,27 @@
 // frontend/src/features/visits/composables/useVisitLookups.js
-import { computed, ref, watch } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 
-import { useApi } from '@/composables/useApi'
 import { useLookupStore } from '@/stores/lookups'
 
-const CACHE_KEYS = {
-  diagnoses: 'lookup_diagnoses',
-  medications: 'lookup_medications',
-  scales: 'lookup_scales',
-}
-
-const ONE_HOUR_MS = 60 * 60 * 1000
-
-/**
- * Loads the visit-form lookup lists (diagnoses, medications, scales).
- *
- * Each lookup is backed by a named `useApi` query with a stable cache key.
- * The keys must be explicit because the underlying store methods
- * (`fetchDiagnoses`, `fetchMedications`, `fetchScales`) all resolve to the
- * same named function (`fetch`), so `apiFn.name` alone cannot discriminate
- * them.
- *
- * `staleTime` is set to one hour — this mirrors the previous `useSWR`
- * behaviour and prevents the visit form from re-hitting the lookup
- * endpoints on every mount.
- */
+/** Clinical options share the reactive catalog owner and its invalidation. */
 export function useVisitLookups() {
   const lookupStore = useLookupStore()
-  const diagnosesInitial = ref([])
-  const medicationsInitial = ref([])
-
-  const { data: diagnoses, loading: loadingDiag } = useApi(
-    () => lookupStore.fetchDiagnoses(),
-    {
-      mutation: false,
-      queryKey: [CACHE_KEYS.diagnoses],
-      immediate: true,
-      staleTime: ONE_HOUR_MS,
-      silent: true,
-    }
-  )
-
-  const { data: medications, loading: loadingMed } = useApi(
-    () => lookupStore.fetchMedications(),
-    {
-      mutation: false,
-      queryKey: [CACHE_KEYS.medications],
-      immediate: true,
-      staleTime: ONE_HOUR_MS,
-      silent: true,
-    }
-  )
-
-  // Scales are only used for the loading flag here — the data itself is
-  // consumed by useVisitScales. We still warm the cache for consistency.
-  const { loading: loadingScales } = useApi(
-    () => lookupStore.fetchScales(),
-    {
-      mutation: false,
-      queryKey: [CACHE_KEYS.scales],
-      immediate: true,
-      staleTime: ONE_HOUR_MS,
-      silent: true,
-    }
-  )
-
-  // Keep the initial arrays in sync with cached data
-  watch(
-    diagnoses,
-    (newData) => {
-      diagnosesInitial.value = (newData || []).slice(0, 20)
-    },
-    { immediate: true }
-  )
-
-  watch(
-    medications,
-    (newData) => {
-      medicationsInitial.value = (newData || []).slice(0, 20)
-    },
-    { immediate: true }
-  )
+  const diagnoses = lookupStore.diagnoses
+  const medications = lookupStore.medications
+  const diagnosesInitial = computed(() => diagnoses.value.slice(0, 20))
+  const medicationsInitial = computed(() => medications.value.slice(0, 20))
+  const loading = ref(false)
+  const error = ref('')
+  let disposed = false
+  onBeforeUnmount(() => { disposed = true })
+  async function retry() {
+    if (loading.value || disposed) return
+    loading.value = true; error.value = ''
+    try { await lookupStore.fetchAll() }
+    catch { if (!disposed) error.value = 'تعذر تحميل الخيارات الطبية؛ أعد المحاولة' }
+    finally { if (!disposed) loading.value = false }
+  }
+  onMounted(retry)
 
   async function searchDiagnoses(query) {
     const all = diagnoses.value || []
@@ -108,19 +49,11 @@ export function useVisitLookups() {
       .slice(0, 20)
   }
 
-  // `loadingDiag`, `loadingMed`, `loadingScales` are each ComputedRef<boolean>.
-  // The previous version chained them with `||`, which returned the first
-  // truthy *ref* rather than combining the booleans — so the composite flag
-  // was always "true" the moment `loadingDiag` was defined.
-  const loading = computed(
-    () => loadingDiag.value || loadingMed.value || loadingScales.value
-  )
-
   return {
     diagnosesInitial,
     medicationsInitial,
     searchDiagnoses,
     searchMedications,
-    loading,
+    loading, error, retry,
   }
 }

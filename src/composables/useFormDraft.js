@@ -1,4 +1,5 @@
 import { ref, shallowRef, watch } from 'vue'
+import { sessionPrincipal } from '@/services/sessionState'
 
 export const SAFE_DRAFT_FIELDS = [
   'visit_date',
@@ -28,10 +29,11 @@ export function useFormDraft({ safeDraftFields = null } = {}) {
   // enabling writes. This prevents the blank initial form from replacing a
   // valid draft during setup.
   const paused = ref(true)
-  const draftKey = window.location.href
+  const owner = sessionPrincipal()
+  const draftKey = `${owner}:${window.location.href}`
 
   function saveDraft() {
-    if (paused.value || !draft.value || Object.keys(draft.value).length === 0) return
+    if (owner == null || owner !== sessionPrincipal() || paused.value || !draft.value || Object.keys(draft.value).length === 0) return
 
     const value = Array.isArray(safeDraftFields)
       ? Object.fromEntries(
@@ -45,6 +47,7 @@ export function useFormDraft({ safeDraftFields = null } = {}) {
   }
 
   function restoreDraftToForm() {
+    if (owner == null || owner !== sessionPrincipal()) return null
     const restored = memoryDrafts.get(draftKey)
     if (!restored) return null
     memoryDrafts.delete(draftKey)

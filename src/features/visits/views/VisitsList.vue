@@ -1,5 +1,5 @@
 <template>
-  <VisitsListLayout
+  <VisitsListLayout :refresh-key="listRefresh"
     :columns="columns"
     :fetch-fn="fetchFn"
     :table-filters="tableFilters"
@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { useApi } from '@/composables/useApi'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
@@ -146,6 +146,7 @@ function exportVisitPdf(visitId) {
   window.open(`${base}/exports/visits/${visitId}/pdf/`, '_blank')
 }
 
+const listRefresh = ref(0)
 const { execute: doDelete } = useApi((id) => visitService.delete(id))
 
 async function deleteVisit(visit) {
@@ -157,6 +158,7 @@ async function deleteVisit(visit) {
   if (!ok) return
 
   await doDelete(visit.id)
+  listRefresh.value += 1
   notify('تمت أرشفة مسودة الزيارة', 'success')
 }
 

@@ -64,15 +64,17 @@ add(() => {
 
 let pendingMessage = ''
 let announceTimer = null
+let liveTimer = null
 function announce(message) {
   pendingMessage = message
   clearTimeout(announceTimer)
+  clearTimeout(liveTimer)
   announceTimer = setTimeout(() => {
     const el = document.getElementById('live-region')
-    if (el) { el.textContent = ''; setTimeout(() => { el.textContent = pendingMessage }, 50) }
+    if (el) { el.textContent = ''; liveTimer = setTimeout(() => { el.textContent = pendingMessage }, 50) }
   }, 200)
 }
-add(() => clearTimeout(announceTimer))
+add(() => { clearTimeout(announceTimer); clearTimeout(liveTimer) })
 
 onMounted(() => {
   window.__announce = announce

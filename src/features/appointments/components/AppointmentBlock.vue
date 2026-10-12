@@ -11,7 +11,7 @@
         @click="canManage && $emit('edit', appointment)"
         @keydown.enter="canManage && $emit('edit', appointment)"
       >
-        <strong>{{ appointment.time }}</strong> {{ appointment.patient_name }}
+        <strong>{{ appointment.appointment_time }}</strong> {{ appointment.patient_name }}
         <span class="duration">({{ appointment.duration_minutes || 30 }}د)</span>
       </div>
     </template>
@@ -32,7 +32,7 @@ const props = defineProps({
 defineEmits(['edit'])
 
 const blockTitle = computed(
-  () => `${props.appointment.patient_name} – ${props.appointment.time} – ${props.appointment.duration_minutes || 30} دقيقة`
+  () => `${props.appointment.patient_name} – ${props.appointment.appointment_time} – ${props.appointment.duration_minutes || 30} دقيقة`
 )
 
 function onDragStart(e) {

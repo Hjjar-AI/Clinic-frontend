@@ -184,9 +184,9 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
   }
 
   const riskOptions = computed(() =>
-    Object.entries(RISK_LEVELS)
+    [{ value: '', label: 'غير مقيم' }, ...Object.entries(RISK_LEVELS)
       .filter(([key]) => key !== 'null')
-      .map(([key, val]) => ({ value: key, label: val.label }))
+      .map(([key, val]) => ({ value: key, label: val.label }))]
   )
 
   function buildPayload() {
@@ -211,7 +211,7 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
       },
       risk_notes: form.risk_notes,
     }
-    if (form.goals?.length) clinical.goals = form.goals
+    clinical.goals = (form.goals || []).map(goal => ({ ...goal }))
     payload.clinical_data = clinical
 
     payload.diagnoses_input = (payload.diagnoses || []).map((d) => ({
@@ -241,7 +241,8 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
     delete payload.risk_notes
 
     payload.supervisor_id = form.supervisor_id || null
-    payload.signed_by_id = form.signed_by_id || null
+    delete payload.signed_by_id
+    delete payload.date_signed
     delete payload.supervisor
     delete payload.signed_by
 

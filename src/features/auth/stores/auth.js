@@ -4,6 +4,7 @@ import { computed,ref } from 'vue'
 
 import { clearAllFormDrafts } from '@/composables/useFormDraft'
 import authService from '@/features/auth/services/authService'
+import { changeSession, sessionGeneration, sessionPrincipal } from '@/services/sessionState'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -14,6 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function reset() {
     previousUserId = user.value?.id || previousUserId
+    changeSession(null)
     user.value = null
     loading.value = false
     sessionChecked.value = true
@@ -26,6 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
       const authenticatedUser = payload?.user ?? payload
       if (authenticatedUser && (authenticatedUser.id || authenticatedUser.username)) {
         if (previousUserId && authenticatedUser.id !== previousUserId) clearAllFormDrafts()
+        changeSession(authenticatedUser.id)
         user.value = authenticatedUser
         previousUserId = authenticatedUser.id
         sessionChecked.value = true
@@ -40,11 +43,15 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchMe({ force = false } = {}) {
     if (sessionChecked.value && !force) return user.value
 
+    let epoch = sessionGeneration()
     loading.value = true
     try {
       const data = await authService.getMe()
+      if (epoch !== sessionGeneration()) return user.value
       if (data?.user && (data.user.id || data.user.username)) {
+        if (sessionPrincipal() !== data.user.id) { changeSession(data.user.id); epoch = sessionGeneration() }
         user.value = data.user
+        previousUserId = data.user.id
       } else {
         user.value = null
       }
@@ -52,31 +59,22 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       // A temporary network failure must not destroy an already established
       // session. A real 401 is handled centrally and calls reset().
-      if (!user.value || error?.response?.status === 401) user.value = null
+      if (epoch === sessionGeneration() && (!user.value || error?.response?.status === 401)) user.value = null
       return user.value
     } finally {
-      sessionChecked.value = true
-      loading.value = false
+      if (epoch === sessionGeneration()) { sessionChecked.value = true; loading.value = false }
     }
   }
 
-  // NOTE: Previously this called `resetIdempotencyKey()` imported from
-  // `apiClient`. That import created a cycle (apiClient ↔ authStore) and
-  // the function was a no-op. Both have been removed — keys are managed
-  // entirely inside apiClient now, so nothing needs to be reset here.
-  //
-  // The notifications store also no longer needs to be called from here:
-  // it watches `authStore.isAuthenticated` directly and stops polling
-  // when it flips to false. Keeping `auth` free of feature-level imports
-  // makes it the cleanest foundation in the codebase.
   async function logout({ preserveDrafts = false } = {}) {
     try {
       await authService.logout()
-    } catch (e) {
-      console.warn('Logout API call failed:', e)
+    } catch {
+      // Local session teardown still completes after a failed logout request.
     }
+    previousUserId = user.value?.id || previousUserId
+    changeSession(null)
     user.value = null
-    previousUserId = null
     if (!preserveDrafts) clearAllFormDrafts()
     sessionChecked.value = true
   }
@@ -94,7 +92,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   function can(permission) {
     if (!user.value) return false
-    if (user.value.role === 'admin') return true
     const perms = user.value.permissions || []
     return perms.includes(permission)
   }

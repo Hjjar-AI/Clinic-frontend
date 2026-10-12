@@ -41,6 +41,7 @@
             {{ getLabel(opt) }}
           </option>
         </select>
+      <small v-if="loadError" role="alert" class="text-danger">{{ loadError }} <button type="button" @click="fetchOptions()">إعادة المحاولة</button></small>
         <span
           v-if="loading"
           class="async-select-spinner"
@@ -55,6 +56,7 @@ import { onBeforeUnmount,onMounted, ref, watch } from 'vue'
 
 import SearchInput from '@/components/common/SearchInput.vue'
 import apiClient from '@/services/apiClient'
+import { optionList } from '@/utils/optionList'
 
 import FormField from './FormField.vue'
 
@@ -80,7 +82,10 @@ defineEmits(['update:modelValue'])
 const options = ref([])
 const loading = ref(false)
 const selected = ref(props.modelValue)
+watch(() => props.modelValue, value => { selected.value = value })
 let cancelTokenSource = null
+let disposed = false
+const loadError = ref('')
 
 function getLabel(opt) {
   if (props.labelFn) return props.labelFn(opt)
@@ -95,27 +100,25 @@ async function fetchOptions(query) {
   cancelTokenSource = source
 
   loading.value = true
+  loadError.value = ''
+  options.value = []
   try {
     const response = await apiClient.get(props.url, {
       params: query ? { q: query } : undefined,
       cancelToken: source.token
     })
-    const inner = response.data?.data || response.data
-    const result = Array.isArray(inner)
-      ? inner
-      : (inner[Object.keys(inner)[0]] || inner.results || [])
+    if (disposed || source !== cancelTokenSource) return []
+    const result = optionList(response)
     if (props.mode === 'dropdown') {
       options.value = result
     } else {
       return result
     }
   } catch (e) {
-    if (!apiClient.isCancel?.(e)) {
-      console.error('AsyncSelect load error', e)
-    }
+    if (!disposed && source === cancelTokenSource && !apiClient.isCancel(e)) loadError.value = 'تعذر تحميل الخيارات'
+    return []
   } finally {
-    loading.value = false
-    cancelTokenSource = null
+    if (source === cancelTokenSource) { loading.value = false; cancelTokenSource = null }
   }
 }
 
@@ -132,6 +135,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  disposed = true
   if (cancelTokenSource) {
     cancelTokenSource.cancel('Component unmounted')
   }

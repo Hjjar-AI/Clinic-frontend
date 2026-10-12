@@ -1,3 +1,4 @@
+import { sessionGeneration } from '@/services/sessionState'
 // frontend/src/stores/crudStoreFactory.js
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
@@ -28,6 +29,7 @@ export function createCrudStore(storeId, config) {
     const error = ref(null);
 
     async function fetchAll(params = {}) {
+      const epoch = sessionGeneration();
       loading.value = true;
       error.value = null;
 
@@ -36,14 +38,16 @@ export function createCrudStore(storeId, config) {
         items.value = extractList(response, config.listKey);
         return items.value;
       } catch (e) {
+        if (epoch !== sessionGeneration()) throw e
         error.value = e.message || 'خطأ في التحميل';
         throw e;
       } finally {
-        loading.value = false;
+        if (epoch === sessionGeneration()) loading.value = false;
       }
     }
 
     async function fetchOne(id, ...args) {
+      const epoch = sessionGeneration();
       if (!config.fetchOne) return null;
 
       loading.value = true;
@@ -54,14 +58,16 @@ export function createCrudStore(storeId, config) {
         current.value = extractPayload(response);
         return current.value;
       } catch (e) {
+        if (epoch !== sessionGeneration()) throw e
         error.value = e.message || 'خطأ في التحميل';
         throw e;
       } finally {
-        loading.value = false;
+        if (epoch === sessionGeneration()) loading.value = false;
       }
     }
 
     async function create(payload) {
+      const epoch = sessionGeneration();
       loading.value = true;
       error.value = null;
 
@@ -75,14 +81,16 @@ export function createCrudStore(storeId, config) {
 
         return newItem;
       } catch (e) {
+        if (epoch !== sessionGeneration()) throw e
         error.value = e.message || 'خطأ في الحفظ';
         throw e;
       } finally {
-        loading.value = false;
+        if (epoch === sessionGeneration()) loading.value = false;
       }
     }
 
     async function update(id, payload) {
+      const epoch = sessionGeneration();
       loading.value = true;
       error.value = null;
 
@@ -102,14 +110,16 @@ export function createCrudStore(storeId, config) {
 
         return updatedItem;
       } catch (e) {
+        if (epoch !== sessionGeneration()) throw e
         error.value = e.message || 'خطأ في التحديث';
         throw e;
       } finally {
-        loading.value = false;
+        if (epoch === sessionGeneration()) loading.value = false;
       }
     }
 
     async function remove(id) {
+      const epoch = sessionGeneration();
       loading.value = true;
       error.value = null;
 
@@ -122,10 +132,11 @@ export function createCrudStore(storeId, config) {
           current.value = null;
         }
       } catch (e) {
+        if (epoch !== sessionGeneration()) throw e
         error.value = e.message || 'خطأ في الحذف';
         throw e;
       } finally {
-        loading.value = false;
+        if (epoch === sessionGeneration()) loading.value = false;
       }
     }
 

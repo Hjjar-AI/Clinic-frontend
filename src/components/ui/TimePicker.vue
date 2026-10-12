@@ -63,13 +63,8 @@ const timeOptions = computed(() => {
   const options = []
   const [startH, startM] = props.min.split(':').map(Number)
   const [endH, endM] = props.max.split(':').map(Number)
-  let h = startH, m = startM
-  while (h < endH || (h === endH && m <= endM)) {
-    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-    options.push(time)
-    m += props.step
-    if (m >= 60) { h++; m = 0 }
-  }
+  if (![startH,startM,endH,endM,props.step].every(Number.isFinite) || !Number.isInteger(props.step) || props.step <= 0 || startH < 0 || endH > 23 || startM < 0 || startM > 59 || endM < 0 || endM > 59 || startH * 60 + startM > endH * 60 + endM) return []
+  for (let minute = startH * 60 + startM; minute <= endH * 60 + endM; minute += props.step) options.push(`${String(Math.floor(minute / 60)).padStart(2,'0')}:${String(minute % 60).padStart(2,'0')}`)
   return options
 })
 

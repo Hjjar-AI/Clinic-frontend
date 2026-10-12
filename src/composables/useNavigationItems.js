@@ -1,3 +1,4 @@
+import { useRoute } from 'vue-router';
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 
 import { useAuthStore } from '@/features/auth/stores/auth';
@@ -8,6 +9,7 @@ let navigationConsumers = 0;
 let badgeInterval = null;
 
 export function useNavigationItems() {
+  const route = useRoute();
   const authStore = useAuthStore();
   const analyticsStore = useAnalyticsStore();
   const isAdmin = computed(() => authStore.can('manage_users'));
@@ -45,7 +47,8 @@ export function useNavigationItems() {
   });
 
   async function refreshBadges() {
-    await analyticsStore.fetchDashboard();
+    if (!authStore.isAuthenticated) return;
+    await analyticsStore.fetchDashboard(undefined, undefined, { background: true }).catch(() => {});
   }
 
   onMounted(() => {
@@ -64,5 +67,5 @@ export function useNavigationItems() {
     }
   });
 
-  return { allItems, isAdmin, appointmentsBadge, refreshBadges };
+  return { allItems, isAdmin, appointmentsBadge, refreshBadges, sectionCurrent: item => route.meta.section === item.to.name ? (route.name === item.to.name ? 'page' : 'location') : undefined };
 }

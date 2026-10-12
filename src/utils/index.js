@@ -1,7 +1,11 @@
 export function debounce(fn, delay) {
-  let timeout
-  return function(...args) {
+  let timeout, args, receiver
+  const call = function(...values) {
+    args = values; receiver = this
     clearTimeout(timeout)
-    timeout = setTimeout(() => fn.apply(this, args), delay)
+    timeout = setTimeout(() => { timeout = null; fn.apply(receiver, args) }, delay)
   }
+  call.cancel = () => { clearTimeout(timeout); timeout = null }
+  call.flush = () => { if (timeout) { call.cancel(); return fn.apply(receiver, args) } }
+  return call
 }

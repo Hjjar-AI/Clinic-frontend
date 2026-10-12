@@ -1,3 +1,4 @@
+import { storeToRefs } from 'pinia'
 // frontend/src/stores/lookups.js
 /**
  * Backward-compatibility wrapper.
@@ -15,9 +16,9 @@ export function useLookupStore() {
 
   return {
     // aliases that match the old interface
-    diagnoses: diagStore.items,
-    medications: medStore.items,
-    scales: scaleStore.items,
+    diagnoses: storeToRefs(diagStore).items,
+    medications: storeToRefs(medStore).items,
+    scales: storeToRefs(scaleStore).items,
 
     fetchDiagnoses: diagStore.fetch,
     fetchMedications: medStore.fetch,

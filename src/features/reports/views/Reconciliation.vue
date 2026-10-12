@@ -1,5 +1,6 @@
 <template>
   <div>
+    <p v-if="loadError" role="alert" class="text-danger">{{ loadError }}</p>
     <Breadcrumb :items="[{ label: 'التقارير', to: { name: 'Statistics' } }, { label: 'مطابقة السجلات' }]" />
     <PageHeader
       title="مطابقة السجلات"
@@ -50,7 +51,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import CardHeader from '@/components/ui/CardHeader.vue'
@@ -59,6 +60,9 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { useFormatters } from '@/composables/useFormatters'
 import statisticsService from '@/features/reports/services/statisticsService'
 
+const loadError = ref('')
+let generation = 0
+onBeforeUnmount(() => { generation += 1 })
 const data = ref({})
 const loading = ref(false)
 const { formatMoney, toArabicNumerals: toArabic } = useFormatters()
@@ -95,11 +99,16 @@ function statusLabel(section, status) {
 }
 
 async function load() {
+  const request = ++generation
   loading.value = true
+  loadError.value = ''
   try {
-    data.value = await statisticsService.getReconciliation()
+    const result = await statisticsService.getReconciliation()
+    if (request === generation) data.value = result
+  } catch {
+    if (request === generation) loadError.value = 'تعذر تحديث المطابقة؛ البيانات السابقة لم تُحدّث'
   } finally {
-    loading.value = false
+    if (request === generation) loading.value = false
   }
 }
 

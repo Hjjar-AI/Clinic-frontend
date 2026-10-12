@@ -1,5 +1,7 @@
 // frontend/src/stores/lookupStoreFactory.js
 import { reactive, shallowRef, watch } from 'vue'
+import { fetchCatalog } from '@/utils/catalogFetch'
+import { onSessionChange } from '@/services/sessionState'
 
 /**
  * Factory that creates a lightweight, read-only lookup store.
@@ -24,32 +26,27 @@ export function createLookupStore(storeId, fetchFn, listKey) {
     }
   }, { immediate: true })
 
+  let inFlight = null
+  let generation = 0
   async function fetch(force = false) {
     if (!force && _loaded) return items.value
-    const response = await fetchFn()
-    // Extract data from axios response: response.data may be the envelope or the direct data
-    const rawData = response?.data?.data || response?.data || response
-    // If the data is an object, try to find the list in common keys: 'items', the provided listKey, or 'results'
-    let list = []
-    if (Array.isArray(rawData)) {
-      list = rawData
-    } else if (rawData && typeof rawData === 'object') {
-      if (Array.isArray(rawData.items)) {
-        list = rawData.items
-      } else if (listKey && Array.isArray(rawData[listKey])) {
-        list = rawData[listKey]
-      } else if (Array.isArray(rawData.results)) {
-        list = rawData.results
-      }
-    }
-    // Freeze items to prevent accidental mutation
-    list.forEach(item => Object.freeze(item))
-    items.value = Object.freeze(list)
-    _loaded = true
-    return items.value
+    if (inFlight) return inFlight
+    const current = generation
+    const promise = fetchCatalog(fetchFn, listKey).then(list => {
+      if (current !== generation) return []
+      items.value = Object.freeze(list.map(item => Object.freeze({ ...item })))
+      _loaded = true
+      return items.value
+    }).finally(() => { if (inFlight === promise) inFlight = null })
+    inFlight = promise
+    return promise
   }
 
-  function invalidate(id) {
+  function invalidate(id, reload = true) {
+    const wasLoaded = _loaded
+    generation += 1
+    inFlight = null
+    _loaded = false
     if (id !== undefined) {
       itemsMap.delete(id)
       const current = items.value
@@ -64,12 +61,14 @@ export function createLookupStore(storeId, fetchFn, listKey) {
       itemsMap.clear()
       _loaded = false
     }
+    if (reload && wasLoaded) fetch().catch(() => {})
   }
 
   function invalidateAll() {
     invalidate()
   }
 
+  onSessionChange(() => invalidate(undefined, false))
   return () => ({
     items,
     itemsMap,

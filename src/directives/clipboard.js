@@ -26,8 +26,9 @@ function copyText(text) {
 
 export default {
   beforeMount(el, binding) {
+    el._clipboardValue = binding.value
     const handler = async () => {
-      const text = typeof binding.value === 'function' ? binding.value() : binding.value
+      const text = typeof el._clipboardValue === 'function' ? el._clipboardValue() : el._clipboardValue
       if (!text) return
       try {
         await copyText(String(text))
@@ -41,7 +42,9 @@ export default {
     el.addEventListener('click', handler)
     el._clipboardHandler = handler
   },
+  updated(el, binding) { el._clipboardValue = binding.value },
   unmounted(el) {
+    delete el._clipboardValue
     if (el._clipboardHandler) {
       el.removeEventListener('click', el._clipboardHandler)
       delete el._clipboardHandler

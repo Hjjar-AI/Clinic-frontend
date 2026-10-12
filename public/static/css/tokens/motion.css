@@ -10,12 +10,12 @@
   --transition-modal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Deprecated aliases – kept for backward compatibility */
-  --motion-duration-instant: var(--transition-fast);
-  --motion-duration-hover: var(--transition-fast);
-  --motion-duration-button: var(--transition-fast);
-  --motion-duration-dialog: var(--transition-modal);
-  --motion-duration-drawer: var(--transition-base);
-  --motion-duration-theme: var(--transition-base);
+  --motion-duration-instant: 0.15s;
+  --motion-duration-hover: 0.15s;
+  --motion-duration-button: 0.15s;
+  --motion-duration-dialog: 0.3s;
+  --motion-duration-drawer: 0.25s;
+  --motion-duration-theme: 0.25s;
 
   --anim-duration-shimmer: 1.5s;
   --anim-duration-fade: 0.3s;
@@ -59,6 +59,6 @@
 }
 
 body {
-  transition: background-color var(--transition-base) ease,
-              color var(--transition-base) ease;
+  transition: background-color var(--transition-base),
+              color var(--transition-base);
 }
