@@ -38,7 +38,9 @@
             v-if="section.key === 'invoices'"
             class="text-sm text-muted mt-2"
           >
-            الإيراد المحسوب: {{ formatMoney(data.invoices?.paid_amount || 0) }}.
+            <span v-for="(amount, currency) in data.invoices?.paid_by_currency || {}" :key="currency" class="d-block">
+              الإيراد المحسوب ({{ currency }}): {{ formatMoney(amount, currency) }}
+            </span>
             {{ data.invoices?.revenue_definition }}
           </p>
         </div>

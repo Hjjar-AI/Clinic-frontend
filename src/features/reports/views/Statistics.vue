@@ -31,7 +31,7 @@ const { toArabicNumerals: toArabic } = useFormatters()
 const filters = reactive({ dateFrom: '', dateTo: '' })
 const stats = reactive({
   total_patients: 0, total_visits: 0, total_appointments: 0,
-  male_count: 0, female_count: 0, avg_age: 0, avg_visits_per_patient: 0,
+  male_count: 0, female_count: 0, avg_age: null, avg_visits_per_patient: 0,
   completed_tasks: 0, pending_tasks: 0, appointments_today: 0,
   appointments_week: 0, top_diagnosis: null, top_medication: null,
   age_labels: [], age_counts: [], marital_labels: [], marital_counts: [],
@@ -46,7 +46,7 @@ const visitsCounts = reactive([])
 const kpiItems = computed(() => [
   { icon: 'users', label: 'إجمالي المرضى', value: toArabic(stats.total_patients), type: 'patients' },
   { icon: 'venus-mars', label: 'الذكور', value: toArabic(stats.male_count), subtitle: 'إناث: ' + toArabic(stats.female_count), type: 'info' },
-  { icon: 'birthday-cake', label: 'متوسط العمر', value: toArabic(stats.avg_age), subtitle: 'سنة', type: 'info' },
+  { icon: 'birthday-cake', label: 'متوسط العمر', value: stats.avg_age == null ? 'غير معروف' : toArabic(stats.avg_age), subtitle: 'سنة', type: 'info' },
   { icon: 'chart-line', label: 'زيارات / مريض', value: toArabic(stats.avg_visits_per_patient), type: 'visits' },
 ])
 

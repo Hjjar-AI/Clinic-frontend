@@ -1,5 +1,7 @@
 # Completed frontend work and verification
 
+2026-10-12: coordinated [models/logic corrections](../../backend/docs/reviews/models-and-logic-2026-10-12.md): reconciliation displays labelled per-currency totals, scale admin exposes/enforces the 100-question bound, average age displays unknown, clinical narrative inputs respect edit permission, and catalog import explains content-only fidelity. Five Vue descriptors/script sections parsed; no browser/build/test-suite checks. Backend source/schema/rollout limits are in [backend current](../../backend/docs/workCurrent.md). Earlier frontend F01–F43/L01–L10 findings remain a separate review scope.
+
 2026-10-12: completed [frontend file-by-file review](reviews/frontend-file-by-file-2026-10-12.md) across 431 first-party production/config files, including backend contract comparisons and checklist disposition. Parsed 133 JS files, 197 Vue descriptors/script sections and 96 CSS files without syntax errors; one missing unused AuditLog import. Synthetic Pinia probe confirmed persistence configuration mismatch. Review/documentation only; no production fixes, migration/test-suite inspection, builds, browser or PDF checks. Earlier runtime results below were not rerun.
 
 Recorded verification: 2026-10-11; documentation organization checked separately, without rerunning application tests.

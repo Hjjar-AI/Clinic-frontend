@@ -9,12 +9,14 @@
         label="التاريخ العائلي"
         :maxlength="500"
         rows="3"
+        :disabled="!auth.can('edit_visit')"
       />
       <FormTextarea
         v-model="form.important_notes"
         label="ملاحظات هامة"
         :maxlength="500"
         rows="3"
+        :disabled="!auth.can('edit_visit')"
       />
     </div>
   </div>
@@ -22,6 +24,8 @@
 
 <script setup>
 import FormTextarea from '@/components/ui/FormTextarea.vue'
+import { useAuthStore } from '@/features/auth/stores/auth'
+const auth = useAuthStore()
 
 defineProps({ form: Object })
 </script>

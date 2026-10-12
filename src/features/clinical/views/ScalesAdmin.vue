@@ -35,7 +35,7 @@
             {{ item.description }}
           </template>
           <template #fields="{ item }">
-            {{ item.fields?.length || 0 }}
+            {{ item.fields?.length || 0 }} / {{ item.max_active_fields || 100 }}
           </template>
           <template #usage_count="{ item }">
             {{ item.usage_count || 0 }}
@@ -52,7 +52,8 @@
               variant="secondary"
               size="xs"
               aria-label="إضافة سؤال"
-              title="إضافة سؤال"
+              title="إضافة سؤال (حتى 100 سؤال)"
+              :disabled="item.is_active === false || (item.fields?.length || 0) >= (item.max_active_fields || 100)"
               @click="openAddFieldModal(item)"
             >
               <Icon icon="plus" />
