@@ -8,7 +8,7 @@
       <BaseButton :href="url">فتح PDF في نافذة جديدة</BaseButton>
     </div>
     <p v-if="printFallback" role="status">تعذر فتح الطباعة داخل الصفحة؛ افتح PDF في نافذة جديدة واستخدم أمر الطباعة في عارض الملف.</p>
-    <iframe ref="viewer" :src="url" :title="title" @load="ready = true" />
+    <iframe :key="url" ref="viewer" :src="url" :title="title" @load="ready = true" />
     <p class="text-muted text-sm">إذا لم تظهر المعاينة في متصفحك، افتح الملف في نافذة جديدة أو نزّله.</p>
   </section>
 </template>
