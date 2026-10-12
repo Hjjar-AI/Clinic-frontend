@@ -47,13 +47,13 @@ describe('prescription physical paper controls', () => {
     expect(wrapper.get('[role="status"]').text()).toContain('نافذة جديدة')
   })
 
-  it.each(['session', 'unmount'])('revokes patient PDF URLs on %s and ignores late calibration results', async reason => {
+  it.each([['session', 'calibration'], ['unmount', 'calibration'], ['session', 'generate'], ['unmount', 'generate']])('clears previews on %s and ignores late %s results', async (reason, pendingMethod) => {
     vi.spyOn(prescriptionService, 'preview').mockResolvedValue({ data: { data: {
       preview_token: 'synthetic-token', patient_id: 1, patient_name: 'Synthetic patient', medications: [], diagnoses: [],
     } } })
-    vi.spyOn(prescriptionService, 'generate').mockResolvedValue({ data: new Blob(['%PDF-synthetic']) })
-    let finishCalibration
-    vi.spyOn(prescriptionService, 'calibration').mockImplementation(() => new Promise(resolve => { finishCalibration = resolve }))
+    let finish
+    if (pendingMethod === 'calibration') vi.spyOn(prescriptionService, 'generate').mockResolvedValue({ data: new Blob(['%PDF-synthetic']) })
+    vi.spyOn(prescriptionService, pendingMethod).mockImplementation(() => new Promise(resolve => { finish = resolve }))
     const router = createRouter({ history: createMemoryHistory(), routes: [
       { path: '/prescription/:visitId', component: PrescriptionPreview },
       { path: '/patients', name: 'PatientsList', component: { template: '<p>Patients</p>' } },
@@ -67,14 +67,15 @@ describe('prescription physical paper controls', () => {
     await wrapper.findAll('button').find(button => button.text().includes('Save synthetic')).trigger('click')
     await wrapper.findAll('button').find(button => button.text().includes('إنشاء ومعاينة')).trigger('click')
     await flushPromises()
-    expect(createUrl).toHaveBeenCalledOnce()
-    await wrapper.findAll('button').find(button => button.text().includes('إنشاء ورقة معايرة')).trigger('click')
+    const issued = pendingMethod === 'calibration'
+    expect(createUrl).toHaveBeenCalledTimes(issued ? 1 : 0)
+    if (issued) await wrapper.findAll('button').find(button => button.text().includes('إنشاء ورقة معايرة')).trigger('click')
     if (reason === 'session') changeSession(null)
     else wrapper.unmount()
-    expect(revoke).toHaveBeenCalledWith('blob:synthetic-private')
-    finishCalibration({ data: new Blob(['%PDF-calibration']) })
+    if (issued) expect(revoke).toHaveBeenCalledWith('blob:synthetic-private')
+    finish({ data: new Blob(['%PDF-synthetic']) })
     await flushPromises()
-    expect(createUrl).toHaveBeenCalledOnce()
+    expect(createUrl).toHaveBeenCalledTimes(issued ? 1 : 0)
   })
   it('defaults to A6 and validates finite sizes, precision and offsets', () => {
     expect(normalizePaperOptions(defaultPaperOptions())).toEqual(defaultPaperOptions())
