@@ -1,0 +1,54 @@
+import { test, expect } from '@playwright/test'
+import { createHash } from 'node:crypto'
+import { setup, downloaded } from './helpers/workflow.js'
+
+test('A6 blank and custom preprinted prescriptions issue independently with calibrated offsets', async ({ page }, info) => {
+  test.setTimeout(120000)
+  const { patient, headers } = await setup(page, info, 'ورق الوصفة')
+  const created = await page.request.post(`/api/v1/patients/${patient.id}/visits/`, {
+    data: { visit_date: '2026-10-12', main_complaints: 'Synthetic paper fixture', status: 'final' }, headers: await headers(),
+  })
+  expect(created.status()).toBe(201)
+  const visit = (await created.json()).data
+  await page.goto(`/prescription/${visit.id}`)
+  const size = page.getByRole('combobox', { name: 'حجم الورق', exact: true })
+  const mode = page.getByRole('combobox', { name: 'نوع الورق', exact: true })
+  await expect(size).toHaveValue('a6')
+  await expect(mode).toHaveValue('blank')
+  const pad = page.getByRole('img', { name: 'توقيع (مطلوب)', exact: true })
+  await pad.focus()
+  await pad.press('Enter')
+  await pad.press('ArrowRight')
+  await pad.press('ArrowDown')
+  await page.getByRole('button', { name: 'حفظ التوقيع', exact: true }).click()
+  const issue = page.getByRole('button', { name: 'إنشاء وطباعة الروشتة', exact: true })
+  const blank = await downloaded(page, info, 'prescription.pdf', () => issue.click())
+  await expect(issue).toBeDisabled()
+  const refreshed = page.waitForResponse(response => response.url().includes('/prescription/visit/') && response.request().method() === 'GET')
+  await page.getByRole('button', { name: 'معاينة جديدة لطباعة نسخة أخرى', exact: true }).click()
+  expect((await refreshed).status()).toBe(200)
+  await expect(issue).toBeEnabled()
+  await mode.selectOption('preprinted')
+  await size.selectOption('custom')
+  const width = page.getByRole('spinbutton', { name: 'عرض الورقة (مم)', exact: true })
+  await width.fill('0')
+  await expect(issue).toBeDisabled()
+  await width.fill('105')
+  await page.getByRole('spinbutton', { name: 'ارتفاع الورقة (مم)', exact: true }).fill('198')
+  await page.getByRole('spinbutton', { name: 'إزاحة أفقية (مم؛ الموجب إلى اليمين)', exact: true }).fill('2')
+  await page.getByRole('spinbutton', { name: 'إزاحة عمودية (مم؛ الموجب إلى الأسفل)', exact: true }).fill('1')
+  await expect(page.getByRole('img', { name: 'مرجع لمحاذاة البيانات على الورق المطبوع', exact: true })).toBeVisible()
+  const pending = page.waitForRequest(request => request.url().includes('/prescription/generate') && request.method() === 'POST')
+  const preprinted = await downloaded(page, info, 'preprinted.pdf', () => issue.click())
+  expect((await pending).postDataJSON().print_options).toEqual({ mode: 'preprinted', width_mm: 105, height_mm: 198, offset_x_mm: 2, offset_y_mm: 1 })
+  await expect(issue).toBeDisabled()
+  const issued = (await (await page.request.get(`/api/v1/visits/${visit.id}/issued-documents/`)).json()).data
+  expect(issued).toHaveLength(2)
+  expect(issued.every(row => row.document_type === 'prescription')).toBe(true)
+  for (const [paperMode, pdf] of [['blank', blank], ['preprinted', preprinted]]) {
+    const document = issued.find(row => row.snapshot.print_options.mode === paperMode)
+    expect(document.checksum).toBe(createHash('sha256').update(pdf.bytes).digest('hex'))
+    expect(document.snapshot.print_options.height_mm).toBe(paperMode === 'blank' ? 148 : 198)
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})

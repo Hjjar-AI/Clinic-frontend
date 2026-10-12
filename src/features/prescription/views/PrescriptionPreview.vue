@@ -14,7 +14,7 @@
     <div class="card__body">
       <div class="panel panel--blue rounded mb-3 p-3">
         <p><strong>المريض:</strong> {{ patientName }}</p>
-        <p v-if="patientAge">
+        <p v-if="patientAge !== null && patientAge !== undefined">
           <strong>العمر:</strong> {{ patientAge }} سنة
         </p>
         <p><strong>تاريخ الزيارة:</strong> <span class="numeric">{{ snapshot.visit_date }}</span></p>

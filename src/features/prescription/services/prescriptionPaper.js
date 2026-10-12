@@ -12,3 +12,21 @@ export function normalizePaperOptions(options) {
   }
   return result
 }
+
+const preferenceKey = userId => {
+  const id = Number(userId)
+  return Number.isSafeInteger(id) && id > 0 ? `clinic:prescription-paper:${id}` : null
+}
+export function loadPaperOptions(userId) {
+  try {
+    const key = preferenceKey(userId)
+    return (key && normalizePaperOptions(JSON.parse(localStorage.getItem(key)))) || defaultPaperOptions()
+  } catch { return defaultPaperOptions() }
+}
+export function rememberPaperOptions(userId, options) {
+  const key = preferenceKey(userId)
+  const paper = normalizePaperOptions(options)
+  if (!key || !paper) return false
+  try { localStorage.setItem(key, JSON.stringify(paper)); return true } catch { return false }
+}
+export const paperPreset = paper => paper.width_mm === 105 && paper.height_mm === 148 ? 'a6' : paper.width_mm === 210 && paper.height_mm === 297 ? 'a4' : 'custom'

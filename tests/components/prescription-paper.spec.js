@@ -20,10 +20,11 @@ describe('prescription physical paper controls', () => {
   it('updates custom dimensions without mutating the opening value, shows calibration and disables controls', async () => {
     const opening = defaultPaperOptions()
     const model = ref(opening)
-    const wrapper = mount(defineComponent({ components: { PrescriptionPaperOptions }, setup: () => ({ model }), template: '<PrescriptionPaperOptions v-model="model" />' }))
+    const disabled = ref(false)
+    const wrapper = mount(defineComponent({ components: { PrescriptionPaperOptions }, setup: () => ({ model, disabled }), template: '<PrescriptionPaperOptions v-model="model" :disabled="disabled" />' }))
     await wrapper.findAll('select')[1].setValue('custom')
     await wrapper.findAll('input')[1].setValue('198')
-    expect(model.value.height_mm).toBe('198')
+    expect(model.value.height_mm).toBe(198)
     expect(opening.height_mm).toBe(148)
     await wrapper.findAll('select')[0].setValue('preprinted')
     expect(wrapper.get('img').attributes('src')).toBe('/static/prescription-paper-reference.jpeg')
@@ -31,7 +32,8 @@ describe('prescription physical paper controls', () => {
     await wrapper.findAll('input')[0].setValue('0')
     const controls = wrapper.getComponent(PrescriptionPaperOptions)
     expect(controls.emitted('validity').at(-1)).toEqual([false])
-    await controls.setProps({ disabled: true })
+    disabled.value = true
+    await flushPromises()
     expect(controls.get('fieldset').element.disabled).toBe(true)
   })
 

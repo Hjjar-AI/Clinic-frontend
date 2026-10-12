@@ -4,6 +4,9 @@ import apiClient from '@/services/apiClient'
 // Prescription generation – no CRUD factory needed.
 
 export default {
+  calibration(printOptions) {
+    return apiClient.post('/prescription/calibration', { print_options: printOptions }, { responseType: 'blob' })
+  },
   preview(visitId) {
     return apiClient.get(`/prescription/visit/${visitId}`)
   },

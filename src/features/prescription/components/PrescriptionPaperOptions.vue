@@ -14,7 +14,7 @@
       </template>
     </div>
     <ResourceFeedback :error="normalized ? '' : 'تحقق من أبعاد الورق والإزاحة قبل إنشاء الوصفة'" />
-    <p>الحجم الافتراضي A6. أبعاد الصورة وحدها لا تؤكد حجم الورقة؛ أدخل أبعاد ورقك الفعلية عند الحاجة.</p>
+    <p>الحجم الافتراضي A6. الإعدادات خاصة بهذا الحساب والمتصفح. أبعاد الصورة وحدها لا تؤكد حجم الورقة؛ أدخل أبعاد ورقك الفعلية عند الحاجة.</p>
     <p>اطبع ملف PDF بالحجم الفعلي (100%)، واختر نفس حجم الورق في الطابعة دون ملاءمة تلقائية.</p>
     <template v-if="model.mode === 'preprinted' && normalized">
       <p>تُطبع البيانات فقط؛ الشعار والحدود والرقم الموجود في الصورة لا تدخل ملف PDF. استخدم ورقة تجريبية لضبط المحاذاة. قد تتوزع الوصفة على عدة أوراق.</p>
@@ -34,12 +34,12 @@ import { computed, ref, watch } from 'vue'
 import FormInput from '@/components/ui/FormInput.vue'
 import FormSelect from '@/components/ui/FormSelect.vue'
 import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
-import { normalizePaperOptions, paperPresets } from '@/features/prescription/services/prescriptionPaper'
+import { normalizePaperOptions, paperPresets, paperPreset } from '@/features/prescription/services/prescriptionPaper'
 
 defineProps({ disabled: Boolean, snapshot: { type: Object, default: null } })
 const model = defineModel({ type: Object, required: true })
 const emit = defineEmits(['validity'])
-const preset = ref('a6')
+const preset = ref(paperPreset(model.value))
 const paperModes = [{ value: 'blank', label: 'ورق فارغ — طباعة الوصفة كاملة' }, { value: 'preprinted', label: 'ورق مطبوع مثل النموذج — البيانات فقط' }]
 const normalized = computed(() => normalizePaperOptions(model.value))
 watch(normalized, value => emit('validity', Boolean(value)), { immediate: true })
