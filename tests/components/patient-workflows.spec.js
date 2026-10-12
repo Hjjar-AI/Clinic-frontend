@@ -10,7 +10,7 @@ import PatientDocumentsPanel from '@/features/patients/components/PatientDocumen
 import PatientDuplicatePanel from '@/features/patients/components/PatientDuplicatePanel.vue'
 
 const patient = () => ({ id: 7, version: 4, is_active: true, first_name: 'Synthetic', surname: 'Patient' })
-function auth(role = 'admin', permissions = []) {
+function auth(role = 'admin', permissions = role === 'admin' ? ['view_patients', 'view_visits', 'edit_patient', 'edit_visit', 'manage_patient_documents', 'manage_patient_care_team', 'manage_users', 'archive_patient', 'delete_patient'] : []) {
   useAuthStore().user = { id: 1, role, permissions }
 }
 function button(wrapper, text) {

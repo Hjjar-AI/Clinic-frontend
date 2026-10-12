@@ -2,9 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import ScalesAdmin from '@/features/clinical/views/ScalesAdmin.vue'
+import { useAuthStore } from '@/features/auth/stores/auth'
 import scaleService from '@/features/clinical/services/scaleService'
 
 async function page() {
+  useAuthStore().user = { id: 1, permissions: ['manage_scales'] }
   vi.spyOn(scaleService, 'getAll').mockResolvedValue({ items: [{ id: 61, version: 4, name: 'Synthetic scale', is_active: true, fields: [] }], meta: { has_more: false } })
   const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/scales', component: ScalesAdmin }] })
   await router.push('/scales')
@@ -25,7 +27,7 @@ describe('scale creation and question forms', () => {
     expect(document.getElementById(label.htmlFor)?.tagName).toBe('INPUT')
     document.querySelector('.modal__close').click()
     await flushPromises()
-    await wrapper.get('button[title="إضافة سؤال"]').trigger('click')
+    await wrapper.get('button[aria-label="إضافة سؤال"]').trigger('click')
     await flushPromises()
     for (const node of document.querySelectorAll('.modal__body label')) {
       expect(['INPUT', 'SELECT'].includes(document.getElementById(node.htmlFor)?.tagName)).toBe(true)
@@ -35,7 +37,7 @@ describe('scale creation and question forms', () => {
   it('question save sends numeric bounds and the opening scale version', async () => {
     const add = vi.spyOn(scaleService, 'addField').mockResolvedValue({})
     const wrapper = await page()
-    await wrapper.get('button[title="إضافة سؤال"]').trigger('click')
+    await wrapper.get('button[aria-label="إضافة سؤال"]').trigger('click')
     await flushPromises()
     const input = document.querySelector('.modal__body input:not([type=number])')
     input.value = 'Synthetic question'
@@ -50,7 +52,7 @@ describe('scale creation and question forms', () => {
   it('rejected question retains inputs and the open modal without unhandled errors', async () => {
     vi.spyOn(scaleService, 'addField').mockRejectedValue(new Error('Synthetic invalid range'))
     const wrapper = await page()
-    await wrapper.get('button[title="إضافة سؤال"]').trigger('click')
+    await wrapper.get('button[aria-label="إضافة سؤال"]').trigger('click')
     await flushPromises()
     const input = document.querySelector('.modal__body input:not([type=number])')
     input.value = 'Keep this question'

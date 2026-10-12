@@ -180,7 +180,7 @@ test('loading starts after delay and clears on completed request', async t => {
     await pending.promise
     return { status: 200, data: {}, headers: {}, config }
   }
-  const request = apiClient.get('/system/config/')
+  const request = apiClient.post('/tasks/', { title: 'Synthetic foreground mutation' })
   await flush()
   assert.equal(useLoadingStore().isLoading, false)
   t.mock.timers.tick(201)

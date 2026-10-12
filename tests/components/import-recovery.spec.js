@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import ImportOptions from '@/features/import/views/ImportOptions.vue'
 import BackupLayout from '@/features/backup/components/BackupLayout.vue'
+import { useToast } from '@/composables/useToast'
 import importService from '@/features/import/services/importService'
 
 function button(wrapper, name) {
@@ -57,7 +58,8 @@ describe('catalog import UI preview binding', () => {
     await flushPromises()
     expect(button(wrapper, 'تنفيذ الاستيراد')).toBeUndefined()
     expect(commit).not.toHaveBeenCalled()
-    expect(errorHandler).toHaveBeenCalledWith(error, expect.anything(), expect.any(String))
+    expect(errorHandler).not.toHaveBeenCalled()
+    expect(useToast().toasts.value.some(toast => toast.type === 'danger')).toBe(true)
     expect(button(wrapper, 'معاينة').attributes('disabled')).toBeUndefined()
   })
 

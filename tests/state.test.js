@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { effectScope, ref, nextTick } from 'vue'
+import { changeSession } from '@/services/sessionState'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import { useNotificationStore } from '@/features/notifications/stores/notifications'
 import { useSelectionStore } from '@/stores/selection'
@@ -13,13 +14,15 @@ import { fetchMeGuard, authGuard, permissionGuard } from '@/router/guards'
 import { installRuntime, respond, fail, requests, deferred, flush } from './helpers/runtime.js'
 installRuntime()
 
-test('auth permissions require a session and explicit grants outside admin', () => {
+test('auth permissions require explicit server grants including admin', () => {
   const auth = useAuthStore()
   assert.equal(auth.can('view_patients'), false)
   auth.user = { id: 1, role: 'doctor', permissions: ['view_patients'] }
   assert.equal(auth.can('view_patients'), true)
   assert.equal(auth.can('manage_users'), false)
   auth.user.role = 'admin'
+  assert.equal(auth.can('manage_users'), false)
+  auth.user.permissions.push('manage_users')
   assert.equal(auth.can('manage_users'), true)
 })
 test('fetchMe checks once unless forced', async () => {
@@ -132,6 +135,7 @@ test('CRUD store exposes failures without discarding existing data', async () =>
 })
 test('draft saving pauses during hydration and persists only allowed fields in memory', async () => {
   clearAllFormDrafts()
+  changeSession(1)
   const scope = effectScope()
   const draft = scope.run(() => useFormDraft({ safeDraftFields: ['visit_date'] }))
   draft.draft.value = { visit_date: '2026-01-01', main_complaints: 'Synthetic private text' }

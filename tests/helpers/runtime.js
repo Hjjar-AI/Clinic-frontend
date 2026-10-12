@@ -2,6 +2,9 @@ import { beforeEach, afterEach } from 'node:test'
 import { createPinia, setActivePinia, disposePinia } from 'pinia'
 import apiClient, { cancelAllPending } from '@/services/apiClient'
 import { useToast } from '@/composables/useToast'
+import { createApp } from 'vue'
+import { changeSession, sessionStorePlugin } from '@/services/sessionState'
+import { clearAllFormDrafts } from '@/composables/useFormDraft'
 let pinia
 let installed = false
 export const requests = []
@@ -10,7 +13,11 @@ export function installRuntime() {
   installed = true
   beforeEach(() => {
     pinia = createPinia()
+    pinia.use(sessionStorePlugin)
+    createApp({}).use(pinia)
     setActivePinia(pinia)
+    changeSession(null)
+    clearAllFormDrafts()
     requests.length = 0
     document.cookie = ''
     localStorage.clear()
@@ -18,8 +25,10 @@ export function installRuntime() {
     apiClient.defaults.adapter = async config => { throw new Error(`Unexpected network call: ${config.method} ${config.url}`) }
   })
   afterEach(() => {
+    changeSession(null)
     cancelAllPending()
     useToast().clearAllToasts()
+    for (const store of pinia._s.values()) store.$dispose()
     disposePinia(pinia)
   })
 }
