@@ -1,7 +1,8 @@
 // frontend/src/stores/ui.js
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
+import { useWorkspaceStore } from '@/stores/workspace'
 import { themeService } from '@/services/themeService'
 
 export const useUiStore = defineStore('ui', () => {
@@ -9,7 +10,8 @@ export const useUiStore = defineStore('ui', () => {
   const prefs = themeService.load()
 
   const sidebarCollapsed = ref(false)      // will be hydrated by persist plugin
-  const density = ref('comfortable')
+  const workspace = useWorkspaceStore()
+  const density = computed(() => workspace.preferences.density)
   const theme = ref(prefs.theme || 'default')
   const darkMode = ref(prefs.darkMode || false)
 
@@ -19,7 +21,7 @@ export const useUiStore = defineStore('ui', () => {
   }
 
   function setDensity(value) {
-    density.value = value
+    if (['comfortable', 'compact'].includes(value)) workspace.update({ density: value })
   }
 
   function setTheme(newTheme) {
@@ -50,6 +52,6 @@ export const useUiStore = defineStore('ui', () => {
   // ── Persist configuration ─────────────────────────────────────
   persist: {
     key: 'ui_store',
-    paths: ['sidebarCollapsed', 'density'],
+    paths: ['sidebarCollapsed'],
   },
 })

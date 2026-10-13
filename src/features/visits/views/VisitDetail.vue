@@ -163,6 +163,13 @@
           <p><strong>تاريخ المتابعة:</strong> {{ visit.follow_up_date || '-' }}</p>
         </div>
       </BaseCard>
+      <BaseCard v-if="visit.clinical_data?.instruction_acknowledgement?.explained_at">
+        <CardHeader title="شرح التعليمات في السجل الحالي" icon="comments" />
+        <p>وقت الشرح: <DateCell :date="visit.clinical_data.instruction_acknowledgement.explained_at" :relative="false" show-time /></p>
+        <p>المتلقي: {{ ({ patient: 'المريض', representative: 'المرافق / الممثل', both: 'كلاهما' })[visit.clinical_data.instruction_acknowledgement.recipient] }} {{ visit.clinical_data.instruction_acknowledgement.recipient_name }}</p>
+        <p>احتاج توضيحاً: {{ visit.clinical_data.instruction_acknowledgement.clarification_needed === null ? 'غير مسجل' : visit.clinical_data.instruction_acknowledgement.clarification_needed ? 'نعم' : 'لا' }}</p>
+        <p class="clinical-prose">{{ visit.clinical_data.instruction_acknowledgement.notes }}</p>
+      </BaseCard>
     </div>
     <ClinicalHandover v-if="visit && visit.status !== 'draft' && authStore.can('export_pdf')" :visit-id="visitId" />
     <PrescriptionHistory v-if="patientId && authStore.can('view_visits') && authStore.can('export_pdf')" :patient-id="patientId" :visit-id="visitId" />
@@ -179,6 +186,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import CardHeader from '@/components/ui/CardHeader.vue'
+import DateCell from '@/components/ui/DateCell.vue'
 import KeyValueList from '@/components/ui/KeyValueList.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'

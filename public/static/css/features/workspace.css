@@ -18,7 +18,7 @@
 .clinical-prose { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
 .card__header__title { margin: 0; }
 .table-actions__destructive { margin-inline-start: var(--space-3); border-inline-start: 1px solid var(--color-border); }
-.clinical-readable textarea { line-height: 1.7; }
+.clinical-readable textarea.form-control { line-height: 1.7; }
 .clinical-readable .collapsible-section { box-shadow: none; }
 .clinical-readable .collapsible-section__header { background: var(--color-surface); color: var(--color-text); }
 .clinical-readable [id^="visit-"] { scroll-margin-block-start: calc(var(--topbar-height) + 180px); }

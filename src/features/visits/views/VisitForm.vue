@@ -151,7 +151,7 @@ const ScalePickerModal = defineAsyncComponent(
 // ── Route params ──────────────────────────────────────────────
 const workspace = useWorkspaceStore()
 const auth = useAuthStore()
-const splitAllowed = computed(() => workspace.preferences.splitView && auth.can('view_visits') && auth.can('export_pdf'))
+const splitAllowed = computed(() => workspace.preferences.splitView && auth.can('view_visits'))
 const route = useRoute()
 const router = useRouter()
 

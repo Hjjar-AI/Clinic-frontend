@@ -2,6 +2,7 @@
   <section class="patient-workspace-header" :class="{ 'patient-workspace-header--summary': summaryOnly }" aria-label="سياق المريض والزيارة">
     <div v-if="!summaryOnly"><strong>{{ name }}</strong> · ملف <bdi dir="ltr">{{ patient.patient_number || patient.id }}</bdi> <Badge v-if="status" :status="status" status-type="visit" /></div>
     <p><strong>الحساسيات:</strong> {{ allergyLabel }} <span v-if="substances"> · {{ substances }}</span></p>
+    <p v-if="substances" class="text-sm">عرض مختصر؛ راجع السجلات المستمرة في ملف المريض للتفاصيل الكاملة.</p>
     <p v-if="loadError" role="status">تفاصيل الحساسيات غير متاحة. <button class="btn btn--secondary btn--sm" type="button" @click="load">إعادة المحاولة</button></p>
     <div v-if="!summaryOnly" class="flex flex--wrap gap-2">
       <BaseButton size="sm" :to="{ name: 'PatientDetail', params: { id: patient.id } }">ملف المريض</BaseButton>
@@ -40,8 +41,17 @@ async function load() {
       currentProfile.value = result
     }
     if (profile.value.allergy_status !== 'recorded') return
-    const result = await patientService.getRecords(props.patient.id, 'allergies')
-    if (!disposed && request === generation && epoch === sessionGeneration()) allergies.value = result.items || []
+    const active = []
+    let offset = 0
+    while (active.length < 3) {
+      const result = await patientService.getRecords(props.patient.id, 'allergies', offset)
+      if (disposed || request !== generation || epoch !== sessionGeneration()) return
+      const rows = result.items || []
+      active.push(...rows.filter(item => item.is_active !== false))
+      offset += rows.length
+      if (offset >= result.total || !rows.length) break
+    }
+    allergies.value = active.slice(0, 3)
   }
   catch { if (!disposed && request === generation && epoch === sessionGeneration()) loadError.value = true }
 }

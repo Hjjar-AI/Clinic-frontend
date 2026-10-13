@@ -179,7 +179,7 @@ onBeforeUnmount(() => debouncedRefresh.cancel())
 onMounted(() => {
   try {
     const saved = JSON.parse(sortStorageKey.value && localStorage.getItem(sortStorageKey.value))
-    if (!route?.query.sort_by && saved && sortKeys.value.includes(saved.sort_by)) { currentFilters.value = { ...currentFilters.value, sort_by: saved.sort_by, sort_order: saved.sort_order === 'asc' ? 'asc' : 'desc' }; emit('update:filterValues', currentFilters.value) }
+    if (!route?.query.sort_by && !route?.query.sort_order && saved && sortKeys.value.includes(saved.sort_by)) { currentFilters.value = { ...currentFilters.value, sort_by: saved.sort_by, sort_order: saved.sort_order === 'asc' ? 'asc' : 'desc' }; emit('update:filterValues', currentFilters.value) }
   } catch { /* Defaults remain usable. */ }
   initialLoad()
 })
