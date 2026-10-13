@@ -55,6 +55,7 @@
 @import './utilities/general.css';
 @import './base/splash.css';
 @import './motion/animations.css';
+@import './features/workspace.css';
 @import './documents/pdf.css';
 @import './motion/transitions.css';
 @import './components/filters.css';

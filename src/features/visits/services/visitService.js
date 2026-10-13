@@ -6,6 +6,12 @@ import { createCrudService } from '@/services/baseCrudService'
 const base = createCrudService('/visits')
 
 export default {
+  async approvedReference(patientId, excludeVisit) {
+    return unwrapResponse(await apiClient.get(`/prescription/patient/${patientId}/handover/`, { params: { exclude_visit: excludeVisit || undefined } }))
+  },
+  handoverPdf(visitId) {
+    return apiClient.get(`/prescription/visit/${visitId}/handover/pdf/`, { responseType: 'blob' })
+  },
   getAll: base.getAll,
   getById: base.getById,
   update: base.update,

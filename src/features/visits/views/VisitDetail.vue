@@ -56,6 +56,7 @@
         </BaseButton>
       </div>
     </PageHeader>
+    <PatientWorkspaceHeader v-if="visit?.patient" :patient="visit.patient" :status="visit.status" />
 
     <div
       v-if="visit"
@@ -163,6 +164,8 @@
         </div>
       </BaseCard>
     </div>
+    <ClinicalHandover v-if="visit && visit.status !== 'draft' && authStore.can('export_pdf')" :visit-id="visitId" />
+    <PrescriptionHistory v-if="patientId && authStore.can('view_visits') && authStore.can('export_pdf')" :patient-id="patientId" :visit-id="visitId" />
   </PageContainer>
 </template>
 
@@ -185,6 +188,9 @@ import { VISIT_STATUS_LABELS } from '@/constants/statusConstants'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'
 import MedicationList from '@/features/clinical/components/MedicationList.vue'
+import PatientWorkspaceHeader from '@/features/visits/components/PatientWorkspaceHeader.vue'
+import ClinicalHandover from '@/features/visits/components/ClinicalHandover.vue'
+import PrescriptionHistory from '@/features/prescription/components/PrescriptionHistory.vue'
 import visitService from '@/features/visits/services/visitService'
 import { getRiskInfo } from '@/utils/riskLevels'
 

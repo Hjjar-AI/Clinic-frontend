@@ -1,5 +1,5 @@
 <template>
-  <div class="visits-list-view">
+  <div class="visits-list-view" :class="{ 'visits-list-view--details': selectedVisit }">
     <Breadcrumb />
     <PageHeader
       title="سجل الزيارات الطبية"
@@ -44,6 +44,7 @@
           />
         </template>
         <template #actions="{ item }">
+          <BaseButton size="xs" variant="secondary" @click="previewVisit(item, $event)">معاينة التفاصيل</BaseButton>
           <TableActions
             :show-view="true"
             :view-to="{ name: 'VisitDetail', params: { id: item.id } }"
@@ -66,10 +67,16 @@
         </template>
       </ListView>
     </BaseCard>
+    <ResponsiveDetailPanel :model-value="Boolean(selectedVisit)" title="تفاصيل الزيارة" @update:model-value="closePreview">
+      <VisitRecordPreview v-if="selectedVisit" :visit-id="selectedVisit.id" />
+    </ResponsiveDetailPanel>
   </div>
 </template>
 
 <script setup>
+import { ref, nextTick } from 'vue'
+import ResponsiveDetailPanel from '@/components/ui/ResponsiveDetailPanel.vue'
+import VisitRecordPreview from '@/features/visits/components/VisitRecordPreview.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import DateCell from '@/components/ui/DateCell.vue'
 import ListView from '@/components/ui/ListView.vue'
@@ -77,6 +84,10 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import StatusCell from '@/components/ui/StatusCell.vue'
 import TableActions from '@/components/ui/TableActions.vue'
 
+const selectedVisit = ref(null)
+let trigger = null
+function previewVisit(item, event) { trigger = event.currentTarget; selectedVisit.value = item }
+async function closePreview() { selectedVisit.value = null; await nextTick(); trigger?.focus() }
 defineProps({
   refreshKey: { type: Number, default: 0 },
   columns: { type: Array, required: true },

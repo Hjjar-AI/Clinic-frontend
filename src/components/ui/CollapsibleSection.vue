@@ -15,7 +15,7 @@
             v-if="icon"
             :icon="icon"
           />
-          <span class="collapsible-section__title">{{ title }}</span>
+          <span class="collapsible-section__title" role="heading" aria-level="2">{{ title }}</span>
         </div>
         <div
           class="collapsible-section__toggle"
@@ -38,8 +38,9 @@
 </template>
 
 <script setup>
-import { onMounted,ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
+import { useWorkspaceStore } from '@/stores/workspace'
 import BaseCard from './BaseCard.vue'
 import Icon from './Icon.vue'
 
@@ -51,9 +52,12 @@ const props = defineProps({
 })
 
 const storageKey = `collapsible_${props.persistKey || props.title}`
+const workspace = useWorkspaceStore()
 const isOpen = ref(false)
+watch(() => workspace.preferences.progressive, progressive => { if (props.persistKey.startsWith('visit-')) isOpen.value = !progressive || ['visit-basic', 'visit-treat'].includes(props.persistKey) })
 
 onMounted(() => {
+  if (props.persistKey.startsWith('visit-') && workspace.preferences.progressive) { isOpen.value = ['visit-basic', 'visit-treat'].includes(props.persistKey); return }
   if (props.persistKey) {
     const stored = sessionStorage.getItem(storageKey)
     if (stored !== null) { isOpen.value = stored === 'true'; return }

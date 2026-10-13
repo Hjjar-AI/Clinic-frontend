@@ -1,5 +1,5 @@
 <template>
-  <CollapsibleSection
+  <CollapsibleSection id="visit-plan" tabindex="-1"
     title="خطة العلاج"
     icon="pills"
     :open="true"

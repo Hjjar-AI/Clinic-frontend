@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount,ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useApi } from '@/composables/useApi'
+import { useNotify } from '@/composables/useNotify'
 import { useDate } from '@/composables/useDate'
 import { useForm } from '@/composables/useForm'
 import { useFormDirty } from '@/composables/useFormDirty'
@@ -52,6 +53,7 @@ const initialFormData = {
 const schema = [visitDateRule()]
 
 export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = null }) {
+  const { notify } = useNotify()
   const router = useRouter()
   const visitStore = useVisitStore()
   const { formatDate, normalizeFormDates, calculateAge, parseDate } = useDate()
@@ -263,6 +265,7 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
         await visitStore.createVisit(getPatientId(), payload)
       }
       markClean()
+      notify('تم حفظ الزيارة', 'success')
       router.push({ name: 'PatientDetail', params: { id: getPatientId() } })
     },
     { silent: true }

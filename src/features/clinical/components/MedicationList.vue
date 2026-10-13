@@ -26,7 +26,7 @@
         <span
           v-if="med.dosage"
           class="medication-schedule__dosage"
-        >{{ med.dosage }}</span>
+        ><strong>الجرعة:</strong> <bdi dir="ltr">{{ med.dosage }}</bdi></span>
         <span
           v-if="med.brand"
           class="medication-schedule__brand"
@@ -40,13 +40,14 @@
           icon="clock"
           class="text-muted"
         />
-        <span>{{ med.schedule }}</span>
+        <details v-if="med.schedule.length > 140" class="medication-directions"><summary>طريقة الاستخدام والمدة المسجلة</summary>{{ med.schedule }}</details>
+        <span v-else>التعليمات: {{ med.schedule }}</span>
       </div>
       <div
         v-if="med.instructions"
         class="medication-schedule__instructions"
       >
-        {{ med.instructions }}
+        <strong>تعليمات إضافية:</strong> {{ med.instructions }}
       </div>
     </div>
   </div>

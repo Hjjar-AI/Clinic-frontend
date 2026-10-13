@@ -1,5 +1,5 @@
 <template>
-  <CollapsibleSection
+  <CollapsibleSection id="visit-diagnoses" tabindex="-1"
     title="التشخيصات والتحاليل"
     icon="flask"
     :open="true"

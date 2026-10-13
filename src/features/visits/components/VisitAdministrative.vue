@@ -1,5 +1,5 @@
 <template>
-  <CollapsibleSection
+  <CollapsibleSection id="visit-administration" tabindex="-1"
     title="بيانات إدارية"
     icon="file-signature"
     :open="true"
@@ -30,10 +30,12 @@
       <FormField label="نوقشت الخطة"><select v-model="form.plan_discussed" class="form-control"><option :value="null">غير مسجل</option><option :value="true">نعم</option><option :value="false">لا</option></select></FormField>
 
     </div>
+    <InstructionAcknowledgement :form="form" />
   </CollapsibleSection>
 </template>
 
 <script setup>
+import InstructionAcknowledgement from '@/features/visits/components/InstructionAcknowledgement.vue'
 import ApiSelect from '@/components/ui/ApiSelect.vue'
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
 import FormField from '@/components/ui/FormField.vue'

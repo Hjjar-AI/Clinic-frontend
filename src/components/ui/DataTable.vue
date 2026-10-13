@@ -1,6 +1,11 @@
 <!-- frontend/src/components/ui/DataTable.vue -->
 <template>
   <div class="data-table-wrapper">
+    <details v-if="preferenceKey && columns.length > 1" class="table-column-controls">
+      <summary>الأعمدة</summary>
+      <label v-for="(column, index) in columns" :key="column.key"><input type="checkbox" :checked="visibleColumns.some(item => item.key === column.key)" :disabled="index === 0" @change="toggleColumn(column.key)"> {{ column.label }}</label>
+      <button class="btn btn--secondary btn--sm" type="button" @click="restoreColumns">استعادة الأعمدة</button>
+    </details>
     <FilterBar
       v-if="filters"
       :model-value="filterValues"
@@ -37,15 +42,17 @@
               >
             </th>
             <th
-              v-for="col in columns"
+              v-for="col in visibleColumns"
               :key="col.key"
               v-auto-title
+              :aria-sort="col.sortKey ? (sortBy === col.sortKey ? sortOrder === 'asc' ? 'ascending' : 'descending' : 'none') : undefined"
               :style="col.style"
               :class="[
                 col.key && hideColumns.includes(col.key) ? 'table-col--hide-mobile' : ''
               ]"
             >
-              {{ col.label }}
+              <button v-if="col.sortKey" type="button" class="btn btn--ghost btn--sm" @click="$emit('sort', col.sortKey)">{{ col.label }} {{ sortBy === col.sortKey ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}</button>
+              <span v-else>{{ col.label }}</span>
             </th>
             <th
               v-if="slots.actions"
@@ -101,7 +108,7 @@
               >
             </td>
             <td
-              v-for="col in columns"
+              v-for="col in visibleColumns"
               :key="col.key"
               :data-label="col.label"
               :class="col.key && hideColumns.includes(col.key) ? 'table-col--hide-mobile' : ''"
@@ -139,14 +146,18 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, useSlots, getCurrentInstance } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, getCurrentInstance, watch } from 'vue'
 
+import { useAuthStore } from '@/features/auth/stores/auth'
 import SkeletonLoader from '../common/SkeletonLoader.vue'
 import Spinner from '../common/Spinner.vue'
 import EmptyState from './EmptyState.vue'
 import FilterBar from './FilterBar.vue'
 
 const props = defineProps({
+  preferenceKey: { type: String, default: '' },
+  sortBy: { type: String, default: '' },
+  sortOrder: { type: String, default: 'desc' },
   columns: { type: Array, required: true },
   items: { type: Array, default: () => [] },
   loading: Boolean,
@@ -168,9 +179,19 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'row-click', 'toggle-all', 'toggle-item',
+  'sort', 'row-click', 'toggle-all', 'toggle-item',
   'update:filterValues', 'filter-apply', 'filter-reset'
 ])
+const auth = useAuthStore()
+const hidden = ref([])
+const storageKey = computed(() => auth.user?.id && props.preferenceKey ? `clinic:table-columns:${auth.user.id}:${props.preferenceKey}` : null)
+watch(() => [storageKey.value, props.columns.map(column => column.key).join('|')], () => {
+  try { const value = JSON.parse(storageKey.value && localStorage.getItem(storageKey.value)); hidden.value = Array.isArray(value) ? value.filter(key => props.columns.some(column => column.key === key) && key !== props.columns[0]?.key) : [] } catch { hidden.value = [] }
+}, { immediate: true })
+const visibleColumns = computed(() => props.columns.filter(column => !hidden.value.includes(column.key)))
+function saveColumns() { try { if (storageKey.value) localStorage.setItem(storageKey.value, JSON.stringify(hidden.value)) } catch { /* View remains usable. */ } }
+function toggleColumn(key) { if (key === props.columns[0]?.key) return; hidden.value = hidden.value.includes(key) ? hidden.value.filter(item => item !== key) : [...hidden.value, key]; saveColumns() }
+function restoreColumns() { hidden.value = []; saveColumns() }
 const slots = useSlots()
 const instance = getCurrentInstance()
 const clickableRows = computed(() => Boolean(instance.vnode.props?.onRowClick || instance.vnode.props?.['onRow-click']))
@@ -185,7 +206,7 @@ const wrapper = ref(null)
 const safeItems = computed(() => props.items || [])
 
 const totalColumns = computed(() => {
-  let count = props.columns.length
+  let count = visibleColumns.value.length
   if (props.selectable) count++
   if (slots.actions) count++
   return count

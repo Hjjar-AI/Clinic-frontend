@@ -6,6 +6,7 @@
       subtitle="ضبط المظهر والتفضيلات وسلوك النظام."
     />
 
+    <WorkspacePreferences />
     <BaseCard>
       <div class="card__body">
         <CollapsibleSection
@@ -156,6 +157,7 @@ import PageContainer from '@/components/layout/PageContainer.vue'
 import MultiSelect from '@/components/ui/MultiSelect.vue'
 import FormInput from '@/components/ui/FormInput.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import WorkspacePreferences from '@/features/settings/components/WorkspacePreferences.vue'
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
 import { useAppTheme } from '@/composables/useAppTheme'
 import { useApi } from '@/composables/useApi'

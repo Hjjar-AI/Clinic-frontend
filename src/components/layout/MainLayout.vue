@@ -1,6 +1,6 @@
 <!-- frontend/src/components/layout/MainLayout.vue -->
 <template>
-  <div class="app-layout">
+  <div class="app-layout" :data-density="workspace.preferences.density">
     <a
       href="#main-content"
       class="skip-link"
@@ -55,6 +55,7 @@
           </SearchInput>
         </div>
         <div class="app-topbar__right">
+          <router-link to="/preferences" class="navbar__link" aria-label="إعدادات العرض الشخصية"><Icon icon="sliders" /></router-link>
           <span
             v-if="refreshStore.lastUpdated"
             class="topbar-refresh"
@@ -124,6 +125,7 @@ import patientService from '@/features/patients/services/patientService';
 import { useSettingsStore } from '@/features/settings/stores/settings';
 import { unwrapResponse } from '@/services/apiClient';
 import { useRefreshStore } from '@/stores/refresh';
+import { useWorkspaceStore } from '@/stores/workspace'
 import { useUiStore } from '@/stores/ui';
 
 import AppFooter from './AppFooter.vue';
@@ -131,6 +133,7 @@ import AppNavigation from './AppNavigation.vue';
 import BottomNav from './BottomNav.vue';
 
 const authStore = useAuthStore();
+const workspace = useWorkspaceStore()
 const uiStore = useUiStore();
 const router = useRouter();
 

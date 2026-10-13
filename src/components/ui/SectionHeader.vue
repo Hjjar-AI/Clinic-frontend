@@ -30,7 +30,7 @@
     />
     <div class="card__header__text">
       <slot name="title">
-        <span class="card__header__title">{{ title }}</span>
+        <h2 class="card__header__title">{{ title }}</h2>
       </slot>
       <slot name="subtitle" />
     </div>

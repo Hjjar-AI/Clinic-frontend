@@ -172,6 +172,9 @@ const routes = [
     meta: { requiresAuth: true, title: 'خطاب تحويل', permission: 'view_referrals' }
   },
   {
+    path: '/preferences', name: 'WorkspaceSettings', component: () => import('@/features/settings/views/WorkspaceSettings.vue'), meta: { requiresAuth: true, title: 'إعدادات العرض الشخصية' }
+  },
+  {
     path: '/notifications', name: 'Notifications',
     component: () => import('@/features/notifications/views/Notifications.vue'),
     meta: { requiresAuth: true, title: 'الإشعارات' }

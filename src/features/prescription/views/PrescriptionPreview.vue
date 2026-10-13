@@ -115,6 +115,7 @@
         </div>
       </BaseCard>
     </div>
+    <PrescriptionHistory v-if="auth.can('view_visits') && auth.can('export_pdf')" :patient-id="snapshot.patient_id" :visit-id="visitId" :refresh-key="historyRefresh" />
   </BaseCard>
 </template>
 
@@ -136,6 +137,7 @@ import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'
 import MedicationList from '@/features/clinical/components/MedicationList.vue'
 import PrescriptionPaperOptions from '@/features/prescription/components/PrescriptionPaperOptions.vue'
 import PrescriptionPdfPreview from '@/features/prescription/components/PrescriptionPdfPreview.vue'
+import PrescriptionHistory from '@/features/prescription/components/PrescriptionHistory.vue'
 import { loadPaperOptions, normalizePaperOptions, rememberPaperOptions } from '@/features/prescription/services/prescriptionPaper'
 import prescriptionService from '@/features/prescription/services/prescriptionService'
 import { unwrapResponse } from '@/services/apiClient'
@@ -146,6 +148,7 @@ const visitId = route.params.visitId
 const auth = useAuthStore()
 const snapshot = ref(null)
 const previewToken = ref('')
+const historyRefresh = ref(0)
 const previewLoading = ref(false)
 const paperOptions = ref(loadPaperOptions(auth.user?.id))
 watch(() => auth.user?.id, id => { paperOptions.value = loadPaperOptions(id) }, { flush: 'sync' })
@@ -271,6 +274,7 @@ const { loading: generating, execute: doGenerate } = useApi(async () => {
   const response = await prescriptionService.generate(payload)
   if (disposed || epoch !== sessionGeneration()) return
   replacePdf(prescriptionUrl, response.data)
+  historyRefresh.value += 1
   previewToken.value = ''
   statusMsg.value = 'تم إنشاء الروشتة بنجاح'; statusType.value = 'success'
 })

@@ -15,6 +15,8 @@
     <ResourceFeedback :error="error ? 'تعذر تحميل القائمة' : ''" retryable @retry="initialLoad" />
     <!-- Table -->
     <DataTable
+      :preference-key="tableKey"
+      :sort-by="currentFilters.sort_by" :sort-order="currentFilters.sort_order" @sort="sortColumn"
       :columns="columns"
       :items="items"
       :loading="pageStatus === 'loading'"
@@ -65,6 +67,8 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/features/auth/stores/auth'
 import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { computed,getCurrentInstance,onBeforeUnmount,onMounted,ref, watch } from 'vue'
 
@@ -105,7 +109,19 @@ const emit = defineEmits([
 const hasRowHandler = Boolean(getCurrentInstance()?.vnode.props?.onRowClick)
 const { toISODate, parseDate } = useDate()
 
+const route = useRoute()
+const auth = useAuthStore()
+const tableKey = computed(() => route?.name ? `${route.name}:${props.columns.map(column => column.key).join('|')}` : '')
+const sortStorageKey = computed(() => auth.user?.id && tableKey.value ? `clinic:table-sort:${auth.user.id}:${tableKey.value}` : null)
+const sortKeys = computed(() => (props.filters.find(field => field.key === 'sort_by')?.options || []).map(option => option.value))
 const currentFilters = ref({ ...props.filterValues })
+function sortColumn(key) {
+  if (!sortKeys.value.includes(key)) return
+  onFilterChange({ ...currentFilters.value, sort_by: key, sort_order: currentFilters.value.sort_by === key && currentFilters.value.sort_order === 'asc' ? 'desc' : 'asc' })
+}
+watch(currentFilters, value => {
+  try { if (sortStorageKey.value && sortKeys.value.includes(value.sort_by)) localStorage.setItem(sortStorageKey.value, JSON.stringify({ sort_by: value.sort_by, sort_order: value.sort_order === 'asc' ? 'asc' : 'desc' })) } catch { /* Sort remains usable. */ }
+}, { deep: true })
 const pageStatus = computed(() => error.value ? 'error' : loading.value ? 'loading' : items.value.length ? 'content' : 'empty')
 
 function normalizeFilters(filters) {
@@ -161,6 +177,10 @@ async function initialLoad() {
 onBeforeUnmount(() => debouncedRefresh.cancel())
 
 onMounted(() => {
+  try {
+    const saved = JSON.parse(sortStorageKey.value && localStorage.getItem(sortStorageKey.value))
+    if (!route?.query.sort_by && saved && sortKeys.value.includes(saved.sort_by)) { currentFilters.value = { ...currentFilters.value, sort_by: saved.sort_by, sort_order: saved.sort_order === 'asc' ? 'asc' : 'desc' }; emit('update:filterValues', currentFilters.value) }
+  } catch { /* Defaults remain usable. */ }
   initialLoad()
 })
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-1">
+  <div class="table-actions flex gap-1">
     <BaseButton
       v-if="showView && safeViewTo"
       variant="ghost"
@@ -20,6 +20,7 @@
     />
     <BaseButton
       v-if="showDelete"
+      class="table-actions__destructive"
       variant="ghost"
       size="xs"
       icon="trash"

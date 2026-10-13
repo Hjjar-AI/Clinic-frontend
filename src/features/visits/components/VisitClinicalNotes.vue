@@ -1,5 +1,5 @@
 <template>
-  <CollapsibleSection
+  <CollapsibleSection id="visit-examination" tabindex="-1"
     title="ملاحظات سريرية"
     icon="brain"
     :open="true"

@@ -1,5 +1,5 @@
 <template>
-  <CollapsibleSection
+  <CollapsibleSection id="visit-history" tabindex="-1"
     title="البيانات الأساسية"
     icon="info-circle"
     :open="true"

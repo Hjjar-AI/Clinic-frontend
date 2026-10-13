@@ -14,7 +14,7 @@
     </BaseButton>
   </div>
 
-  <PageContainer v-else status="content" width="standard" class="visit-form-wrapper">
+  <PageContainer v-else status="content" width="standard" class="visit-form-wrapper clinical-readable">
     <Breadcrumb />
     <PageHeader :title="isEdit ? 'تعديل الزيارة' : 'توثيق زيارة جديدة'">
       <p
@@ -26,13 +26,16 @@
       </p>
     </PageHeader>
 
-    <div class="visit-layout">
+    <PatientWorkspaceHeader v-if="patient" :patient="patient" :status="form.status" />
+    <VisitSectionNavigator :form="form" />
+    <div class="visit-layout" :class="{ 'visit-layout--split': splitAllowed }">
       <PatientSummarySidebar
-        v-if="patient"
+        v-if="patient && !splitAllowed"
         :patient="patient"
         :latest-visit="latestVisit"
       />
 
+      <ApprovedVisitReference v-if="patient && splitAllowed" :patient-id="patient.id" :exclude-visit="visitId" />
       <BaseCard class="visit-card-main">
         <div class="card__body">
           <ResourceFeedback :loading="!resourceReady" :error="resourceError" retryable @retry="resource.retry" />
@@ -83,7 +86,7 @@
               @apply-template="applyTemplate(form, $event)"
             />
             <VisitAdministrative :form="form" />
-            <FormActions
+            <FormActions :dirty="isDirty" :error="submitError"
               :submitting="isSubmitting"
               submit-text="حفظ الزيارة"
               loading-text="جاري الحفظ..."
@@ -106,6 +109,11 @@
 </template>
 
 <script setup>
+import PatientWorkspaceHeader from '@/features/visits/components/PatientWorkspaceHeader.vue'
+import VisitSectionNavigator from '@/features/visits/components/VisitSectionNavigator.vue'
+import ApprovedVisitReference from '@/features/visits/components/ApprovedVisitReference.vue'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { useAuthStore } from '@/features/auth/stores/auth'
 import PageContainer from '@/components/layout/PageContainer.vue'
 import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { useResourceLoad } from '@/composables/useResourceLoad'
@@ -141,6 +149,9 @@ const ScalePickerModal = defineAsyncComponent(
 )
 
 // ── Route params ──────────────────────────────────────────────
+const workspace = useWorkspaceStore()
+const auth = useAuthStore()
+const splitAllowed = computed(() => workspace.preferences.splitView && auth.can('view_visits') && auth.can('export_pdf'))
 const route = useRoute()
 const router = useRouter()
 
@@ -169,7 +180,7 @@ const {
 const {
   form, errors, fieldStates,
   ageDisplay, hydrateFromData, hydrateDuplicateFromData, patient, riskOptions,
-  isSubmitting, submitError, cancel, handleSubmit: submitVisit,
+  isSubmitting, isDirty, submitError, cancel, handleSubmit: submitVisit,
   restoreDraftToForm, SAFE_DRAFT_FIELDS, resumeDraft,
 } = useVisitForm({
   getPatientId: () => patientId,

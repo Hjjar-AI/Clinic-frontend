@@ -62,11 +62,11 @@ const filters = computed({
 })
 
 const columns = [
-  { key: 'patient_name', label: 'المريض' },
-  { key: 'visit_date', label: 'تاريخ الزيارة' },
+  { key: 'patient_name', sortKey: 'patient', label: 'المريض' },
+  { key: 'visit_date', sortKey: 'date', label: 'تاريخ الزيارة' },
   { key: 'main_complaints', label: 'الشكوى' },
-  { key: 'status', label: 'الحالة' },
-  { key: 'clinical_status', label: 'الحالة السريرية' },
+  { key: 'status', sortKey: 'status', label: 'الحالة' },
+  { key: 'clinical_status', sortKey: 'clinical_status', label: 'الحالة السريرية' },
 ]
 
 const tableFilters = computed(() => [

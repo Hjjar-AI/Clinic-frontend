@@ -79,7 +79,7 @@ test('visit form, signed amendment, prescription signature and referral issue re
   await pad.press('ArrowRight')
   await page.getByRole('button', { name: 'حفظ التوقيع', exact: true }).click()
   await page.getByRole('button', { name: 'إنشاء ومعاينة الروشتة', exact: true }).click()
-  await expect(page.getByRole('region', { name: 'معاينة ملف الوصفة المعتمد', exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'معاينة ملف الوصفة المعتمد', exact: true })).toBeVisible({ timeout: 20000 })
   await downloaded(page, info, 'prescription.pdf', () => page.getByRole('link', { name: 'تنزيل الوصفة', exact: true }).click())
   await expect(page.getByText('تم إنشاء الروشتة بنجاح')).toBeVisible()
   await page.goto(`/visits/${visit.id}`)

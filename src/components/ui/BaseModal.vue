@@ -4,7 +4,7 @@
       v-if="modelValue"
       ref="modalOverlay"
       class="modal"
-      :class="sizeClass"
+      :class="[sizeClass, { 'modal--record-panel': panel }]"
       tabindex="-1"
       @click.self="close"
     >
@@ -111,6 +111,7 @@ const props = defineProps({
   title: { type: String, default: '' },
   confirmText: { type: String, default: '' },
   confirmClass: { type: String, default: 'primary' },
+  panel: Boolean,
   size: { type: String, default: 'md', validator: v => ['xs','sm','md','lg','xl'].includes(v) },
   headerVariant: { type: String, default: 'primary', validator: v => ['primary','info','success','warning','danger','neutral','purple'].includes(v) },
   descriptionId: { type: String, default: '' },

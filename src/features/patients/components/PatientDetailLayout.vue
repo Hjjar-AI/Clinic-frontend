@@ -30,8 +30,10 @@
         <p class="text-xs text-muted mb-2">
           آخر تحديث: <RelativeDate :date="patient.updated_at" />
         </p>
+        <PatientWorkspaceHeader :patient="patient" summary-only />
         <!-- Tabs -->
         <AppTabs v-model="activeTab" :id-prefix="tabPrefix">
+          <AppTabPanel external v-if="authStore.can('view_visits') && authStore.can('export_pdf')" id="prescriptions" label="الوصفات" icon="prescription" />
           <AppTabPanel external id="records" label="السجلات المستمرة" icon="address-card" />
           <AppTabPanel external v-if="authStore.can('manage_patient_documents')" id="documents" label="المستندات" icon="file" />
           <AppTabPanel external v-if="authStore.can('edit_patient')" id="duplicates" label="الملفات المتشابهة" icon="users" />
@@ -66,6 +68,7 @@
             <PatientDocumentsPanel v-if="activeTab === 'documents' && authStore.can('manage_patient_documents')" :patient="patient" />
             <PatientDuplicatePanel v-if="activeTab === 'duplicates' && authStore.can('edit_patient')" :patient="patient" @changed="(...args) => $emit('record-changed', ...args)" />
             <PatientHistoryPanel v-if="activeTab === 'history'" :patient-id="patient.id" />
+            <PrescriptionHistory v-if="activeTab === 'prescriptions' && authStore.can('view_visits') && authStore.can('export_pdf')" :patient-id="patient.id" />
             <!-- Health tab content -->
             <div v-if="activeTab === 'health'">
               <DetailItem
@@ -169,8 +172,10 @@ import PatientDuplicatePanel from '@/features/patients/components/PatientDuplica
 import PatientHistoryPanel from '@/features/patients/components/PatientHistoryPanel.vue'
 import PatientCareTeamTab from '@/features/patients/components/PatientCareTeamTab.vue'
 import PatientIdentity from '@/features/patients/components/PatientIdentity.vue'
+import PatientWorkspaceHeader from '@/features/visits/components/PatientWorkspaceHeader.vue'
 import PatientSidebar from '@/features/patients/components/PatientSidebar.vue'
 import PatientVisitsList from '@/features/patients/components/PatientVisitsList.vue'
+import PrescriptionHistory from '@/features/prescription/components/PrescriptionHistory.vue'
 
 defineProps({
   status: { type: String, required: true },
@@ -192,8 +197,8 @@ defineEmits([
 const route = useRoute()
 const tabPrefix = `patient-${useId()}`
 const tabQuery = useRouteQuery('tab', 'health')
-const activeTab = ref(['health','appointments','team','records','documents','duplicates','history'].includes(route.query.tab) ? route.query.tab : 'health')  // default tab
-watch(tabQuery, value => { if (['health','appointments','team','records','documents','duplicates','history'].includes(value)) activeTab.value = value })
+const activeTab = ref(['health','appointments','team','records','documents','duplicates','history','prescriptions'].includes(route.query.tab) ? route.query.tab : 'health')  // default tab
+watch(tabQuery, value => { if (['health','appointments','team','records','documents','duplicates','history','prescriptions'].includes(value)) activeTab.value = value })
 watch(activeTab, value => { tabQuery.value = value })
 const authStore = useAuthStore()
 </script>
