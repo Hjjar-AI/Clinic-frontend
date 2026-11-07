@@ -1,0 +1,107 @@
+/* ===== Medication List ===== */
+.medication-schedule__item {
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+}
+.medication-schedule__item:last-child {
+    border-bottom: none;
+}
+.medication-schedule__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+}
+.medication-schedule__icon {
+    color: var(--color-purple);
+    font-size: var(--icon-sm);
+    opacity: 0.85;
+}
+body.dark-mode .medication-schedule__icon {
+    color: var(--color-purple-dark);
+}
+.medication-schedule__name {
+    font-weight: var(--font-weight-semibold);
+}
+.medication-schedule__details {
+    display: flex;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-soft);
+    margin-bottom: var(--space-1);
+}
+.medication-schedule__dosage {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+.medication-schedule__frequency {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+.medication-schedule__instructions {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+}
+
+.prescription-block {
+    background: var(--color-primary-light);
+    border: 1px dashed var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+}
+.prescription-block__title {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin: 0 0 var(--space-3) 0;
+}
+.prescription-block__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+.prescription-item {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.prescription-item:last-child {
+    border-bottom: none;
+}
+.prescription-item__name {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+.prescription-item__details {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+.medication-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+}
+.medication-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+}
+.medication-pill__name {
+    font-weight: var(--font-weight-semibold);
+}
+.medication-pill__dosage {
+    color: var(--color-primary-dark);
+}
+.medication-pill__schedule {
+    color: var(--color-text-muted);
+}
+

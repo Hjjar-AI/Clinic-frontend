@@ -1,0 +1,43 @@
+import { toCommand } from '@/services/contracts'
+// frontend/src/features/visits/services/visitService.js
+import apiClient from '@/services/apiClient'
+import { unwrapResponse } from '@/services/apiClient'
+import { createCrudService } from '@/services/baseCrudService'
+
+const base = createCrudService('/visits', 'visit')
+
+export default {
+  async approvedReference(patientId, excludeVisit) {
+    return unwrapResponse(await apiClient.get(`/prescription/patient/${patientId}/handover/`, { params: { exclude_visit: excludeVisit || undefined } }))
+  },
+  handoverPdf(visitId) {
+    return apiClient.get(`/prescription/visit/${visitId}/handover/pdf/`, { responseType: 'blob' })
+  },
+  getAll: base.getAll,
+  getById: base.getById,
+  update: base.update,
+  delete: base.delete,
+
+  async create(patientId, data) {
+    const res = await apiClient.post(`/patients/${patientId}/visits/`, toCommand('visit', data))
+    return unwrapResponse(res)
+  },
+  async getByPatient(patientId) {
+    const res = await apiClient.get(`/patients/${patientId}/visits/`)
+    return unwrapResponse(res)
+  },
+  async transition(id, status, version, reason = '') {
+    const res = await apiClient.put(`/visits/${id}/transition/`, { status, version, reason })
+    return unwrapResponse(res)
+  },
+  async uploadAttachment(visitId, formData) {
+    const res = await apiClient.post(`/visits/${visitId}/attachments/`, formData)
+    return unwrapResponse(res)
+  },
+  async uploadAttachments(visitId, files) {
+    const fd = new FormData()
+    files.forEach(f => fd.append('files', f))
+    const res = await apiClient.post(`/visits/${visitId}/attachments/`, fd)
+    return unwrapResponse(res)
+  }
+}

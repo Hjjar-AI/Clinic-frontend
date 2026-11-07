@@ -1,0 +1,36 @@
+/* components/detail-item.css – detail item and details grid */
+
+/* ===== Detail Item & Details Grid ===== */
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) 0;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.detail-item:last-child {
+    border-bottom: none;
+}
+.detail-item__label {
+    color: var(--color-text-muted);
+}
+.detail-item__value {
+    font-weight: var(--font-weight-semibold);
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2) var(--space-4);
+    align-items: baseline;
+}
+.details-grid__label {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+.details-grid__value {
+    font-weight: var(--font-weight-semibold);
+    word-break: break-word;
+}

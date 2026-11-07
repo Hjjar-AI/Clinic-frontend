@@ -1,0 +1,112 @@
+/* Multi Select */
+.multi-select {
+    position: relative;
+}
+.multi-select__tags {
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1-5) var(--space-2);
+    min-height: var(--control-height-md);
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    align-items: center;
+    background: var(--color-surface);
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+}
+.multi-select__tags:focus-visible {
+    outline: var(--interact-focus-ring-width) solid var(--interact-focus-ring-color);
+    outline-offset: var(--interact-focus-ring-offset);
+    box-shadow: var(--shadow-focus-ring);
+}
+.multi-select__add-hint {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+}
+.multi-select__dropdown {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    background: var(--color-surface);
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 10;
+    margin-top: var(--space-0-5);
+    box-shadow: var(--shadow-dropdown);
+}
+.multi-select__search {
+    padding: var(--space-2);
+    border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+}
+.multi-select__option {
+    padding: var(--space-2) var(--space-3);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: start;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+.multi-select__option:hover {
+    background: var(--color-primary-light);
+}
+.multi-select__remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    margin-inline-start: var(--space-1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.relative {
+    position: relative;
+}
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    background: var(--color-surface);
+    border: var(--border-width-1) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+}
+.autocomplete-item {
+    padding: var(--space-2) var(--space-3);
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: start;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+}
+.autocomplete-item:hover {
+    background: var(--color-primary-light);
+}
+.selected-list {
+    min-height: 0;
+}
+.icon-btn-danger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-danger);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+

@@ -1,0 +1,102 @@
+/* ================================================================
+   skeleton.css – Login skeleton loading screen + Page skeleton
+   ================================================================ */
+
+.login-skeleton {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-soft);
+}
+
+.login-skeleton-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevation-4);
+  padding: 2rem;
+  width: min(400px, 90%);
+  max-width: 90%;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.skeleton-logo {
+  width: clamp(48px, 10vw, 64px);
+  height: clamp(48px, 10vw, 64px);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  margin: 0 auto 1.5rem;
+}
+
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, var(--color-surface-soft) 25%, var(--color-surface-strong) 50%, var(--color-surface-soft) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.skeleton-input {
+  height: 40px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  background: linear-gradient(90deg, var(--color-surface-soft) 25%, var(--color-surface-strong) 50%, var(--color-surface-soft) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+}
+
+.skeleton-btn {
+  height: 40px;
+  border-radius: var(--radius-md);
+  width: 100%;
+  background: linear-gradient(90deg, var(--color-surface-soft) 25%, var(--color-surface-strong) 50%, var(--color-surface-soft) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+}
+
+.w-60 {
+  width: 60%;
+  margin-inline: auto;
+}
+
+.w-40 {
+  width: 40%;
+  margin-inline: auto;
+}
+
+/* FIX: var(--breakpoint-xs) → 480px */
+@media (max-width: 480px) {
+  .login-skeleton-card { padding: 1.5rem; }
+  .skeleton-logo { width: 48px; height: 48px; }
+  .skeleton-line { height: 10px; }
+  .skeleton-input { height: 36px; }
+  .skeleton-btn { height: 36px; }
+}
+
+/* ===== Page skeleton (single definition) ===== */
+.page-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+.skeleton-block {
+  height: 16px;
+  background: linear-gradient(90deg, var(--color-surface-soft) 25%, var(--color-surface-strong) 50%, var(--color-surface-soft) 75%);
+  background-size: 200% 100%;
+  animation: shimmer var(--anim-duration-shimmer) var(--anim-easing-shimmer) infinite;
+  border-radius: var(--radius-xs);
+}
+.skeleton-header {
+  height: 32px;
+  width: 40%;
+}
+.skeleton-line {
+  width: 100%;
+}
+.w-80 { width: 80%; }
+.skeleton-table {
+  background: transparent;
+}

@@ -1,0 +1,11 @@
+.notification-content {
+  appearance: none;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: default;
+  flex: 1;
+  font: inherit;
+  padding: 0;
+}
+.notification-content--linked { cursor: pointer; }

@@ -1,0 +1,14 @@
+# Frontend agent guide
+
+- Before editing, read [current](docs/workCurrent.md), [completed](docs/doneCurrent.md), applicable instructions/topic guides; verify source. [Setup](README.md); API changes require backend handoffs/[contracts](../backend/docs/contracts.md).
+- Root Markdown: README/AGENTS only. Current owns remaining work, completed evidence/limits, topic guides durable facts. Merge duplicates/repair links; finish authorized scope, reuse authorization and preserve unrelated edits. Reviews need source/impact/correction; fixes need permitted verification. Reopen completed findings only with evidence.
+- Explicit permission required for migration/test-suite inspection/work, Gradle/builds/compilation/packaging and version/dependency/lockfile changes. Production study/exam code is not a test suite; isolated development probes allowed.
+- If a visible five-hour allowance reaches 20% remaining, finish the current step and stop; never invent visibility.
+- Vue/Vite: `src/features/`, shared `src/components/`, state `src/stores/`, API `src/services/`; `@/` imports/Arabic UI patterns. Vite **5173** → backend **5019**; API `/api/v1/`, assets `/static/`, root history `/`.
+- Reuse shared services/client: credentials, login CSRF/config, envelopes, opening versions/strict `If-Match`, stable uncertain-write keys, conflict refresh. Server authorization governs; retain permission-aware UI, preview/scope consent and signed issuance.
+- Preserve unknown/year-only birth, unchanged duplicate IDs/nonblocking review, optional explicit merge/access confirmation, clinical unknowns, dated teams, ownership, correction reasons and register parent versions.
+- [CSS/UI ownership](docs/ui.md): kebab-case global modules in `public/static/css/`, one ordered `app.css`, preserved third-party cascade/early font+skeleton links. Mirrored external scoped component CSS in `src/styles/`; preserve deep selectors.
+- Prefer coherent 50–200-line CSS modules; review >250 lines/12 KiB. Split by ownership, not counts; tiny owned files/tokens are valid. Matching selectors alone never justify global/scoped merging.
+- Externalize static inline styles, retain runtime geometry/data. Use logical edges; inspect RTL icons/transforms/drawers/floating/calendar geometry. Shell owns gutters; PageContainer widths; shrink flex/grid children and retain local table/tab scrolling. Literal media breakpoints/noncyclic semantic tokens; Arabic light/dark readability.
+- Focused source/reference checks only; exclude migrations/suites/dist/dependencies/runtime data. Do not edit generated assets. CSS moves need import/link/scoped/rule/cascade checks; lint/format write files.
+- When authorized, check mobile/tablet/desktop, RTL/LTR/themes/overflow/focus. Parsing cannot prove layout/Arabic/PDF/interactions; report limits. Never expose patient values or commit secrets/`.env.local`/`VITE_*` credentials.

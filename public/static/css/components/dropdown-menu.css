@@ -1,0 +1,11 @@
+/* components/dropdown-menu.css – dropdown menu, progress bars */
+
+/* ===== Dropdown Menu ===== */
+.dropdown-menu-wrapper {
+    position: relative;
+}
+.dropdown-menu__trigger {
+    display: flex;
+    gap: var(--space-2);
+}
+

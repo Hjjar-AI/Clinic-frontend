@@ -1,0 +1,38 @@
+/* components/danger-zone.css – danger zone, day grid */
+
+/* ===== Danger Zone ===== */
+.danger-zone {
+    background: var(--color-danger-light);
+    border: 3px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    margin-top: var(--space-6);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+.danger-zone__title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-danger-dark);
+    margin: 0 0 var(--space-2) 0;
+}
+.danger-zone__desc {
+    font-size: var(--text-sm);
+    color: var(--color-danger-dark);
+    margin: 0 0 var(--space-5) 0;
+}
+.danger-zone__actions .btn--danger {
+    font-size: var(--text-base);
+    padding: var(--space-3) var(--space-6);
+    border-width: 2px;
+}
+
+/* FIX: var(--breakpoint-sm) → 600px */
+@media (max-width: 600px) {
+    .danger-zone {
+        padding: var(--space-4);
+    }
+    .danger-zone__title {
+        font-size: var(--text-lg);
+    }
+}
+

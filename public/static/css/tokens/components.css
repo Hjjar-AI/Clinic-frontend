@@ -1,0 +1,64 @@
+/* tokens/components.css */
+:root {
+  /* ========== Shadows / Elevation ========== */
+  --shadow-elevation-0: none;
+  --shadow-elevation-1: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-elevation-2: 0 3px 8px rgba(0,0,0,0.08);
+  --shadow-elevation-3: 0 6px 16px rgba(0,0,0,0.10);
+  --shadow-elevation-4: 0 12px 32px rgba(0,0,0,0.12);
+  --shadow-elevation-5: 0 20px 48px rgba(0,0,0,0.16);
+  --shadow-dropdown: var(--shadow-elevation-3);
+  --shadow-tooltip: var(--shadow-elevation-4);
+  --shadow-primary: 0 2px 12px rgba(60, 110, 113, 0.25);
+  --shadow-primary-hover: 0 4px 20px rgba(60, 110, 113, 0.35);
+  --shadow-danger: 0 2px 12px rgba(184, 76, 60, 0.25);
+  --shadow-focus-ring: 0 0 0 3px var(--color-focus-shadow);
+
+  /* ========== Gradient angle ========== */
+  --gradient-angle: 135deg;
+
+  /* ========== Focus ring offset ========== */
+  --focus-outline-offset: 2px;
+
+  /* ========== Toast ========== */
+  --toast-min-width: 320px;
+  --toast-max-width: 400px;
+  --toast-padding: var(--space-3) var(--space-5);
+  --toast-border-radius: var(--radius-md);
+  --toast-shadow: var(--shadow-elevation-4);
+  --toast-duration: 5000ms;
+  --toast-progress-height: 3px;
+  --toast-gap: var(--space-2);
+
+  /* ========== Alert ========== */
+  --alert-padding: var(--space-3) var(--space-4);
+  --alert-border-radius: var(--radius-sm);
+  --alert-border-width: 4px;
+  --alert-shadow: var(--shadow-elevation-1);
+
+  /* ========== Empty state ========== */
+  --empty-padding: var(--space-8) var(--space-4);
+  --empty-icon-size: 48px;
+  --empty-title-size: var(--text-lg);
+  --empty-desc-size: var(--text-sm);
+  --empty-gap: var(--space-3);
+
+  /* ========== Progress ========== */
+  --progress-height: 6px;
+  --progress-radius: var(--radius-full);
+  --progress-bg: var(--color-surface-soft);
+  --progress-fill: var(--color-primary);
+  --progress-transition: width 0.6s ease;
+
+  /* ========== Divider ========== */
+  --divider-height: 1px;
+  --divider-color: var(--color-border);
+  --divider-margin: var(--space-4) 0;
+
+  /* ========== Interaction states ========== */
+  --interact-hover-scale: 1.02;
+  --interact-active-scale: 0.97;
+  --interact-focus-ring-color: var(--color-focus);
+  --interact-focus-ring-width: 3px;
+  --interact-focus-ring-offset: 2px;
+}

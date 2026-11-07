@@ -1,0 +1,141 @@
+/* ================================================================
+   components/notifications.css – Toasts, Alerts, Empty States
+   ================================================================ */
+
+/* Direction sign for physical transforms that CSS can't flip logically.
+   `translateX` inside @keyframes is not direction-aware, so we multiply
+   it by this sign. 1 in LTR, -1 in RTL. Declared locally because no
+   other stylesheet currently needs it — hoist into tokens/spacing.css
+   if that changes. */
+:root { --dir-sign: 1; }
+[dir="rtl"] { --dir-sign: -1; }
+
+.toast-container {
+  position: fixed;
+  top: var(--space-4);
+  inset-inline-end: var(--space-4);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--toast-gap);
+  max-width: var(--toast-max-width);
+  width: calc(100% - var(--space-4) * 2);
+  pointer-events: none;
+}
+.toast-container .toast { pointer-events: auto; }
+
+.toast {
+  padding: var(--toast-padding);
+  border-radius: var(--toast-border-radius);
+  background-color: var(--color-surface);
+  border: var(--border-width-1) solid var(--color-border);
+  box-shadow: var(--toast-shadow);
+  border-inline-start: var(--border-width-3) solid var(--color-primary);
+  font-size: var(--text-sm);
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  width: 100%;
+  overflow-wrap: anywhere;
+  max-width: var(--toast-max-width);
+  animation: toastSlideIn var(--transition-modal) forwards;
+  text-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.toast:focus-visible {
+  outline: var(--interact-focus-ring-width) solid var(--interact-focus-ring-color);
+  outline-offset: var(--interact-focus-ring-offset);
+  box-shadow: var(--shadow-focus-ring);
+}
+.toast--success { border-inline-start-color: var(--color-success); }
+.toast--danger  { border-inline-start-color: var(--color-danger); }
+.toast--warning { border-inline-start-color: var(--color-warning); }
+.toast--info    { border-inline-start-color: var(--color-primary); }
+
+.toast__close {
+  background: none; border: none; color: inherit; font-size: 18px; cursor: pointer;
+  opacity: 0.7; margin-inline-start: 8px;
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+.toast__close:hover { opacity: 1; }
+.toast__close:focus-visible {
+  outline: var(--interact-focus-ring-width) solid var(--interact-focus-ring-color);
+  outline-offset: var(--interact-focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+.toast__progress {
+  position: absolute;
+  bottom: 0; inset-inline: 0;
+  height: var(--toast-progress-height);
+  overflow: hidden;
+  border-radius: 0 0 var(--toast-border-radius) var(--toast-border-radius);
+}
+.toast__progress-bar {
+  height: 100%;
+  background: var(--color-primary);
+  animation: toastProgress linear forwards;
+  animation-duration: var(--toast-duration);
+  border-radius: inherit;
+}
+.toast--success .toast__progress-bar { background: var(--color-success); }
+.toast--danger  .toast__progress-bar { background: var(--color-danger); }
+.toast--warning .toast__progress-bar { background: var(--color-warning); }
+.toast--info    .toast__progress-bar { background: var(--color-primary); }
+
+/* FIX: slide direction is now derived from `--dir-sign` so the toast
+   enters from the correct off-screen edge in both LTR and RTL. In RTL
+   the container is anchored with inset-inline-end (physical left), so the
+   toast must come from the left edge — hence the sign flip. */
+@keyframes toastSlideIn {
+  0%   { opacity: 0; transform: translateX(calc(var(--dir-sign) * 40px)) scale(0.9); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toastSlideOut {
+  to { opacity: 0; transform: translateX(calc(var(--dir-sign) * 40px)) scale(0.9); }
+}
+@keyframes toastProgress {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+/* Alert styles (standard alert, not alert-bar) */
+.alert {
+  padding: var(--alert-padding);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  border-inline-start: var(--alert-border-width) solid transparent;
+  color: var(--color-text);
+  background-color: var(--color-surface-soft);
+  border-color: var(--color-border);
+  box-shadow: var(--alert-shadow);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-normal);
+}
+.alert:last-child { margin-bottom: 0; }
+.alert--success { background-color: var(--color-success-light); border-color: var(--color-success); color: var(--color-success-dark); }
+.alert--danger  { background-color: var(--color-danger-light); border-color: var(--color-danger); color: var(--color-danger-dark); }
+.alert--warning { background-color: var(--color-warning-light); border-color: var(--color-warning); color: var(--color-warning-dark); }
+.alert--info    { background-color: var(--color-info-light); border-color: var(--color-info); color: var(--color-info-dark); }
+
+.empty-state {
+  text-align: center;
+  padding: var(--empty-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--empty-gap);
+  min-height: 200px;
+  max-width: 100%;
+  overflow: hidden;
+}
+.empty-state__icon { font-size: var(--empty-icon-size); color: var(--color-border-strong); opacity: 0.5; }
+.empty-state__title { font-size: var(--empty-title-size); font-weight: var(--font-weight-semibold); color: var(--color-text); margin: 0; }
+.empty-state__description { font-size: var(--empty-desc-size); color: var(--color-text-light); max-width: 400px; margin: 0 auto; }

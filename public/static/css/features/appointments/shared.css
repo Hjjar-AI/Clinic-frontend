@@ -1,0 +1,208 @@
+/* ================================================================
+   features/appointments/shared.css – Shared calendar styles
+   (appointment blocks, today markers, availability grid, queue table, skeletons)
+   ================================================================ */
+
+/* ---- Today Marker ---- */
+.cal-today-marker {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2px;
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+.cal-today {
+    background: var(--color-primary-light);
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-weight-bold);
+}
+.mini-calendar-day.today { background: var(--color-primary-light); }
+.cal-today-column { background: var(--color-primary-light); }
+.cal-today-header {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-weight: var(--font-weight-bold);
+}
+
+/* ---- Appointment Block (shared across all views) ---- */
+.appointment-block {
+    border-radius: var(--radius-tag);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    overflow: hidden;
+    cursor: pointer;
+    display: block;
+    margin: 1px 2px;
+    line-height: 1.3;
+    border: var(--border-width-1) solid transparent;
+    cursor: grab;
+}
+.appointment-block:active { cursor: grabbing; }
+.appointment-block--scheduled { background: var(--color-info-light); color: var(--color-info-dark); border-color: var(--color-info); }
+.appointment-block--completed { background: var(--color-success-light); color: var(--color-success-dark); border-color: var(--color-success); }
+.appointment-block--no-show  { background: var(--color-warning-light); color: var(--color-warning-dark); border-color: var(--color-warning); }
+.appointment-block--cancelled { background: var(--color-danger-light); color: var(--color-danger-dark); border-color: var(--color-danger); opacity: var(--opacity-disabled); text-decoration: line-through; }
+.appointment-block .duration {
+    font-size: 0.8em; opacity: 0.8;
+    margin-inline-end: var(--space-1);
+}
+
+/* ---- Dark Mode Overrides ---- */
+body.dark-mode .cal-today {
+    background: rgba(110,168,160,0.25);
+    color: var(--color-text);
+}
+body.dark-mode .cal-today-marker {
+    box-shadow: 0 0 6px rgba(110,168,160,0.6);
+}
+
+/* ---- Availability Grid ---- */
+.avail-grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+.avail-grid__row {
+  display: grid;
+  grid-template-columns: 80px repeat(var(--doctor-columns, 1), minmax(120px, 1fr));
+  border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+}
+.avail-grid__header {
+  background: var(--color-surface-soft);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+}
+.avail-grid__time,
+.avail-grid__doctor,
+.avail-grid__cell {
+  padding: var(--space-2) var(--space-3);
+  text-align: center;
+  font-size: var(--text-sm);
+}
+.avail-grid__cell {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  width: 100%;
+}
+.avail-grid__cell--booked {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.avail-grid__cell--free {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.avail-grid__cell--free:hover {
+  background: var(--color-success);
+  color: var(--color-text-inverse);
+}
+
+/* ---- Queue Table ---- */
+.queue-table {
+  border: var(--border-width-1) solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.queue-table__row {
+  display: grid;
+  grid-template-columns: 80px 2fr 1fr 100px;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-width-1) solid var(--color-border-subtle);
+}
+.queue-table__row:last-child { border-bottom: none; }
+.queue-table__header {
+  background: var(--color-surface-soft);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+}
+.queue-table__row--active {
+  background: var(--color-primary-light);
+  border-inline-start: var(--border-width-3) solid var(--color-primary);
+}
+.priority-high {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-bold);
+}
+.btn--dark {
+  background: var(--color-surface-inverse);
+  color: var(--color-text-inverse);
+  border: none;
+}
+.btn--dark:hover { background: var(--color-text); }
+
+/* ---- Slot Token ---- */
+.slot-token {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+.slot-token--available {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+.slot-token--available:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.slot-token--occupied {
+  background: var(--color-surface-soft);
+  border-color: var(--color-border);
+  color: var(--color-text);
+  cursor: default;
+}
+.slot-token--active {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ---- Calendar Skeleton (shared) ---- */
+.calendar-skeleton {
+  padding: var(--space-4);
+}
+.calendar-skeleton__header {
+  margin-bottom: var(--space-4);
+}
+.calendar-skeleton__row {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+/* ---- Shared Mobile Adjustments ----
+   FIX: replaced var(--breakpoint-xs) (invalid inside @media) with literal 480px.
+   Tokens live in tokens/breakpoints.css but cannot be resolved by @media. */
+@media (max-width: 480px) {
+  .appointment-block {
+    font-size: 0.6rem;
+    padding: var(--space-0-5);
+  }
+}.avail-grid { overflow-x: auto; }
+@media (max-width: 600px) {
+  .queue-table__header { display: none; }
+  .queue-table__row { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); }
+  .queue-table__cell { min-inline-size: 0; overflow-wrap: anywhere; }
+  .queue-table__cell::before { content: attr(data-label); display: block; color: var(--color-text-muted); font-size: var(--text-xs); }
+}

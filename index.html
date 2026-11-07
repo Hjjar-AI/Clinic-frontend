@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>نظام العيادة</title>
+
+    <!-- Preconnect for API (environment-specific) -->
+    <!-- Removed hardcoded localhost preconnect to avoid production warnings -->
+
+    <!-- Fonts -->
+    <link rel="preload" href="/static/fonts/Cairo-VariableFont_slnt,wght.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/static/fonts/Inter-VariableFont_opsz,wght.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/static/css/fonts.css" />
+
+    <!-- Only skeleton CSS is loaded statically for first paint -->
+    <link rel="stylesheet" href="/static/css/skeleton.css" />
+  </head>
+  <body>
+    <!-- Apply the actual CSS classes before rendering any visible content. -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('clinic_preferences');
+          if (!raw) return;
+          var prefs = JSON.parse(raw);
+          if (prefs.theme && prefs.theme !== 'default' && /^[a-z0-9-]+$/.test(prefs.theme)) {
+            document.body.classList.add('theme-' + prefs.theme);
+          }
+          if (prefs.darkMode) {
+            document.body.classList.add('dark-mode');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <div id="app">
+      <!-- Static skeleton until Vue mounts -->
+      <div class="login-skeleton">
+        <div class="login-skeleton-card">
+          <div class="skeleton-logo"></div>
+          <div class="skeleton-line w-60"></div>
+          <div class="skeleton-line w-40"></div>
+          <div class="skeleton-input"></div>
+          <div class="skeleton-input"></div>
+          <div class="skeleton-btn"></div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
