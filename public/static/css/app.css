@@ -35,7 +35,6 @@
 @import './features/appointments/day.css';
 @import './features/appointments/week.css';
 @import './features/appointments/month.css';
-@import './components/accordion.css';
 @import './components/avatar.css';
 @import './components/modal.css';
 @import './components/overlay.css';
@@ -46,12 +45,10 @@
 @import './components/danger-zone.css';
 @import './components/detail-item.css';
 @import './components/key-value-list.css';
-@import './components/dropdown-menu.css';
 @import './components/progress.css';
 @import './components/record-controls.css';
 @import './components/steps.css';
 @import './components/presentation-widgets.css';
-@import './components/context-menu.css';
 @import './components/system-banner.css';
 @import './utilities/general.css';
 @import './base/splash.css';

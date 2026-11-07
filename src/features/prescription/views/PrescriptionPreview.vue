@@ -72,8 +72,10 @@
           title="ختم العيادة"
         />
         <div class="card__body">
-          <div class="form-group">
-            <label for="prescription-stamp">رفع ختم (PNG/JPG)</label>
+          <FormField
+            label="رفع ختم (PNG/JPG)"
+            field-id="prescription-stamp"
+          >
             <input
               id="prescription-stamp"
               type="file"
@@ -81,7 +83,7 @@
               class="form-control"
               @change="handleStampUpload"
             >
-          </div>
+          </FormField>
           <div
             v-if="stampPreview"
             class="mt-2"
@@ -173,6 +175,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import CardHeader from '@/components/ui/CardHeader.vue'
+import FormField from '@/components/ui/FormField.vue'
 import Icon from '@/components/ui/Icon.vue'
 import SignaturePad from '@/components/ui/SignaturePad.vue'
 import { useApi } from '@/composables/useApi'

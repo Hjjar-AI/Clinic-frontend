@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { useFloatingPosition } from '@/composables/useFloatingPosition'
-import DropdownMenu from '@/components/ui/DropdownMenu.vue'
+import { useDropdown } from '@/composables/useDropdown'
 import NotificationCenter from '@/features/notifications/components/NotificationCenter.vue'
 import { useNotificationStore } from '@/features/notifications/stores/notifications'
 
@@ -52,20 +52,19 @@ describe('floating panel geometry with controlled viewport measurements', () => 
   })
 })
 
+const DropdownHarness = {
+  props: ['actions'],
+  setup: () => useDropdown(),
+  template: `<div ref="triggerRef"><button :aria-expanded="open" @click="toggle" @keydown="onTriggerKey">Open</button></div>
+    <div v-if="open" ref="panelRef" class="context-menu" :style="positionStyle">
+      <button v-for="action in actions" :key="action.label" class="context-menu__item" :disabled="action.disabled">{{ action.label }}</button>
+    </div>`,
+}
+
 describe('dropdown keyboard, focus and dismissal', () => {
   const actions = [{ label: 'Disabled', disabled: true }, { label: 'Enabled', onClick: vi.fn() }, { label: 'Last', onClick: vi.fn() }]
-  it('disabled secondary actions cannot execute or emit', async () => {
-    const wrapper = mount(DropdownMenu, { props: { secondaryActions: actions }, attachTo: document.body })
-    await wrapper.get('button').trigger('click')
-    await flushPromises()
-    const button = document.querySelector('.context-menu__item')
-    expect(button.disabled).toBe(true)
-    button.click()
-    expect(wrapper.emitted('action')).toBeUndefined()
-  })
-
   it('ArrowDown opens and focuses the first enabled action, Escape restores the trigger', async () => {
-    const wrapper = mount(DropdownMenu, { props: { secondaryActions: actions }, attachTo: document.body })
+    const wrapper = mount(DropdownHarness, { props: { actions }, attachTo: document.body })
     const trigger = wrapper.get('button').element
     trigger.focus()
     trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
@@ -83,7 +82,7 @@ describe('dropdown keyboard, focus and dismissal', () => {
   })
 
   it('focus departure closes a menu without taking focus from the next control', async () => {
-    const wrapper = mount(DropdownMenu, { props: { secondaryActions: actions }, attachTo: document.body })
+    const wrapper = mount(DropdownHarness, { props: { actions }, attachTo: document.body })
     await wrapper.get('button').trigger('click')
     await flushPromises()
     const option = document.querySelectorAll('.context-menu__item')[1]

@@ -36,9 +36,9 @@ import DynamicRowList from '@/components/ui/DynamicRowList.vue'
 import CatalogEntrySelect from '@/features/clinical/components/CatalogEntrySelect.vue'
 
 defineProps({
-  form: Object,
-  searchDiagnosesFn: Function,
-  diagnosesInitial: Array,
+  form: { type: Object, required: true },
+  searchDiagnosesFn: { type: Function, required: true },
+  diagnosesInitial: { type: Array, default: () => [] },
 })
 
 const labFields = [

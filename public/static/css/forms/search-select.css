@@ -11,12 +11,6 @@
     font-size: var(--text-sm);
     pointer-events: none;
 }
-.async-select-spinner {
-    position: absolute;
-    inset-inline-end: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-}
 
 /* Search Input */
 .searchable-select {

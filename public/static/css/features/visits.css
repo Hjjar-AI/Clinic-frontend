@@ -23,37 +23,6 @@
 }
 
 /* ---- Timeline ---- */
-.timeline__badge {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.timeline__badge--danger {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-}
-
-.timeline__badge--warning {
-  background: var(--color-warning-light);
-  color: var(--color-warning);
-}
-
-.timeline__badge--primary {
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-}
-
-.timeline__badge-cell {
-  width: 40px;
-}
-
-.timeline__actions-cell {
-  text-align: end;
-}
 
 /* ===== Visit Cards (moved from components.css) ===== */
 .visit-card-link {

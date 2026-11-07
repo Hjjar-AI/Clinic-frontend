@@ -22,6 +22,7 @@
         required
       >
         <input
+          aria-label="الملف"
           type="file"
           required
           @change="file = $event.target.files[0]"
@@ -34,6 +35,7 @@
         <FormField label="تاريخ المستند">
           <input
             v-model="draft.document_date"
+            aria-label="تاريخ المستند"
             type="date"
             class="form-control"
           >
@@ -55,6 +57,7 @@
         <FormField label="التحقق">
           <select
             v-model="draft.verification"
+            aria-label="التحقق"
             class="form-control"
           >
             <option value="unknown">

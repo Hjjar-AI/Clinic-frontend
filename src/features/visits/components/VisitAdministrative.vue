@@ -30,6 +30,7 @@
       <FormField label="نوقش التشخيص">
         <select
           v-model="form.diagnosis_discussed"
+          aria-label="نوقش التشخيص"
           class="form-control"
         >
           <option :value="null">
@@ -46,6 +47,7 @@
       <FormField label="نوقشت الخطة">
         <select
           v-model="form.plan_discussed"
+          aria-label="نوقشت الخطة"
           class="form-control"
         >
           <option :value="null">
@@ -73,5 +75,5 @@ import FormDate from '@/components/ui/FormDate.vue'
 import FormField from '@/components/ui/FormField.vue'
 import InstructionAcknowledgement from '@/features/visits/components/InstructionAcknowledgement.vue'
 
-defineProps({ form: Object })
+defineProps({ form: { type: Object, required: true } })
 </script>

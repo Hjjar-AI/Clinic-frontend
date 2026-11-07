@@ -20,7 +20,7 @@ export default defineConfig({
   webServer: [
     {
       command: `"${python}" -B ../backend/tests/browser_server.py`,
-      url: 'http://127.0.0.1:5018/api/v1/auth/config/',
+      url: 'http://127.0.0.1:5018/api/v1/system/config/',
       timeout: 120000, reuseExistingServer: false,
     },
     {

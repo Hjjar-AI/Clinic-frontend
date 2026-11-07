@@ -107,6 +107,7 @@
     <FormField label="الوصول إلى سلاح ناري">
       <select
         v-model="form.firearm_access"
+        aria-label="الوصول إلى سلاح ناري"
         class="form-control"
       >
         <option :value="null">
@@ -124,6 +125,7 @@
       <FormField label="مستوى الرعاية">
         <select
           v-model="form.level_of_care"
+          aria-label="مستوى الرعاية"
           class="form-control form-control--select"
         >
           <option value="">
@@ -139,6 +141,7 @@
       <FormField label="أساس المشاركة في الرعاية">
         <select
           v-model="form.care_basis"
+          aria-label="أساس المشاركة في الرعاية"
           class="form-control"
         >
           <option value="unknown">
@@ -155,6 +158,7 @@
       <FormField label="نوع المتابعة">
         <select
           v-model="form.follow_up_method"
+          aria-label="نوع المتابعة"
           class="form-control form-control--select"
         >
           <option value="">
@@ -211,11 +215,11 @@ import SegmentedControl from '@/components/ui/SegmentedControl.vue'
 import CatalogEntrySelect from '@/features/clinical/components/CatalogEntrySelect.vue'
 
 defineProps({
-  form: Object,
-  searchMedicationsFn: Function,
-  medicationsInitial: Array,
-  riskOptions: Array,
-  templates: Array,
+  form: { type: Object, required: true },
+  searchMedicationsFn: { type: Function, required: true },
+  medicationsInitial: { type: Array, default: () => [] },
+  riskOptions: { type: Array, default: () => [] },
+  templates: { type: Array, default: () => [] },
   errors: { type: Object, default: () => ({}) },
 })
 

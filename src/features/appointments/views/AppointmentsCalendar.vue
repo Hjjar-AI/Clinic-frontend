@@ -21,10 +21,7 @@
     :month-name="currentMonthName"
     :year="currentYear"
     :month-index="currentDate.getMonth()"
-    @view-change="
-      view = $event
-      loadAppointments()
-    "
+    @view-change="changeView"
     @update:filters="filters = $event"
     @filter-apply="loadAppointments()"
     @filter-reset="confirmResetFilters"
@@ -229,6 +226,11 @@ function navigate(dir) {
     }
   }
   currentDate.value = d
+  loadAppointments()
+}
+
+function changeView(nextView) {
+  view.value = nextView
   loadAppointments()
 }
 

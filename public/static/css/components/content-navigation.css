@@ -58,18 +58,6 @@ hr,
     font-size: var(--text-sm);
 }
 
-/* ===== Base Pagination ===== */
-.pagination-wrapper {
-    display: flex;
-    gap: var(--space-1);
-    justify-content: center;
-    margin-top: var(--space-4);
-}
-.pagination-btn {
-    border-radius: var(--radius-full) !important;
-    min-width: 36px;
-    height: 36px;
-    padding: 0 var(--space-2);
-}@media (max-width: 768px) {
+/* ===== Base Pagination ===== */@media (max-width: 768px) {
   .scroll-top-btn { bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + var(--space-4)); }
 }

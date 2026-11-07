@@ -2,7 +2,6 @@ import { afterEach, describe, it, expect, vi } from 'vitest'
 import { reactive } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 import StatisticsChart from '@/features/reports/components/StatisticsChart.vue'
-import MiniBarChart from '@/components/charts/MiniBarChart.vue'
 import { getChartColors } from '@/composables/useChart'
 
 const { created } = vi.hoisted(() => ({ created: [] }))
@@ -118,22 +117,6 @@ describe('chart configuration and lifecycle through actual components', () => {
     const config = created.at(-1).config
     expect(config.data.datasets[0]).toMatchObject({ fill: true, borderWidth: 2, tension: 0.3 })
     expect(config.options.plugins.legend.display).toBe(false)
-  })
-
-  it('mini charts rebuild on changed values and clean up when their labels empty', async () => {
-    const wrapper = mount(MiniBarChart, { props: { labels: ['A'], values: [1] }, attachTo: document.body })
-    await flushPromises()
-    expect(created.at(-1).config.options.plugins.tooltip.enabled).toBe(false)
-    const first = created.at(-1)
-    await wrapper.setProps({ values: [7] })
-    await flushPromises()
-    expect(first.destroy).toHaveBeenCalledOnce()
-    expect(created.at(-1).config.data.datasets[0].data).toEqual([7])
-    const last = created.at(-1)
-    await wrapper.setProps({ labels: [] })
-    await flushPromises()
-    expect(last.destroy).toHaveBeenCalledOnce()
-    expect(wrapper.find('canvas').exists()).toBe(false)
   })
 
   it('palette cycles safely when there are more than twelve categories', () => {

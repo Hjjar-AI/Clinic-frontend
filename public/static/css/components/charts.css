@@ -21,10 +21,6 @@
   height: 100%;
 }
 
-.mini-bar-chart canvas {
-  max-width: 100%;
-}
-
 .chart-entrance-enter-active {
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
@@ -47,5 +43,4 @@
 }.chart-card > .card__body { flex: 1; min-inline-size: 0; }
 .chart-card__body { min-inline-size: 0; }
 .chart-container { position: relative; height: 280px; min-inline-size: 0; }
-.mini-bar-chart { position: relative; width: 100%; height: 80px; }
 @media (max-width: 600px) { .chart-container { height: 240px; } }

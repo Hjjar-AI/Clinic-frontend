@@ -8,7 +8,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [app.css](../public/static/css/app.css) | 70 | Keep | Single ordered global stylesheet import manifest; preserve order and asset ownership. |
+| [app.css](../public/static/css/app.css) | 69 | Keep | Single ordered global stylesheet import manifest; preserve order and asset ownership. |
 ## public/static/css/base
 
 | File | Lines | Disposition | Rationale |
@@ -24,26 +24,26 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [accordion.css](../public/static/css/components/accordion.css) | 56 | Keep | Only legacy accordion selector family, absent from active templates; prune with dormant-code review, do not merge by visual similarity. |
 | [avatar.css](../public/static/css/components/avatar.css) | 73 | Keep | Shared avatar plus legacy patient-avatar selectors; retain active primitive, prune obsolete families after reference checks. |
 | [buttons.css](../public/static/css/components/buttons.css) | 76 | Keep | Shared button/link variants and interaction styles; retain cohesive module. |
-| [cards.css](../public/static/css/components/cards.css) | 120 | Keep | Shared card/panel/KPI shell styling; retain, clarify header ownership rather than adding more wrappers. |
+| [cards.css](../public/static/css/components/cards.css) | 165 | Keep | Shared card/panel/KPI shell styling; retain, clarify header ownership rather than adding more wrappers. |
 | [charts.css](../public/static/css/components/charts.css) | 51 | Keep | Shared chart card/container presentation; retain with report renderer move, remove dormant mini-chart rules if deleted. |
 | [collapsible-section.css](../public/static/css/components/collapsible-section.css) | 65 | Keep | Shared disclosure presentation; keep while feature policy moves out of component logic. |
 | [content-navigation.css](../public/static/css/components/content-navigation.css) | 75 | Keep | Small list/divider/back/scroll/pagination module; prune unused numbered-pagination rules after candidate removal. |
-| [context-menu.css](../public/static/css/components/context-menu.css) | 31 | Added S15 | Context-menu component styling at the original utility cascade position. |
+| [context-menu.css](../public/static/css/components/context-menu.css) | 32 | Added S15 | Context-menu component styling at the original utility cascade position. |
 | [danger-zone.css](../public/static/css/components/danger-zone.css) | 38 | Keep | Destructive recovery presentation; retain component-owned module. |
 | [detail-item.css](../public/static/css/components/detail-item.css) | 36 | Keep | Active detail-item rules plus dormant details-grid family; keep active family and prune unused one. |
 | [dropdown-menu.css](../public/static/css/components/dropdown-menu.css) | 11 | Keep | Small owned trigger module for dormant DropdownMenu; tiny size alone is not a merge reason. |
 | [filters.css](../public/static/css/components/filters.css) | 47 | Keep | Shared filter-bar layout/variant behavior; retain. |
 | [key-value-list.css](../public/static/css/components/key-value-list.css) | 46 | Keep | Active line/grid detail presentation; retain rather than merge scoped/other selector families. |
-| [modal.css](../public/static/css/components/modal.css) | 91 | Keep | Global modal/shared variant rules; preserve cascade with scoped BaseModal CSS. |
-| [navigation.css](../public/static/css/components/navigation.css) | 177 | Keep | Navigation visuals/RTL/mobile topbar rules; retain separate from shell geometry. |
+| [modal.css](../public/static/css/components/modal.css) | 119 | Keep | Global modal/shared variant rules; preserve cascade with scoped BaseModal CSS. |
+| [navigation.css](../public/static/css/components/navigation.css) | 245 | Keep | Navigation visuals/RTL/mobile topbar rules; retain separate from shell geometry. |
 | [notifications.css](../public/static/css/components/notifications.css) | 141 | Keep | Toast/alert/empty-state global presentation; cohesive feedback group, no new split required solely for count. |
 | [overlay.css](../public/static/css/components/overlay.css) | 83 | Keep | App loading/privacy/error/route overlay visuals; retain explicit global ownership. |
-| [presentation-widgets.css](../public/static/css/components/presentation-widgets.css) | 106 | Keep | Mixed theme/vertical-event/terms/alert-bar families; prune dormant families, leave active owners explicit. |
+| [presentation-widgets.css](../public/static/css/components/presentation-widgets.css) | 110 | Keep | Mixed theme/vertical-event/terms/alert-bar families; prune dormant families, leave active owners explicit. |
 | [progress.css](../public/static/css/components/progress.css) | 53 | Keep | Shared progress bar presentation used by file upload; retain. |
 | [record-controls.css](../public/static/css/components/record-controls.css) | 69 | Keep | Shared relative-date/signature plus scratchpad/indicator families; prune/move with actual component ownership. |
 | [steps.css](../public/static/css/components/steps.css) | 54 | Keep | Active StepIndicator plus dormant StepsCard; prune static-card family if deleted. |
-| [system-banner.css](../public/static/css/components/system-banner.css) | 27 | Added S15 | System-banner component styling at the original utility cascade position. |
-| [tables.css](../public/static/css/components/tables.css) | 137 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
+| [system-banner.css](../public/static/css/components/system-banner.css) | 26 | Added S15 | System-banner component styling at the original utility cascade position. |
+| [tables.css](../public/static/css/components/tables.css) | 274 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
 | [tabs.css](../public/static/css/components/tabs.css) | 48 | Keep | Shared tablist/panel presentation; retain. |
 | [tags.css](../public/static/css/components/tags.css) | 38 | Keep | Shared Badge/tag presentation; domain metadata belongs in JS registry, not new CSS components. |
 | [tooltips-loading.css](../public/static/css/components/tooltips-loading.css) | 65 | Keep | Shared floating-tooltip/spinner styles; keep global rules distinct from comment-only scoped spinner import. |
@@ -51,39 +51,39 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [pdf.css](../public/static/css/documents/pdf.css) | 123 | Keep | Browser print stylesheet, separate from retained server PDFs; preserve print resets/RTL/fonts and verify rendered output separately. |
+| [pdf.css](../public/static/css/documents/pdf.css) | 249 | Keep | Browser print stylesheet, separate from retained server PDFs; preserve print resets/RTL/fonts and verify rendered output separately. |
 ## public/static/css/features/appointments
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
 | [day.css](../public/static/css/features/appointments/day.css) | 87 | Keep | Day-grid/time-indicator styling; retain renderer ownership. |
 | [month.css](../public/static/css/features/appointments/month.css) | 114 | Keep | Monthly grid/dots/responsiveness; retain separately from day/week. |
-| [shared.css](../public/static/css/features/appointments/shared.css) | 132 | Keep | Shared booking/slot/skeleton plus dormant queue/availability families; prune dormant sections before considering splits. |
+| [shared.css](../public/static/css/features/appointments/shared.css) | 163 | Keep | Shared booking/slot/skeleton plus dormant queue/availability families; prune dormant sections before considering splits. |
 | [week.css](../public/static/css/features/appointments/week.css) | 31 | Keep | Week/day-card and today/weekend presentation; small coherent owner, retain. |
 ## public/static/css/features/clinical
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [catalog-entry-select.css](../public/static/css/features/clinical/catalog-entry-select.css) | 13 | Added S05 | Clinical entry chips/removal styles; shared scalar dropdown styles remain separate. |
-| [medications.css](../public/static/css/features/clinical/medications.css) | 110 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
+| [catalog-entry-select.css](../public/static/css/features/clinical/catalog-entry-select.css) | 12 | Added S05 | Clinical entry chips/removal styles; shared scalar dropdown styles remain separate. |
+| [medications.css](../public/static/css/features/clinical/medications.css) | 113 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
 | [substances-labs.css](../public/static/css/features/clinical/substances-labs.css) | 81 | Keep | Active controlled-card plus dormant LabResult rules; prune latter, keep controlled-medication presentation. |
 ## public/static/css/features
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [import.css](../public/static/css/features/import.css) | 2 | Added S08 | Full-width medication mapping row within the import grid. |
-| [patients.css](../public/static/css/features/patients.css) | 103 | Keep | Patient profile/sidebar/link/register styles; prune dormant bulk-action family, retain patient-owned geometry. |
+| [import.css](../public/static/css/features/import.css) | 3 | Added S08 | Full-width medication mapping row within the import grid. |
+| [patients.css](../public/static/css/features/patients.css) | 129 | Keep | Patient profile/sidebar/link/register styles; prune dormant bulk-action family, retain patient-owned geometry. |
 ## public/static/css/features/prescription
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [letter-sheet.css](../public/static/css/features/prescription/letter-sheet.css) | 37 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `public/static/css/features/clinical/letter-sheet.css`. |
+| [letter-sheet.css](../public/static/css/features/prescription/letter-sheet.css) | 36 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `public/static/css/features/clinical/letter-sheet.css`. |
 ## public/static/css/features
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [visits.css](../public/static/css/features/visits.css) | 135 | Keep | Visit layout/cards and dormant timeline styles; retain active owner, prune timeline after removal. |
-| [workspace.css](../public/static/css/features/workspace.css) | 45 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
+| [visits.css](../public/static/css/features/visits.css) | 178 | Keep | Visit layout/cards and dormant timeline styles; retain active owner, prune timeline after removal. |
+| [workspace.css](../public/static/css/features/workspace.css) | 123 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
 ## public/static/css
 
 | File | Lines | Disposition | Rationale |
@@ -96,9 +96,9 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [choices.css](../public/static/css/forms/choices.css) | 138 | Keep | Native checkbox/radio/toggle and shared form-section presentation; keep active rules, check legacy selectors when pruning. |
 | [controls.css](../public/static/css/forms/controls.css) | 107 | Keep | Ordinary shared native form controls/field state rules; retain. |
 | [date-picker.css](../public/static/css/forms/date-picker.css) | 65 | Keep | Date and range picker widget/extension styles; retain browser widget ownership. |
-| [feedback-actions.css](../public/static/css/forms/feedback-actions.css) | 27 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
-| [input-widgets.css](../public/static/css/forms/input-widgets.css) | 96 | Keep | Segmented/password/upload presentation; active small owned groups, no immediate count-driven split. |
-| [multi-select.css](../public/static/css/forms/multi-select.css) | 70 | Applied S05 | Scalar selection stays shared; rich clinical entries/search/factories and styles have clinical ownership. |
+| [feedback-actions.css](../public/static/css/forms/feedback-actions.css) | 46 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
+| [input-widgets.css](../public/static/css/forms/input-widgets.css) | 103 | Keep | Segmented/password/upload presentation; active small owned groups, no immediate count-driven split. |
+| [multi-select.css](../public/static/css/forms/multi-select.css) | 71 | Applied S05 | Scalar selection stays shared; rich clinical entries/search/factories and styles have clinical ownership. |
 | [score-slider.css](../public/static/css/forms/score-slider.css) | 72 | Keep | Shared nullable-score widget presentation; preserve scoped overrides, not a blind global merge. |
 | [search-select.css](../public/static/css/forms/search-select.css) | 121 | Keep | Native API selector/search combobox presentation; prune dormant AsyncSelect spinner family if removed. |
 ## public/static/css/layout
@@ -140,7 +140,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
 | [breakpoints.css](../public/static/css/tokens/breakpoints.css) | 31 | Keep | Documentation/JS-alignment tokens; retain literal media conditions rather than CSS-variable media queries. |
-| [colors.css](../public/static/css/tokens/colors.css) | 237 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
+| [colors.css](../public/static/css/tokens/colors.css) | 252 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
 | [components.css](../public/static/css/tokens/components.css) | 64 | Keep | Shared elevation/feedback/interaction tokens; retain cohesive semantic layer. |
 | [motion.css](../public/static/css/tokens/motion.css) | 64 | Keep | Shared motion durations/keyframe and reduced-motion tokens; keep separate from transition-class rules. |
 | [spacing.css](../public/static/css/tokens/spacing.css) | 102 | Keep | Shared scale/layout/radius/z-index tokens; no split needed solely by number of token families. |
@@ -149,7 +149,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [general.css](../public/static/css/utilities/general.css) | 37 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
+| [general.css](../public/static/css/utilities/general.css) | 75 | Applied S15 | Styles moved to owning modules; dormant rules pruned with cascade/scoped/import boundaries preserved. |
 | [text-icons.css](../public/static/css/utilities/text-icons.css) | 99 | Keep | Text/icon/directional utility rules; consolidate duplicate global text utilities only with explicit cascade review. |
 ## public/static/fonts
 
@@ -191,15 +191,15 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [MaintenanceBanner.vue](../src/components/common/MaintenanceBanner.vue) | 25 | Keep | App maintenance read/display adapter; retain app-level ownership. |
 | [RouteProgressBar.vue](../src/components/common/RouteProgressBar.vue) | 58 | Keep | Route-hook progress lifecycle; retain separate from write request loading. |
 | [ScrollToTop.vue](../src/components/common/ScrollToTop.vue) | 24 | Keep | Small app navigation affordance; no need to revive unused useScrollTo just for this. |
-| [SearchInput.vue](../src/components/common/SearchInput.vue) | 249 | Keep | Shared object-select combobox with stale-read/floating/keyboard handling; retain as search primitive. |
+| [SearchInput.vue](../src/components/common/SearchInput.vue) | 316 | Keep | Shared object-select combobox with stale-read/floating/keyboard handling; retain as search primitive. |
 | [ShortcutsModal.vue](../src/components/common/ShortcutsModal.vue) | 35 | Keep | App shortcut help; optional future metadata sharing with App shortcuts, not a new UI framework. |
 | [SkeletonLoader.vue](../src/components/common/SkeletonLoader.vue) | 134 | Keep | Shared shape renderer; do not merge with inline early HTML skeleton or calendar-specific wrapper. |
-| [Spinner.vue](../src/components/common/Spinner.vue) | 17 | Keep | Keep component; remove comment-only external scoped stylesheet/import. |
+| [Spinner.vue](../src/components/common/Spinner.vue) | 16 | Keep | Keep component; remove comment-only external scoped stylesheet/import. |
 ## src/components/documents
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [PdfPreview.vue](../src/components/documents/PdfPreview.vue) | 47 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/prescription/components/PrescriptionPdfPreview.vue`. |
+| [PdfPreview.vue](../src/components/documents/PdfPreview.vue) | 101 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/prescription/components/PrescriptionPdfPreview.vue`. |
 ## src/components/filters
 
 | File | Lines | Disposition | Rationale |
@@ -227,7 +227,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [AppTabs.vue](../src/components/ui/AppTabs.vue) | 96 | Keep | Owns tab registry, controlled active tab and keyboard navigation; cohesive. |
 | [Avatar.vue](../src/components/ui/Avatar.vue) | 49 | Keep | Shared initials/icon/avatar presentation; no new component boundary needed. |
 | [BackLink.vue](../src/components/ui/BackLink.vue) | 30 | Keep | Small navigation adapter used by FormWrapper; retain stable interface. |
-| [Badge.vue](../src/components/ui/Badge.vue) | 102 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
+| [Badge.vue](../src/components/ui/Badge.vue) | 104 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
 | [BadgeCell.vue](../src/components/ui/BadgeCell.vue) | 21 | Keep | Small table badge adapter; keep unless its sole consumer is simplified during catalog editing. |
 | [BaseButton.vue](../src/components/ui/BaseButton.vue) | 96 | Keep | Shared button/link/loading/confirmation adapter; preserve one confirmation owner and navigation behavior. |
 | [BaseCard.vue](../src/components/ui/BaseCard.vue) | 69 | Keep | Shared card/loading/empty/slot shell; retain cohesive primitive. |
@@ -236,11 +236,11 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [Breadcrumb.vue](../src/components/ui/Breadcrumb.vue) | 51 | Keep | Shared explicit/route-derived breadcrumbs; retain. |
 | [CardHeader.vue](../src/components/ui/CardHeader.vue) | 36 | Keep | Meaningful card-specific adapter over SectionHeader; no further merge required. |
 | [ChartCard.vue](../src/components/ui/ChartCard.vue) | 47 | Keep | Shared chart/empty-state shell; chart lifecycle stays in useChart. |
-| [CollapsibleSection.vue](../src/components/ui/CollapsibleSection.vue) | 71 | Applied S06 | Generic disclosure defaults stay shared; visit progressive workflow policy moved to visits. |
+| [CollapsibleSection.vue](../src/components/ui/CollapsibleSection.vue) | 90 | Applied S06 | Generic disclosure defaults stay shared; visit progressive workflow policy moved to visits. |
 | [ConfirmCheckbox.vue](../src/components/ui/ConfirmCheckbox.vue) | 31 | Keep | Explicit destructive-consent control; keep separate from ordinary checkbox intent. |
 | [ConfirmDialog.vue](../src/components/ui/ConfirmDialog.vue) | 100 | Keep | Queued confirmation/prompt renderer; keep checkbox/reason semantics and store ownership. |
 | [DangerZone.vue](../src/components/ui/DangerZone.vue) | 27 | Keep | Destructive-operation presentation shell for recovery; retain. |
-| [DataTable.vue](../src/components/ui/DataTable.vue) | 250 | Applied S02 | One account-scoped visible-key contract drives the table chooser, rendering and patient export fields. |
+| [DataTable.vue](../src/components/ui/DataTable.vue) | 347 | Applied S02 | One account-scoped visible-key contract drives the table chooser, rendering and patient export fields. |
 | [DateCell.vue](../src/components/ui/DateCell.vue) | 28 | Keep | Shared strict parsed date presentation; retain absolute/relative distinction. |
 | [DatePicker.vue](../src/components/ui/DatePicker.vue) | 133 | Keep | Date widget wrapper owns DOM lifecycle; move loader out of pure date utilities, retain wrapper. |
 | [DateRangePicker.vue](../src/components/ui/DateRangePicker.vue) | 161 | Keep | Range-specific validation/two-picker lifecycle; keep distinct from single-date control. |
@@ -260,13 +260,13 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [FormInput.vue](../src/components/ui/FormInput.vue) | 67 | Keep | Ordinary native input adapter with logical direction and constraints; keep. |
 | [FormSelect.vue](../src/components/ui/FormSelect.vue) | 61 | Keep | Ordinary native option-list adapter; keep distinct from remote/search selection. |
 | [FormTextarea.vue](../src/components/ui/FormTextarea.vue) | 82 | Keep | Text-area/counter/resize control; retain scoped counter ownership. |
-| [FormWrapper.vue](../src/components/ui/FormWrapper.vue) | 76 | Applied S03 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. |
+| [FormWrapper.vue](../src/components/ui/FormWrapper.vue) | 90 | Applied S03 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. |
 | [Icon.vue](../src/components/ui/Icon.vue) | 29 | Keep | Shared semantic icon adapter; retain central alias registry. |
 | [KeyValueList.vue](../src/components/ui/KeyValueList.vue) | 39 | Keep | Active lines/grid detail presentation; keep; dormant DetailsGrid need not become another abstraction. |
 | [KpiGrid.vue](../src/components/ui/KpiGrid.vue) | 26 | Keep | Repeated KPI layout/StatCard adapter; retain. |
-| [ListView.vue](../src/components/ui/ListView.vue) | 207 | Keep | Keep cursor/filter orchestration separate from table renderer; route-filter/preference ownership can be simplified. |
+| [ListView.vue](../src/components/ui/ListView.vue) | 282 | Keep | Keep cursor/filter orchestration separate from table renderer; route-filter/preference ownership can be simplified. |
 | [LoadingOverlay.vue](../src/components/ui/LoadingOverlay.vue) | 22 | Keep | App-level write-loading presentation; keep distinct from modal/field/read feedback. |
-| [MultiSelect.vue](../src/components/ui/MultiSelect.vue) | 171 | Applied S05 | Scalar selection stays shared; rich clinical entries/search/factories and styles have clinical ownership. |
+| [MultiSelect.vue](../src/components/ui/MultiSelect.vue) | 239 | Applied S05 | Scalar selection stays shared; rich clinical entries/search/factories and styles have clinical ownership. |
 | [PageHeader.vue](../src/components/ui/PageHeader.vue) | 22 | Keep | Page-specific adapter over SectionHeader; keep. |
 | [PasswordStrengthMeter.vue](../src/components/ui/PasswordStrengthMeter.vue) | 37 | Keep | Shared password strength display; pure strength policy remains in validators. |
 | [Progress.vue](../src/components/ui/Progress.vue) | 65 | Keep | Shared progress display used by upload; no new progress component needed. |
@@ -281,7 +281,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [StatusCell.vue](../src/components/ui/StatusCell.vue) | 20 | Keep | Useful table adapter to domain-aware Badge; retain. |
 | [StepIndicator.vue](../src/components/ui/StepIndicator.vue) | 32 | Keep | Active import progress indicator; not equivalent to dormant FormWizard/StepsCard. |
 | [TableActions.vue](../src/components/ui/TableActions.vue) | 70 | Keep | Shared row actions/confirmation affordance; retain displayed-version command ownership in callers. |
-| [ThemeSwitcher.vue](../src/components/ui/ThemeSwitcher.vue) | 42 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
+| [ThemeSwitcher.vue](../src/components/ui/ThemeSwitcher.vue) | 40 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
 | [Tooltip.vue](../src/components/ui/Tooltip.vue) | 38 | Keep | Floating accessible description wrapper; positioning already delegated to useFloatingPosition. |
 ## src
 
@@ -301,30 +301,30 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [useChart.js](../src/composables/useChart.js) | 113 | Keep | Reusable chart import/instance/presentation lifecycle; keep shared while report renderer moves. |
 | [useConfirmDialog.js](../src/composables/useConfirmDialog.js) | 40 | Keep | Confirmation/prompt convenience adapter; keep store as sole queue owner. |
 | [useCopy.js](../src/composables/useCopy.js) | 38 | Keep S12 | Active clipboard implementation remains; its unused duplicate directive/registration was removed. |
-| [useDate.js](../src/composables/useDate.js) | 4 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
+| [useDate.js](../src/composables/useDate.js) | 6 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
 | [useDropdown.js](../src/composables/useDropdown.js) | 61 | Keep | Active notification dropdown focus/outside/keyboard owner; retain despite dormant DropdownMenu. |
 | [useFloatingPosition.js](../src/composables/useFloatingPosition.js) | 87 | Keep | Reusable fixed viewport geometry/observers; keep runtime measurements here. |
 | [useForm.js](../src/composables/useForm.js) | 251 | Keep | Validation/baseline/dirty state owner; keep separate from submission and route-leave guard. |
 | [useFormDirty.js](../src/composables/useFormDirty.js) | 52 | Keep | Unsaved-navigation guard over caller’s dirty ref; retain one dirty source. |
-| [useFormDraft.js](../src/composables/useFormDraft.js) | 65 | Applied S09 | Fresh defaults and pure mapping live in the visit model; lifecycle and saved scale policy stay separate. |
+| [useFormDraft.js](../src/composables/useFormDraft.js) | 72 | Applied S09 | Fresh defaults and pure mapping live in the visit model; lifecycle and saved scale policy stay separate. |
 | [useFormSubmission.js](../src/composables/useFormSubmission.js) | 60 | Applied S07 | Six forms supply direct saves to the existing single form mutation owner. |
 | [useFormatters.js](../src/composables/useFormatters.js) | 20 | Keep | Existing pure-function facade; direct utility imports are fine for new code, mass replacement is low value. |
-| [useLatestResource.js](../src/composables/useLatestResource.js) | 27 | Added S10 | Replaceable reads with generation/session invalidation, retry state and unmount disposal. |
+| [useLatestResource.js](../src/composables/useLatestResource.js) | 51 | Added S10 | Replaceable reads with generation/session invalidation, retry state and unmount disposal. |
 | [useMaintenanceMode.js](../src/composables/useMaintenanceMode.js) | 18 | Keep | Shared app maintenance read state; no domain split required. |
 | [useNavigationItems.js](../src/composables/useNavigationItems.js) | 71 | Keep | App navigation/grant/badge orchestration shared by desktop/mobile; keep single menu source. |
 | [useNotify.js](../src/composables/useNotify.js) | 14 | Keep | Toast notification adapter; keep one announcement policy with toast host. |
-| [useObjectUrl.js](../src/composables/useObjectUrl.js) | 20 | Added S10 | Persistent preview URL replacement/revocation; callers guard asynchronous results and issuance. |
+| [useObjectUrl.js](../src/composables/useObjectUrl.js) | 24 | Added S10 | Persistent preview URL replacement/revocation; callers guard asynchronous results and issuance. |
 | [useOverlay.js](../src/composables/useOverlay.js) | 14 | Keep | Vue adapter over overlayStack; retain distinct from floating dropdown behavior. |
 | [usePageStatus.js](../src/composables/usePageStatus.js) | 12 | Keep | Small page-status adapter; do not substitute it for successful form hydration state. |
-| [usePagination.js](../src/composables/usePagination.js) | 236 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
+| [usePagination.js](../src/composables/usePagination.js) | 242 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
 | [useResourceLoad.js](../src/composables/useResourceLoad.js) | 24 | Keep S10 | Successful-hydration form/save gate retained independently from replaceable preview reads. |
-| [useRouteFilters.js](../src/composables/useRouteFilters.js) | 12 | Added S11 | Writable multi-filter projection over the existing coalesced route-query primitive. |
+| [useRouteFilters.js](../src/composables/useRouteFilters.js) | 22 | Added S11 | Writable multi-filter projection over the existing coalesced route-query primitive. |
 | [useRouteQuery.js](../src/composables/useRouteQuery.js) | 37 | Keep S11 | Existing coalesced query/history primitive retained; multi-field adapter composes it. |
 | [useSearch.js](../src/composables/useSearch.js) | 78 | Keep | Active debounced stale-read search lifecycle; reuse in clinical selector extraction where suitable. |
 | [useSession.js](../src/composables/useSession.js) | 144 | Keep | App privacy/timeout lifecycle; keep separate from drafts; stale draft-related JSDoc should follow actual useFormDraft ownership. |
 | [useShortcut.js](../src/composables/useShortcut.js) | 15 | Keep | Reusable keyboard shortcut lifecycle; retain app-specific commands at app boundary. |
 | [useSystemConfig.js](../src/composables/useSystemConfig.js) | 46 | Keep | Shared startup/config loading owner; optional explicit service adapter, no second config store needed. |
-| [useTableColumns.js](../src/composables/useTableColumns.js) | 26 | Added S02 | Account/browser column preference owner; fixed identity keys remain visible. |
+| [useTableColumns.js](../src/composables/useTableColumns.js) | 52 | Added S02 | Account/browser column preference owner; fixed identity keys remain visible. |
 | [useToast.js](../src/composables/useToast.js) | 53 | Keep | Shared in-memory toast queue/timeouts; retain separate from rendering. |
 | [useValidator.js](../src/composables/useValidator.js) | 28 | Keep | Configured identity/phone validation adapter; retain pure validators as single implementations. |
 | [useViewport.js](../src/composables/useViewport.js) | 17 | Keep | Shared inclusive 768px reactive boundary; reuse where components duplicate boundary listeners. |
@@ -337,8 +337,8 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [statusConstants.js](../src/constants/statusConstants.js) | 105 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
-| [statusPresentation.js](../src/constants/statusPresentation.js) | 186 | Added S13 | Domain-keyed display label/color/icon/risk-bar registry; no transition authority. |
+| [statusConstants.js](../src/constants/statusConstants.js) | 119 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
+| [statusPresentation.js](../src/constants/statusPresentation.js) | 198 | Added S13 | Domain-keyed display label/color/icon/risk-bar registry; no transition authority. |
 | [storageKeys.js](../src/constants/storageKeys.js) | 9 | Keep | Shared storage-key registry; feature-owned account keys can remain local with explicit policy. |
 | [theme.js](../src/constants/theme.js) | 14 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
 ## src/directives
@@ -382,8 +382,8 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [AppointmentForm.vue](../src/features/appointments/views/AppointmentForm.vue) | 372 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
-| [AppointmentsCalendar.vue](../src/features/appointments/views/AppointmentsCalendar.vue) | 184 | Keep | Keep navigation/filter controller; merge identical day/week drop handlers locally, retain renderer split. |
+| [AppointmentForm.vue](../src/features/appointments/views/AppointmentForm.vue) | 401 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
+| [AppointmentsCalendar.vue](../src/features/appointments/views/AppointmentsCalendar.vue) | 281 | Keep | Keep navigation/filter controller; merge identical day/week drop handlers locally, retain renderer split. |
 ## src/features/auth/services
 
 | File | Lines | Disposition | Rationale |
@@ -413,7 +413,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [BackupView.vue](../src/features/backup/views/BackupView.vue) | 66 | Keep | Active backup/restore controller; keep token/options binding, reuse ordinary download helper. |
+| [BackupView.vue](../src/features/backup/views/BackupView.vue) | 90 | Keep | Active backup/restore controller; keep token/options binding, reuse ordinary download helper. |
 ## src/features/billing/services
 
 | File | Lines | Disposition | Rationale |
@@ -423,30 +423,30 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [InvoiceForm.vue](../src/features/billing/views/InvoiceForm.vue) | 279 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
-| [InvoicesList.vue](../src/features/billing/views/InvoicesList.vue) | 225 | Keep | Cohesive invoice list/transition page; use route-filter adapter and existing download helper. |
+| [InvoiceForm.vue](../src/features/billing/views/InvoiceForm.vue) | 359 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
+| [InvoicesList.vue](../src/features/billing/views/InvoicesList.vue) | 247 | Keep | Cohesive invoice list/transition page; use route-filter adapter and existing download helper. |
 ## src/features/clinical/components
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [CatalogEntrySelect.vue](../src/features/clinical/components/CatalogEntrySelect.vue) | 53 | Added S05 | Clinical object selection over SearchInput, explicit custom factories and detached duplicate markers. |
+| [CatalogEntrySelect.vue](../src/features/clinical/components/CatalogEntrySelect.vue) | 108 | Added S05 | Clinical object selection over SearchInput, explicit custom factories and detached duplicate markers. |
 | [ClinicalTextArea.vue](../src/features/clinical/components/ClinicalTextArea.vue) | 36 | Keep | Established clinical textarea adapter; thin but not an urgent merge target. |
 | [ControlledSubstanceCard.vue](../src/features/clinical/components/ControlledSubstanceCard.vue) | 39 | Keep | Active prescription controlled-medication notice; keep clinical semantics. |
 | [DiagnosisList.vue](../src/features/clinical/components/DiagnosisList.vue) | 22 | Keep | Shared clinical diagnosis display used across feature boundaries; keep. |
 | [MedicationList.vue](../src/features/clinical/components/MedicationList.vue) | 117 | Keep | Active schedule/prescription/pill presentation variants share one medication model; no immediate split needed. |
 | [RiskLevelBadge.vue](../src/features/clinical/components/RiskLevelBadge.vue) | 18 | Keep | Small clinical unknown/risk adapter over Badge; keep. |
-| [ScalePickerModal.vue](../src/features/clinical/components/ScalePickerModal.vue) | 52 | Applied S01 | Full-catalog scale lookup with explicit loading/error/retry; saved answers keep their own owner. |
+| [ScalePickerModal.vue](../src/features/clinical/components/ScalePickerModal.vue) | 60 | Applied S01 | Full-catalog scale lookup with explicit loading/error/retry; saved answers keep their own owner. |
 | [ScaleRenderer.vue](../src/features/clinical/components/ScaleRenderer.vue) | 77 | Keep | Editable scale fields/nullable slider rendering; retain separate from approved-history rendering. |
 ## src/features/clinical/composables
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [useCatalogEditor.js](../src/features/clinical/composables/useCatalogEditor.js) | 22 | Added S11 | Shared opening-version/modal/save/invalidation/list-refresh lifecycle for two catalogs. |
+| [useCatalogEditor.js](../src/features/clinical/composables/useCatalogEditor.js) | 46 | Added S11 | Shared opening-version/modal/save/invalidation/list-refresh lifecycle for two catalogs. |
 ## src/features/clinical/model
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [catalogEntries.js](../src/features/clinical/model/catalogEntries.js) | 6 | Added S05 | Explicit diagnosis/medication custom-entry factories; no clinical shape in scalar UI. |
+| [catalogEntries.js](../src/features/clinical/model/catalogEntries.js) | 23 | Added S05 | Explicit diagnosis/medication custom-entry factories; no clinical shape in scalar UI. |
 ## src/features/clinical/services
 
 | File | Lines | Disposition | Rationale |
@@ -459,26 +459,26 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [constants.js](../src/features/clinical/stores/constants.js) | 65 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/stores/constants.js`. |
+| [constants.js](../src/features/clinical/stores/constants.js) | 69 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/stores/constants.js`. |
 | [diagnosisLookup.js](../src/features/clinical/stores/diagnosisLookup.js) | 15 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/stores/diagnosisLookup.js`. |
-| [lookups.js](../src/features/clinical/stores/lookups.js) | 47 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/stores/lookups.js`. |
+| [lookups.js](../src/features/clinical/stores/lookups.js) | 48 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/stores/lookups.js`. |
 | [medicationLookup.js](../src/features/clinical/stores/medicationLookup.js) | 15 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/stores/medicationLookup.js`. |
 | [scaleLookup.js](../src/features/clinical/stores/scaleLookup.js) | 15 | Applied S01/S14 | Full-catalog scale lookup with explicit loading/error/retry; saved answers keep their own owner. Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/stores/scaleLookup.js`. |
 ## src/features/clinical/views
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [DiagnosesManage.vue](../src/features/clinical/views/DiagnosesManage.vue) | 233 | Applied S11 | Catalog modal lifecycle and multi-filter URL projections use focused shared controllers. |
-| [MedicationsManage.vue](../src/features/clinical/views/MedicationsManage.vue) | 260 | Applied S11 | Catalog modal lifecycle and multi-filter URL projections use focused shared controllers. |
-| [ScalesAdmin.vue](../src/features/clinical/views/ScalesAdmin.vue) | 331 | Keep | Question-add/create modal workflows differ from ordinary catalogs; retain, optionally isolate question editor later. |
-| [TemplateForm.vue](../src/features/clinical/views/TemplateForm.vue) | 225 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
-| [TemplatesList.vue](../src/features/clinical/views/TemplatesList.vue) | 128 | Keep | Small template list/reactivation controller; route-filter assembly may be shared. |
+| [DiagnosesManage.vue](../src/features/clinical/views/DiagnosesManage.vue) | 264 | Applied S11 | Catalog modal lifecycle and multi-filter URL projections use focused shared controllers. |
+| [MedicationsManage.vue](../src/features/clinical/views/MedicationsManage.vue) | 300 | Applied S11 | Catalog modal lifecycle and multi-filter URL projections use focused shared controllers. |
+| [ScalesAdmin.vue](../src/features/clinical/views/ScalesAdmin.vue) | 354 | Keep | Question-add/create modal workflows differ from ordinary catalogs; retain, optionally isolate question editor later. |
+| [TemplateForm.vue](../src/features/clinical/views/TemplateForm.vue) | 241 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
+| [TemplatesList.vue](../src/features/clinical/views/TemplatesList.vue) | 148 | Keep | Small template list/reactivation controller; route-filter assembly may be shared. |
 ## src/features/dashboard/components
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [DashboardLayout.vue](../src/features/dashboard/components/DashboardLayout.vue) | 189 | Keep | Dashboard-specific card composition; no need one component per small card. |
-| [SessionScratchpad.vue](../src/features/dashboard/components/SessionScratchpad.vue) | 36 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/components/ui/EditableNotes.vue`. |
+| [DashboardLayout.vue](../src/features/dashboard/components/DashboardLayout.vue) | 230 | Keep | Dashboard-specific card composition; no need one component per small card. |
+| [SessionScratchpad.vue](../src/features/dashboard/components/SessionScratchpad.vue) | 46 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/components/ui/EditableNotes.vue`. |
 ## src/features/dashboard/services
 
 | File | Lines | Disposition | Rationale |
@@ -499,15 +499,15 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
 | [AboutView.vue](../src/features/help/views/AboutView.vue) | 14 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/AboutView.vue`. |
-| [ManualView.vue](../src/features/help/views/ManualView.vue) | 25 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/ManualView.vue`. |
-| [PrivacyPolicyView.vue](../src/features/help/views/PrivacyPolicyView.vue) | 22 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/PrivacyPolicyView.vue`. |
-| [TermsView.vue](../src/features/help/views/TermsView.vue) | 21 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/TermsView.vue`. |
+| [ManualView.vue](../src/features/help/views/ManualView.vue) | 28 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/ManualView.vue`. |
+| [PrivacyPolicyView.vue](../src/features/help/views/PrivacyPolicyView.vue) | 27 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/PrivacyPolicyView.vue`. |
+| [TermsView.vue](../src/features/help/views/TermsView.vue) | 27 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/TermsView.vue`. |
 ## src/features/import/components
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [DiagnosisImportPanel.vue](../src/features/import/components/DiagnosisImportPanel.vue) | 135 | Added S08 | Diagnosis preview/execute file/mode/token/consent owner. |
-| [MedicationImportPanel.vue](../src/features/import/components/MedicationImportPanel.vue) | 206 | Added S08 | Medication upload/map/preview/execute owner with descriptor-based column controls. |
+| [DiagnosisImportPanel.vue](../src/features/import/components/DiagnosisImportPanel.vue) | 157 | Added S08 | Diagnosis preview/execute file/mode/token/consent owner. |
+| [MedicationImportPanel.vue](../src/features/import/components/MedicationImportPanel.vue) | 304 | Added S08 | Medication upload/map/preview/execute owner with descriptor-based column controls. |
 ## src/features/import/services
 
 | File | Lines | Disposition | Rationale |
@@ -517,18 +517,18 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [ImportData.vue](../src/features/import/views/ImportData.vue) | 240 | Keep | Patient import step/preview/doctor binding; retain distinct from catalog import and recovery; reuse download helper. |
-| [ImportOptions.vue](../src/features/import/views/ImportOptions.vue) | 14 | Applied S08 | Independent diagnosis/medication panels retain preview tokens, mappings, invalidation and consent. |
+| [ImportData.vue](../src/features/import/views/ImportData.vue) | 258 | Keep | Patient import step/preview/doctor binding; retain distinct from catalog import and recovery; reuse download helper. |
+| [ImportOptions.vue](../src/features/import/views/ImportOptions.vue) | 17 | Applied S08 | Independent diagnosis/medication panels retain preview tokens, mappings, invalidation and consent. |
 ## src/features/notifications/components
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [NotificationCenter.vue](../src/features/notifications/components/NotificationCenter.vue) | 205 | Keep | Dropdown/grouped notification rendering; keep; read count directly or move count adapter into feature. |
+| [NotificationCenter.vue](../src/features/notifications/components/NotificationCenter.vue) | 228 | Keep | Dropdown/grouped notification rendering; keep; read count directly or move count adapter into feature. |
 ## src/features/notifications/composables
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [useUnreadCount.js](../src/features/notifications/composables/useUnreadCount.js) | 8 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/composables/useUnreadCount.js`. |
+| [useUnreadCount.js](../src/features/notifications/composables/useUnreadCount.js) | 12 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/composables/useUnreadCount.js`. |
 ## src/features/notifications/services
 
 | File | Lines | Disposition | Rationale |
@@ -549,8 +549,8 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
 | [PatientCareTeamTab.vue](../src/features/patients/components/PatientCareTeamTab.vue) | 135 | Keep | Effective team/candidate/add/remove rendering; keep domain boundary with parent versions. |
-| [PatientDetailLayout.vue](../src/features/patients/components/PatientDetailLayout.vue) | 204 | Keep | Patient tabs/panels composition; keep per-panel permissions/versions, avoid a universal detail schema. |
-| [PatientDocumentsPanel.vue](../src/features/patients/components/PatientDocumentsPanel.vue) | 47 | Keep | Document metadata/file/own-version/archive workflow; retain; ordinary downloads can reuse helper. |
+| [PatientDetailLayout.vue](../src/features/patients/components/PatientDetailLayout.vue) | 314 | Keep | Patient tabs/panels composition; keep per-panel permissions/versions, avoid a universal detail schema. |
+| [PatientDocumentsPanel.vue](../src/features/patients/components/PatientDocumentsPanel.vue) | 258 | Keep | Document metadata/file/own-version/archive workflow; retain; ordinary downloads can reuse helper. |
 | [PatientDuplicatePanel.vue](../src/features/patients/components/PatientDuplicatePanel.vue) | 49 | Keep | Optional duplicate review and preview-bound merge consent; keep separate from ordinary records editor. |
 | [PatientFormDemographics.vue](../src/features/patients/components/PatientFormDemographics.vue) | 80 | Keep | Cohesive demographic form section; keep optional unknown/year-only fields. |
 | [PatientFormMedical.vue](../src/features/patients/components/PatientFormMedical.vue) | 31 | Keep | Small permission-aware medical section; retain domain boundary rather than fold into generic form fields. |
@@ -559,11 +559,11 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [PatientIdentity.vue](../src/features/patients/components/PatientIdentity.vue) | 128 | Keep | Patient identity/action display; keep distinct from visit workspace/allergy summary. |
 | [PatientLink.vue](../src/features/patients/components/PatientLink.vue) | 36 | Keep | Patient-specific link/tooltip label adapter; correctly feature-owned. |
 | [PatientProfileFields.vue](../src/features/patients/components/PatientProfileFields.vue) | 30 | Keep | Identity verification/preferences/correction-reason section; keep domain-specific controls. |
-| [PatientRecordsPanel.vue](../src/features/patients/components/PatientRecordsPanel.vue) | 130 | Keep | Schema-driven longitudinal register editor; retain reason/opening-version and type-specific semantics. |
+| [PatientRecordsPanel.vue](../src/features/patients/components/PatientRecordsPanel.vue) | 421 | Keep | Schema-driven longitudinal register editor; retain reason/opening-version and type-specific semantics. |
 | [PatientSidebar.vue](../src/features/patients/components/PatientSidebar.vue) | 102 | Keep | Patient completeness/family/risk summary; differs from compact visit summary sidebar. |
 | [PatientSummarySidebar.vue](../src/features/patients/components/PatientSummarySidebar.vue) | 85 | Keep | Compact patient context for visit editing; retain in patient feature, preserve model identity semantics. |
-| [PatientVisitsList.vue](../src/features/patients/components/PatientVisitsList.vue) | 93 | Keep | Patient-owned visit collection/actions composition; import visit-specific cards from visits after move. |
-| [PatientWorkspaceHeader.vue](../src/features/patients/components/PatientWorkspaceHeader.vue) | 58 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/visits/components/PatientWorkspaceHeader.vue`. |
+| [PatientVisitsList.vue](../src/features/patients/components/PatientVisitsList.vue) | 95 | Keep | Patient-owned visit collection/actions composition; import visit-specific cards from visits after move. |
+| [PatientWorkspaceHeader.vue](../src/features/patients/components/PatientWorkspaceHeader.vue) | 159 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/visits/components/PatientWorkspaceHeader.vue`. |
 ## src/features/patients/config
 
 | File | Lines | Disposition | Rationale |
@@ -583,15 +583,15 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [PatientDetail.vue](../src/features/patients/views/PatientDetail.vue) | 212 | Keep | Patient section-load/version/actions controller; feature-local loader/export helper extraction is optional after shared lifecycle work. |
-| [PatientForm.vue](../src/features/patients/views/PatientForm.vue) | 274 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
-| [PatientsList.vue](../src/features/patients/views/PatientsList.vue) | 414 | Applied S02 | One account-scoped visible-key contract drives the table chooser, rendering and patient export fields. |
+| [PatientDetail.vue](../src/features/patients/views/PatientDetail.vue) | 250 | Keep | Patient section-load/version/actions controller; feature-local loader/export helper extraction is optional after shared lifecycle work. |
+| [PatientForm.vue](../src/features/patients/views/PatientForm.vue) | 383 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
+| [PatientsList.vue](../src/features/patients/views/PatientsList.vue) | 450 | Applied S02 | One account-scoped visible-key contract drives the table chooser, rendering and patient export fields. |
 ## src/features/prescription/components
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
 | [LetterSheet.vue](../src/features/prescription/components/LetterSheet.vue) | 30 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/clinical/components/LetterSheet.vue`. |
-| [PrescriptionHistory.vue](../src/features/prescription/components/PrescriptionHistory.vue) | 94 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
+| [PrescriptionHistory.vue](../src/features/prescription/components/PrescriptionHistory.vue) | 271 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
 | [PrescriptionPaperOptions.vue](../src/features/prescription/components/PrescriptionPaperOptions.vue) | 55 | Keep | Paper settings/alignment reference belong here; no generic geometry component needed. |
 ## src/features/prescription/services
 
@@ -605,14 +605,14 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [PrescriptionPreview.vue](../src/features/prescription/views/PrescriptionPreview.vue) | 298 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
-| [ReferralLetter.vue](../src/features/prescription/views/ReferralLetter.vue) | 119 | Keep | Referral narrative/reason issuance composition; keep separate from prescription preview, reuse ordinary download helper. |
+| [PrescriptionPreview.vue](../src/features/prescription/views/PrescriptionPreview.vue) | 411 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
+| [ReferralLetter.vue](../src/features/prescription/views/ReferralLetter.vue) | 137 | Keep | Referral narrative/reason issuance composition; keep separate from prescription preview, reuse ordinary download helper. |
 ## src/features/reports/components
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [StatisticsChart.vue](../src/features/reports/components/StatisticsChart.vue) | 124 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/components/charts/StatisticsChart.vue`. |
-| [StatisticsLayout.vue](../src/features/reports/components/StatisticsLayout.vue) | 141 | Keep | Report chart/KPI/date/export composition; correct feature owner; move StatisticsChart here. |
+| [StatisticsChart.vue](../src/features/reports/components/StatisticsChart.vue) | 153 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/components/charts/StatisticsChart.vue`. |
+| [StatisticsLayout.vue](../src/features/reports/components/StatisticsLayout.vue) | 151 | Keep | Report chart/KPI/date/export composition; correct feature owner; move StatisticsChart here. |
 ## src/features/reports/services
 
 | File | Lines | Disposition | Rationale |
@@ -622,8 +622,8 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [Reconciliation.vue](../src/features/reports/views/Reconciliation.vue) | 113 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
-| [Statistics.vue](../src/features/reports/views/Statistics.vue) | 147 | Keep | Report projections/definitions/downloads controller; optionally extract chart definitions, use existing download helper. |
+| [Reconciliation.vue](../src/features/reports/views/Reconciliation.vue) | 175 | Applied S13 | One status presentation registry and theme metadata/default palette owner; transitions/dark variants retained. |
+| [Statistics.vue](../src/features/reports/views/Statistics.vue) | 324 | Keep | Report projections/definitions/downloads controller; optionally extract chart definitions, use existing download helper. |
 ## src/features/settings/components
 
 | File | Lines | Disposition | Rationale |
@@ -647,9 +647,9 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | --- | ---: | --- | --- |
 | [ChangePassword.vue](../src/features/settings/views/ChangePassword.vue) | 136 | Keep | Small account password flow; no form split needed; service/auth contracts remain authoritative. |
 | [Settings.vue](../src/features/settings/views/Settings.vue) | 251 | Keep | Clinic settings plus shared personal preferences; no immediate split by section needed. |
-| [UserForm.vue](../src/features/settings/views/UserForm.vue) | 213 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
+| [UserForm.vue](../src/features/settings/views/UserForm.vue) | 241 | Applied S03/S07 | Breadcrumb outlet/callers are connected; form hydration and error gates are retained. Six forms supply direct saves to the existing single form mutation owner. |
 | [UserPermissions.vue](../src/features/settings/views/UserPermissions.vue) | 145 | Keep | Permission-table/opening-version workflow; keep distinct from account profile form. |
-| [UsersList.vue](../src/features/settings/views/UsersList.vue) | 140 | Keep | Account list controller; reuse route-filter adapter; preserve deactivation confirmation. |
+| [UsersList.vue](../src/features/settings/views/UsersList.vue) | 153 | Keep | Account list controller; reuse route-filter adapter; preserve deactivation confirmation. |
 | [WorkspaceSettings.vue](../src/features/settings/views/WorkspaceSettings.vue) | 6 | Keep | Intentionally tiny route wrapper for shared WorkspacePreferences; keep. |
 ## src/features/tasks/components
 
@@ -666,43 +666,43 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [tasks.js](../src/features/tasks/stores/tasks.js) | 87 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
+| [tasks.js](../src/features/tasks/stores/tasks.js) | 90 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
 ## src/features/tasks/views
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [TasksPage.vue](../src/features/tasks/views/TasksPage.vue) | 188 | Keep | Reasoned lifecycle/confirmation actions controller; keep; shared route-filter assembly can reduce repetition. |
+| [TasksPage.vue](../src/features/tasks/views/TasksPage.vue) | 202 | Keep | Reasoned lifecycle/confirmation actions controller; keep; shared route-filter assembly can reduce repetition. |
 ## src/features/visits/components
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [ApprovedVisitReference.vue](../src/features/visits/components/ApprovedVisitReference.vue) | 32 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
-| [ClinicalHandover.vue](../src/features/visits/components/ClinicalHandover.vue) | 39 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
+| [ApprovedVisitReference.vue](../src/features/visits/components/ApprovedVisitReference.vue) | 99 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
+| [ClinicalHandover.vue](../src/features/visits/components/ClinicalHandover.vue) | 78 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
 | [DuplicateVisitButton.vue](../src/features/visits/components/DuplicateVisitButton.vue) | 30 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/components/common/DuplicateVisitButton.vue`. |
 | [InstructionAcknowledgement.vue](../src/features/visits/components/InstructionAcknowledgement.vue) | 31 | Keep | Nullable explanation/recipient/timestamp input block; keep clinical feature ownership. |
-| [VisitAdministrative.vue](../src/features/visits/components/VisitAdministrative.vue) | 46 | Keep | Visit documentation/supervision/acknowledgement section; keep, move disclosure policy to visit coordinator. |
-| [VisitBasicInfo.vue](../src/features/visits/components/VisitBasicInfo.vue) | 115 | Keep | Visit history/date/score section; cohesive and worth keeping. |
-| [VisitCard.vue](../src/features/visits/components/VisitCard.vue) | 101 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/components/common/VisitCard.vue`. |
-| [VisitClinicalNotes.vue](../src/features/visits/components/VisitClinicalNotes.vue) | 71 | Keep | Examination/formulation/risk notes/scale section; keep domain section. |
-| [VisitDiagnosesLabs.vue](../src/features/visits/components/VisitDiagnosesLabs.vue) | 58 | Keep | Diagnosis/lab section; use clinical rich-entry selector after MultiSelect split. |
-| [VisitRecordPreview.vue](../src/features/visits/components/VisitRecordPreview.vue) | 25 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
+| [VisitAdministrative.vue](../src/features/visits/components/VisitAdministrative.vue) | 77 | Keep | Visit documentation/supervision/acknowledgement section; keep, move disclosure policy to visit coordinator. |
+| [VisitBasicInfo.vue](../src/features/visits/components/VisitBasicInfo.vue) | 117 | Keep | Visit history/date/score section; cohesive and worth keeping. |
+| [VisitCard.vue](../src/features/visits/components/VisitCard.vue) | 108 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/components/common/VisitCard.vue`. |
+| [VisitClinicalNotes.vue](../src/features/visits/components/VisitClinicalNotes.vue) | 73 | Keep | Examination/formulation/risk notes/scale section; keep domain section. |
+| [VisitDiagnosesLabs.vue](../src/features/visits/components/VisitDiagnosesLabs.vue) | 70 | Keep | Diagnosis/lab section; use clinical rich-entry selector after MultiSelect split. |
+| [VisitRecordPreview.vue](../src/features/visits/components/VisitRecordPreview.vue) | 64 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
 | [VisitSectionNavigator.vue](../src/features/visits/components/VisitSectionNavigator.vue) | 24 | Keep | Feature-specific disclosure navigation/missing hints; retain and coordinate shared section identifiers. |
-| [VisitTreatmentPlan.vue](../src/features/visits/components/VisitTreatmentPlan.vue) | 186 | Keep | Plan currently includes medications/goals/risk/follow-up/templates; optional future risk/goal subsection extraction, not required by size alone. |
+| [VisitTreatmentPlan.vue](../src/features/visits/components/VisitTreatmentPlan.vue) | 224 | Keep | Plan currently includes medications/goals/risk/follow-up/templates; optional future risk/goal subsection extraction, not required by size alone. |
 | [VisitsListLayout.vue](../src/features/visits/components/VisitsListLayout.vue) | 103 | Keep | List/detail-preview presentation; correctly separate from actions/controller. |
 ## src/features/visits/composables
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [useVisitForm.js](../src/features/visits/composables/useVisitForm.js) | 136 | Applied S09 | Fresh defaults and pure mapping live in the visit model; lifecycle and saved scale policy stay separate. |
-| [useVisitLookups.js](../src/features/visits/composables/useVisitLookups.js) | 59 | Keep | Feature-specific diagnosis/medication search adapter over catalog owner; retain. |
-| [useVisitScales.js](../src/features/visits/composables/useVisitScales.js) | 142 | Keep | Saved answers/late definitions/removal/payload policy is cohesive; keep separate from catalog/picker reads. |
-| [useVisitSections.js](../src/features/visits/composables/useVisitSections.js) | 8 | Added S06 | Visit-only progressive disclosure defaults. |
+| [useVisitForm.js](../src/features/visits/composables/useVisitForm.js) | 151 | Applied S09 | Fresh defaults and pure mapping live in the visit model; lifecycle and saved scale policy stay separate. |
+| [useVisitLookups.js](../src/features/visits/composables/useVisitLookups.js) | 68 | Keep | Feature-specific diagnosis/medication search adapter over catalog owner; retain. |
+| [useVisitScales.js](../src/features/visits/composables/useVisitScales.js) | 164 | Keep | Saved answers/late definitions/removal/payload policy is cohesive; keep separate from catalog/picker reads. |
+| [useVisitSections.js](../src/features/visits/composables/useVisitSections.js) | 13 | Added S06 | Visit-only progressive disclosure defaults. |
 | [useVisitTemplates.js](../src/features/visits/composables/useVisitTemplates.js) | 75 | Keep | Template application/provenance owner; keep separate from visit mapping and catalog editor. |
 ## src/features/visits/model
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [visitForm.js](../src/features/visits/model/visitForm.js) | 236 | Added S09 | Fresh defaults, detached hydration/duplication, command mapping and visit draft allowlist. |
+| [visitForm.js](../src/features/visits/model/visitForm.js) | 259 | Added S09 | Fresh defaults, detached hydration/duplication, command mapping and visit draft allowlist. |
 ## src/features/visits/services
 
 | File | Lines | Disposition | Rationale |
@@ -717,20 +717,20 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [VisitDetail.vue](../src/features/visits/views/VisitDetail.vue) | 279 | Keep | Clinical detail/sign/amend/lock composition; optional future section extraction, preserve distinction from read-only approved references. |
-| [VisitForm.vue](../src/features/visits/views/VisitForm.vue) | 268 | Applied S09 | Fresh defaults and pure mapping live in the visit model; lifecycle and saved scale policy stay separate. |
-| [VisitsList.vue](../src/features/visits/views/VisitsList.vue) | 142 | Keep | Visit list/action controller; route filters/download handling can share existing infrastructure. |
+| [VisitDetail.vue](../src/features/visits/views/VisitDetail.vue) | 381 | Keep | Clinical detail/sign/amend/lock composition; optional future section extraction, preserve distinction from read-only approved references. |
+| [VisitForm.vue](../src/features/visits/views/VisitForm.vue) | 331 | Applied S09 | Fresh defaults and pure mapping live in the visit model; lifecycle and saved scale policy stay separate. |
+| [VisitsList.vue](../src/features/visits/views/VisitsList.vue) | 163 | Keep | Visit list/action controller; route filters/download handling can share existing infrastructure. |
 ## src
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [main.js](../src/main.js) | 95 | Keep | App/plugin/directive/bootstrap order owner; retain, remove obsolete registered clipboard adapter only after decision. |
+| [main.js](../src/main.js) | 98 | Keep | App/plugin/directive/bootstrap order owner; retain, remove obsolete registered clipboard adapter only after decision. |
 ## src/router
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
 | [guards.js](../src/router/guards.js) | 39 | Keep | Session/grant/forced-password guards; retain explicit server-grant checks. |
-| [index.js](../src/router/index.js) | 296 | Keep | Route metadata/lazy imports/navigation cancellation; correct misplaced view imports when moving owners, no per-feature split required now. |
+| [index.js](../src/router/index.js) | 485 | Keep | Route metadata/lazy imports/navigation cancellation; correct misplaced view imports when moving owners, no per-feature split required now. |
 ## src/services
 
 | File | Lines | Disposition | Rationale |
@@ -739,7 +739,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [apiEvents.js](../src/services/apiEvents.js) | 61 | Keep | Transport-to-app event bridge; retain separate from UI actions. |
 | [baseCrudService.js](../src/services/baseCrudService.js) | 36 | Keep | Shared allowlist-aware CRUD service factory; retain. |
 | [contracts.js](../src/services/contracts.js) | 29 | Keep | Wire types/command allowlists inspected; keep single command boundary, not a form generator schema. |
-| [datePicker.js](../src/services/datePicker.js) | 30 | Added S12 | Flatpickr lazy loading, locale and browser widget initialization. |
+| [datePicker.js](../src/services/datePicker.js) | 47 | Added S12 | Flatpickr lazy loading, locale and browser widget initialization. |
 | [overlayStack.js](../src/services/overlayStack.js) | 79 | Keep | Single cross-component focus/inert/body-lock owner; preserve nested-layer semantics. |
 | [sessionState.js](../src/services/sessionState.js) | 38 | Keep | Principal generation/store cleanup owner; retain explicit infrastructure boundary. |
 | [themeService.js](../src/services/themeService.js) | 46 | Keep | DOM theme/browser preference adapter; keep one application owner, centralize theme registry metadata. |
@@ -748,7 +748,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
 | [confirm.js](../src/stores/confirm.js) | 62 | Keep | Sole confirmation/prompt queue owner; retain. |
-| [crudStoreFactory.js](../src/stores/crudStoreFactory.js) | 155 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
+| [crudStoreFactory.js](../src/stores/crudStoreFactory.js) | 158 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
 | [loading.js](../src/stores/loading.js) | 36 | Keep | Global write-request count/visible delay owner; keep distinct from read loading. |
 | [lookupStoreFactory.js](../src/stores/lookupStoreFactory.js) | 79 | Keep S01 | Existing full-catalog/coalescing/invalidation owner now also supplies the scale picker. |
 ## src/stores/plugins
@@ -837,11 +837,11 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [announce.js](../src/utils/announce.js) | 5 | Keep | Small live-region bridge; retain one host policy. |
 | [apiErrorHandler.js](../src/utils/apiErrorHandler.js) | 99 | Keep | Transport status/error UI policy; reuse existing error messages/extraction instead of new competing handlers. |
 | [asyncStore.js](../src/utils/asyncStore.js) | 25 | Retain S04 | No production entry path; retained because an existing test imports this module directly. |
-| [businessRules.js](../src/utils/businessRules.js) | 69 | Keep S12 | Age forwards to pure date owner; tested risk/interval helpers retained, unused phone/ID alternatives removed. |
-| [catalogFetch.js](../src/utils/catalogFetch.js) | 15 | Keep | Full-cursor traversal/repetition guard; retain and reuse for catalog-owned reads. |
+| [businessRules.js](../src/utils/businessRules.js) | 81 | Keep S12 | Age forwards to pure date owner; tested risk/interval helpers retained, unused phone/ID alternatives removed. |
+| [catalogFetch.js](../src/utils/catalogFetch.js) | 23 | Keep | Full-cursor traversal/repetition guard; retain and reuse for catalog-owned reads. |
 | [confirmMessages.js](../src/utils/confirmMessages.js) | 15 | Keep | Active shared confirmation text; keep domain-specific consent/reasons explicit. |
-| [cursorResponse.js](../src/utils/cursorResponse.js) | 19 | Added S12 | Single live cursor/list response normalizer delegating envelope extraction to unwrapResponse. |
-| [date.js](../src/utils/date.js) | 136 | Added S12 | Pure established date parsing/formatting/arithmetic/normalization and year-only age operations. |
+| [cursorResponse.js](../src/utils/cursorResponse.js) | 40 | Added S12 | Single live cursor/list response normalizer delegating envelope extraction to unwrapResponse. |
+| [date.js](../src/utils/date.js) | 157 | Added S12 | Pure established date parsing/formatting/arithmetic/normalization and year-only age operations. |
 | [decimalMoney.js](../src/utils/decimalMoney.js) | 34 | Keep | Exact integer-hundredth billing arithmetic; retain separate from display formatters. |
 | [download.js](../src/utils/download.js) | 13 | Applied S10 | Shared read/URL/download ownership; issuance and successful-form-hydration policy stay with their owners. |
 | [errorExtractor.js](../src/utils/errorExtractor.js) | 42 | Keep | Form error-envelope extraction; retain explicit form error contract, consolidate other copies when changing them. |
@@ -851,10 +851,10 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 | [iconMap.js](../src/utils/iconMap.js) | 94 | Keep | Semantic icon aliases; retain shared presentation registry. |
 | [idempotency.js](../src/utils/idempotency.js) | 8 | Keep | Logical-operation UUID generation; retain key lifecycle ownership in apiClient. |
 | [index.js](../src/utils/index.js) | 11 | Keep | Active debounce implementation imported through @/utils; rename debounce.js optionally, avoid expanding barrel. |
-| [listFetch.js](../src/utils/listFetch.js) | 39 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
+| [listFetch.js](../src/utils/listFetch.js) | 45 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
 | [lruCache.js](../src/utils/lruCache.js) | 53 | Keep | Patient cache primitive; correctly generic, retain. |
 | [normalize.js](../src/utils/normalize.js) | 19 | Keep S12 | fullName remains active; normalizeList is retained for its direct test consumer. |
-| [optionList.js](../src/utils/optionList.js) | 8 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
+| [optionList.js](../src/utils/optionList.js) | 20 | Applied S12 | Pure dates/browser widget and live cursor normalization have explicit owners; strict catalog handling retained. |
 | [pagination.js](../src/utils/pagination.js) | 41 | Retain S04 | No production entry path; retained because an existing test imports this module directly. |
 | [queryBuilder.js](../src/utils/queryBuilder.js) | 47 | Retain S04 | No production entry path; retained because an existing test imports this module directly. |
 | [reportError.js](../src/utils/reportError.js) | 5 | Keep | Static operation/status logging boundary; keep privacy-preserving behavior. |
@@ -866,7 +866,7 @@ Current inventory: **427/427 files** — 183 Vue, 141 JavaScript, 97 CSS, two ge
 
 | File | Lines | Disposition | Rationale |
 | --- | ---: | --- | --- |
-| [ErrorPage.vue](../src/views/ErrorPage.vue) | 68 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/ErrorPage.vue`. |
+| [ErrorPage.vue](../src/views/ErrorPage.vue) | 84 | Applied S14 | Moved to the domain owner; explicit imports and mirrored scoped styles updated. Previous path: `src/features/reports/views/ErrorPage.vue`. |
 
 ## Removed owners
 

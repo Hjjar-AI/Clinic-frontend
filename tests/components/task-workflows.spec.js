@@ -3,7 +3,6 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import apiClient from '@/services/apiClient'
 import TasksPage from '@/features/tasks/views/TasksPage.vue'
-import TaskFormInline from '@/features/tasks/components/TaskFormInline.vue'
 import { useTaskStore } from '@/features/tasks/stores/tasks'
 import { useConfirmStore } from '@/stores/confirm'
 
@@ -66,20 +65,7 @@ describe('rendered task creation uses the real store and service', () => {
     expect(wrapper.get('form button').element.disabled).toBe(false)
   })
 
-  it('inline form creates through the real store, resets values and emits completion', async () => {
-    let request
-    apiClient.defaults.adapter = async config => {
-      request = config
-      return response(config, { id: 42, ...JSON.parse(config.data) })
-    }
-    const wrapper = mount(TaskFormInline)
-    await wrapper.get('input:not([type=hidden])').setValue('Inline synthetic task')
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(JSON.parse(request.data)).toEqual({ title: 'Inline synthetic task', due_date: null })
-    expect(wrapper.emitted('task-added')).toHaveLength(1)
-    expect(wrapper.get('input:not([type=hidden])').element.value).toBe('')
-  })
+
 
   it('blank page titles never make a mutation request', async () => {
     const { wrapper, requests } = await page()
@@ -90,17 +76,7 @@ describe('rendered task creation uses the real store and service', () => {
     expect(requests.filter(request => request.method === 'post')).toHaveLength(0)
   })
 
-  it('failed inline creation retains the draft, releases loading and emits no completion', async () => {
-    const create = vi.spyOn(useTaskStore(), 'create').mockRejectedValue(new Error('Synthetic rejection'))
-    const wrapper = mount(TaskFormInline)
-    await wrapper.get('input:not([type=hidden])').setValue('Keep this inline draft')
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(create).toHaveBeenCalledWith({ title: 'Keep this inline draft', due_date: null })
-    expect(wrapper.get('input:not([type=hidden])').element.value).toBe('Keep this inline draft')
-    expect(wrapper.get('button').element.disabled).toBe(false)
-    expect(wrapper.emitted('task-added')).toBeUndefined()
-  })
+
 })
 
 describe('task lifecycle controls preserve the rendered version and draft', () => {

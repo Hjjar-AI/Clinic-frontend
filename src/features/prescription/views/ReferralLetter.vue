@@ -35,8 +35,11 @@
             <span class="tag tag--dose numeric">{{ m.dosage }}</span><span v-if="i < visit.medications.length - 1">, </span>
           </span>
         </p>
-        <div class="form-group no-print">
-          <label for="referral-reason">سبب التحويل</label>
+        <FormField
+          label="سبب التحويل"
+          field-id="referral-reason"
+          class="no-print"
+        >
           <textarea
             id="referral-reason"
             v-model.trim="reason"
@@ -51,7 +54,7 @@
           >{{
             reasonError
           }}</small>
-        </div>
+        </FormField>
         <p class="print-only">
           <strong>سبب التحويل:</strong> {{ reason || 'لم يحدد' }}
         </p>
@@ -83,6 +86,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+import FormField from '@/components/ui/FormField.vue'
 import { useApi } from '@/composables/useApi'
 import { useDate } from '@/composables/useDate'
 import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'

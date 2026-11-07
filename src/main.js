@@ -24,7 +24,6 @@ import { reportError } from '@/utils/reportError'
 import App from './App.vue'
 import autofocus from './directives/autofocus'
 import autoTitle from './directives/autoTitle'
-import debounce from './directives/debounce'
 import router from './router'
 
 async function mount() {
@@ -59,7 +58,6 @@ async function mount() {
 
   app.directive('autofocus', autofocus)
   app.directive('auto-title', autoTitle)
-  app.directive('debounce', debounce)
 
   // Register global components
   app.component('Icon', Icon)

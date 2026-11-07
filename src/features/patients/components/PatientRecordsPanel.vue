@@ -3,6 +3,7 @@
     <FormField label="نوع السجل">
       <select
         v-model="kind"
+        aria-label="نوع السجل"
         class="form-control"
       >
         <option
@@ -55,6 +56,7 @@
             <select
               v-if="options(field)"
               v-model="draft[field.name]"
+              :aria-label="field.label"
               class="form-control"
               :required="field.required"
             >
@@ -73,11 +75,13 @@
             <input
               v-else-if="field.type === 'checkbox'"
               v-model="draft[field.name]"
+              :aria-label="field.label"
               type="checkbox"
             >
             <input
               v-else
               v-model="draft[field.name]"
+              :aria-label="field.label"
               :type="field.type"
               :maxlength="field.maxLength"
               class="form-control"

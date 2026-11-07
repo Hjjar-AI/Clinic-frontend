@@ -42,40 +42,4 @@
 }
 
 /* ===== Lab Result ===== */
-.lab-result {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 120px;
-    gap: var(--space-3);
-    align-items: center;
-    padding: var(--space-3) 0;
-    border-bottom: var(--border-width-1) solid var(--color-border-subtle);
-    font-size: var(--text-sm);
-}
-.lab-result:last-child {
-    border-bottom: none;
-}
-.lab-result--danger {
-    background: var(--color-danger-light);
-    border-radius: var(--radius-sm);
-    padding: var(--space-3);
-}
-.lab-result--warning {
-    background: var(--color-warning-light);
-    border-radius: var(--radius-sm);
-    padding: var(--space-3);
-}
-.lab-result__name {
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text);
-}
-.lab-result__value {
-    font-weight: var(--font-weight-bold);
-}
-.lab-result__ref {
-    color: var(--color-text-muted);
-    font-size: var(--text-xs);
-}
-.lab-result__flag {
-    text-align: center;
-}
 

@@ -48,7 +48,6 @@
   .skeleton,
   .loading-overlay,
   .scroll-top-btn,
-  .context-menu,
   .skip-link,
   .offline-banner,
   .route-progress-bar,
@@ -59,8 +58,7 @@
   .fab-container,
   .notification-badge,
   .timeout-warning-overlay,
-  .phi-blur-overlay,
-  .bulk-actions-bar {
+  .phi-blur-overlay {
     display: none !important;
   }
 

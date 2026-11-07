@@ -103,6 +103,7 @@
       <FormField label="الوصف">
         <textarea
           v-model="newScale.description"
+          aria-label="الوصف"
           class="form-control form-control--textarea"
         />
       </FormField>
@@ -129,6 +130,7 @@
       <FormField label="النوع">
         <select
           v-model="newField.field_type"
+          aria-label="النوع"
           class="form-control form-control--select"
         >
           <option value="slider">
@@ -143,6 +145,7 @@
         <FormField label="الحد الأدنى">
           <input
             v-model.number="newField.min_val"
+            aria-label="الحد الأدنى"
             type="number"
             class="form-control"
           >
@@ -150,6 +153,7 @@
         <FormField label="الحد الأقصى">
           <input
             v-model.number="newField.max_val"
+            aria-label="الحد الأقصى"
             type="number"
             class="form-control"
           >
@@ -157,6 +161,7 @@
         <FormField label="الخطوة">
           <input
             v-model.number="newField.step"
+            aria-label="الخطوة"
             type="number"
             class="form-control"
           >
@@ -164,6 +169,7 @@
         <FormField label="القيمة الافتراضية">
           <input
             v-model.number="newField.default"
+            aria-label="القيمة الافتراضية"
             type="number"
             class="form-control"
           >

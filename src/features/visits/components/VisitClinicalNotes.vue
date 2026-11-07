@@ -16,6 +16,7 @@
       <FormField label="العوامل المهيئة">
         <textarea
           v-model="form.formulation_predisposing"
+          aria-label="العوامل المهيئة"
           class="form-control"
           rows="2"
         />
@@ -23,6 +24,7 @@
       <FormField label="العوامل المسببة">
         <textarea
           v-model="form.formulation_precipitating"
+          aria-label="العوامل المسببة"
           class="form-control"
           rows="2"
         />
@@ -30,6 +32,7 @@
       <FormField label="العوامل المستمرة">
         <textarea
           v-model="form.formulation_perpetuating"
+          aria-label="العوامل المستمرة"
           class="form-control"
           rows="2"
         />
@@ -37,6 +40,7 @@
       <FormField label="العوامل الوقائية">
         <textarea
           v-model="form.formulation_protective"
+          aria-label="العوامل الوقائية"
           class="form-control"
           rows="2"
         />
@@ -65,8 +69,8 @@ import FormTextarea from '@/components/ui/FormTextarea.vue'
 import ScaleRenderer from '@/features/clinical/components/ScaleRenderer.vue'
 
 defineProps({
-  form: Object,
-  scales: Array,
+  form: { type: Object, required: true },
+  scales: { type: Array, default: () => [] },
 })
 
 defineEmits(['add-scale', 'remove-scale', 'update-scale-field'])

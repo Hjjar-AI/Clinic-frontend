@@ -9,7 +9,9 @@
       <label
         v-for="(column, index) in columns"
         :key="column.key"
+        :for="`${columnControlId}-${column.key}`"
       ><input
+         :id="`${columnControlId}-${column.key}`"
          type="checkbox"
          :checked="visibleColumns.some((item) => item.key === column.key)"
          :disabled="index === 0 || column.fixed"
@@ -196,6 +198,8 @@
 </template>
 
 <script setup>
+import { useId } from 'vue'
+const columnControlId = `table-columns-${useId()}`
 import {
   computed,
   getCurrentInstance,

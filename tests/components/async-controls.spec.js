@@ -21,6 +21,8 @@ import { useAppointmentStore } from '@/features/appointments/stores/appointments
 import { useVisitStore } from '@/features/visits/stores/visits'
 import { useConstantsStore } from '@/features/clinical/stores/constants'
 
+const breadcrumbRoutes = ['Users', 'Templates', 'InvoicesList', 'PatientsList', 'AppointmentsCalendar'].map(name => ({ path: '/destination/' + name, name, component: { template: '<p>Destination</p>' } }))
+
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r }); return { promise, resolve } }
 it('ApiSelect late cancellation cannot hide the newer request spinner or replace its rows', async () => {
   const old = deferred(), current = deferred(); let calls = 0
@@ -75,7 +77,7 @@ it.each(edits)('%s failed edit hydration cannot submit blank values', async (nam
   const [reader, read] = readOwner(), [writer, write] = writeOwner()
   vi.spyOn(reader, read).mockRejectedValue(Error('Synthetic opening load failure')); const mutation = vi.spyOn(writer, write).mockResolvedValue({})
   apiClient.defaults.adapter = async config => ({ config, data: { data: { items: [], meta: {} } }, headers: {}, status: 200 })
-  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/edit/:id', component }] }); await router.push('/edit/7')
+  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/edit/:id', component }, ...breadcrumbRoutes] }); await router.push('/edit/7')
   const wrapper = mount(component, { global: { plugins: [router] } }); await flushPromises()
   expect(wrapper.text()).toContain('تعذر تحميل')
   if (wrapper.find('form').exists()) { expect(wrapper.get('fieldset').element.disabled).toBe(true); await wrapper.get('form').trigger('submit'); await flushPromises() }
@@ -83,7 +85,7 @@ it.each(edits)('%s failed edit hydration cannot submit blank values', async (nam
 })
 it('an edit response without its opening version remains unsaveable', async () => {
   vi.spyOn(userService, 'getById').mockResolvedValue({ id: 7, username: 'Synthetic' }); const update = vi.spyOn(userService, 'update')
-  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/users/:id/edit', component: UserForm }] }); await router.push('/users/7/edit')
+  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/users/:id/edit', component: UserForm }, ...breadcrumbRoutes] }); await router.push('/users/7/edit')
   const wrapper = mount(UserForm, { global: { plugins: [router] } }); await flushPromises()
   expect(wrapper.get('fieldset').element.disabled).toBe(true); await wrapper.get('form').trigger('submit'); expect(update).not.toHaveBeenCalled()
 })

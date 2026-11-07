@@ -18,19 +18,3 @@
 .detail-item__value {
     font-weight: var(--font-weight-semibold);
 }
-
-.details-grid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--space-2) var(--space-4);
-    align-items: baseline;
-}
-.details-grid__label {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    white-space: nowrap;
-}
-.details-grid__value {
-    font-weight: var(--font-weight-semibold);
-    word-break: break-word;
-}

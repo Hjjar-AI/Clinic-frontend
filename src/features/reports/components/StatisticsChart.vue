@@ -20,10 +20,10 @@ import ChartCard from '@/components/ui/ChartCard.vue'
 import { getChartColors, useChart } from '@/composables/useChart'
 
 const props = defineProps({
-  chartDef: Object,
-  stats: Object,
-  monthsLabels: Array,
-  visitsCounts: Array,
+  chartDef: { type: Object, required: true },
+  stats: { type: Object, default: () => ({}) },
+  monthsLabels: { type: Array, default: () => [] },
+  visitsCounts: { type: Array, default: () => [] },
 })
 
 const { createChart, destroyChart, presentationVersion } = useChart()

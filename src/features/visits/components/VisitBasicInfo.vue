@@ -52,6 +52,7 @@
       <FormField label="المرافقة">
         <select
           v-model="form.accompanied_by"
+          aria-label="المرافقة"
           class="form-control form-control--select"
         >
           <option value="alone">
@@ -75,6 +76,7 @@
     <FormField label="وضع الحالة">
       <select
         v-model="form.clinical_status"
+        aria-label="وضع الحالة"
         class="form-control form-control--select"
       >
         <option value="">
@@ -110,8 +112,8 @@ import ScoreInput from '@/components/ui/ScoreInput.vue'
 import ClinicalTextArea from '@/features/clinical/components/ClinicalTextArea.vue'
 
 defineProps({
-  form: Object,
-  errors: Object,
-  ageDisplay: String,
+  form: { type: Object, required: true },
+  errors: { type: Object, default: () => ({}) },
+  ageDisplay: { type: String, default: '' },
 })
 </script>
