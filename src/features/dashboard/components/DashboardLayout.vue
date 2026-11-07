@@ -111,7 +111,12 @@
           :key="apt.id"
           class="flex flex--justify-between flex--center p-2 border-bottom"
         >
-          <div><span class="font-bold text-primary ml-3">{{ apt.appointment_time }}</span> {{ apt.patient_name }}</div>
+          <div>
+            <span class="font-bold text-primary ml-3">{{
+              apt.appointment_time
+            }}</span>
+            {{ apt.patient_name }}
+          </div>
           <Badge
             :status="apt.status"
             status-type="appointment"
@@ -139,20 +144,43 @@
       </BaseCard>
     </div>
 
-    <BaseCard v-if="authStore.can('view_visits')" header-title="إجراءات المتابعة" header-icon="calendar-check" :loading="loading" class="mb-4">
-      <p v-if="!followUps.length">لا توجد إجراءات متابعة قريبة أو متأخرة.</p>
-      <div v-for="action in followUps" :key="action.id" class="p-2 border-bottom">
-        <router-link :to="{name:'PatientDetail',params:{id:action.patient_id},query:{tab:'records',kind:'follow-ups'}}">{{ action.patient_name }} · {{ action.title }}</router-link>
-        <p class="text-muted">{{ action.due_date }} · {{ action.owner_name || 'غير مسند' }}</p>
+    <BaseCard
+      v-if="authStore.can('view_visits')"
+      header-title="إجراءات المتابعة"
+      header-icon="calendar-check"
+      :loading="loading"
+      class="mb-4"
+    >
+      <p v-if="!followUps.length">
+        لا توجد إجراءات متابعة قريبة أو متأخرة.
+      </p>
+      <div
+        v-for="action in followUps"
+        :key="action.id"
+        class="p-2 border-bottom"
+      >
+        <router-link
+          :to="{
+            name: 'PatientDetail',
+            params: { id: action.patient_id },
+            query: { tab: 'records', kind: 'follow-ups' },
+          }"
+        >
+          {{ action.patient_name }} · {{ action.title }}
+        </router-link>
+        <p class="text-muted">
+          {{ action.due_date }} · {{ action.owner_name || 'غير مسند' }}
+        </p>
       </div>
     </BaseCard>
-    <EditableNotes :user-id="authStore.user?.id" />
+    <SessionScratchpad :user-id="authStore.user?.id" />
   </div>
 </template>
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
 import { useAuthStore } from '@/features/auth/stores/auth'
+import SessionScratchpad from '@/features/dashboard/components/SessionScratchpad.vue'
 
 const authStore = useAuthStore()
 
@@ -173,16 +201,30 @@ defineProps({
 defineEmits(['refresh', 'mark-all-overdue'])
 
 function fullName(p) {
-  return p.first_name ? `${p.first_name} ${p.surname || ''}`.trim() : 'غير معروف'
+  return p.first_name
+    ? `${p.first_name} ${p.surname || ''}`.trim()
+    : 'غير معروف'
 }
 
 function getPatientRiskLevel(patient) {
   const visit = patient.latest_visit || {}
-  if (visit.suicide_risk_level === 'High' || visit.violence_risk_level === 'High') return 'High'
-  if (visit.suicide_risk_level === 'Moderate' || visit.violence_risk_level === 'Moderate') return 'Moderate'
-  if (visit.suicide_risk_level === 'Low' || visit.violence_risk_level === 'Low') return 'Low'
+  if (
+    visit.suicide_risk_level === 'High' ||
+    visit.violence_risk_level === 'High'
+  )
+    return 'High'
+  if (
+    visit.suicide_risk_level === 'Moderate' ||
+    visit.violence_risk_level === 'Moderate'
+  )
+    return 'Moderate'
+  if (visit.suicide_risk_level === 'Low' || visit.violence_risk_level === 'Low')
+    return 'Low'
   return null
 }
 </script>
 
-<style scoped src="../../../styles/features/dashboard/components/dashboard-layout.css"></style>
+<style
+  scoped
+  src="../../../styles/features/dashboard/components/dashboard-layout.css"
+></style>

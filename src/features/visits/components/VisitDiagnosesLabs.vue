@@ -1,15 +1,19 @@
 <template>
-  <CollapsibleSection id="visit-diagnoses" tabindex="-1"
+  <CollapsibleSection
+    id="visit-diagnoses"
+    tabindex="-1"
     title="التشخيصات والتحاليل"
     icon="flask"
-    :open="true"
-    persist-key="visit-diag"
+    :open="sectionOpen"
   >
-    <MultiSelect
+    <CatalogEntrySelect
       v-model="form.diagnoses"
-      mode="inline"
+      :create-custom="createCustomDiagnosis"
       :search-fn="searchDiagnosesFn"
-      :option-label="(d) => d.arabic_name || d.english_name || d.code"
+      :option-label="
+        (d) =>
+          d.arabic_name || d.english_name || d.name || d.custom_name || d.code
+      "
       :option-key="(d) => d.id || d.code"
       :initial-options="diagnosesInitial"
       placeholder="ابحث عن تشخيص..."
@@ -24,9 +28,12 @@
 </template>
 
 <script setup>
+import { createCustomDiagnosis } from '@/features/clinical/model/catalogEntries'
+import { useVisitSection } from '@/features/visits/composables/useVisitSections'
+const sectionOpen = useVisitSection('visit-diag')
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
 import DynamicRowList from '@/components/ui/DynamicRowList.vue'
-import MultiSelect from '@/components/ui/MultiSelect.vue'
+import CatalogEntrySelect from '@/features/clinical/components/CatalogEntrySelect.vue'
 
 defineProps({
   form: Object,
@@ -38,9 +45,16 @@ const labFields = [
   { key: 'name', label: 'اسم التحليل', placeholder: 'اسم التحليل' },
   { key: 'value', label: 'النتيجة', placeholder: 'القيمة' },
   { key: 'unit', label: 'الوحدة', placeholder: 'الوحدة' },
-  { key: 'reference_range', label: 'المجال المرجعي', placeholder: 'المجال المرجعي' },
   {
-    key: 'status', label: 'حالة النتيجة', type: 'select', placeholder: 'الحالة',
+    key: 'reference_range',
+    label: 'المجال المرجعي',
+    placeholder: 'المجال المرجعي',
+  },
+  {
+    key: 'status',
+    label: 'حالة النتيجة',
+    type: 'select',
+    placeholder: 'الحالة',
   },
   { key: 'date', label: 'تاريخ التحليل', type: 'date', placeholder: 'التاريخ' },
 ]

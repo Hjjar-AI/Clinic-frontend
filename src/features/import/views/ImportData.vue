@@ -157,7 +157,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 
 import FileUpload from '@/components/common/FileUpload.vue'
 import AlertBar from '@/components/ui/AlertBar.vue'
@@ -171,11 +171,15 @@ import StepIndicator from '@/components/ui/StepIndicator.vue'
 import { useNotify } from '@/composables/useNotify'
 import importService from '@/features/import/services/importService'
 import { useUserStore } from '@/features/settings/stores/users'
+import { downloadBlob } from '@/utils/download'
 
 const userStore = useUserStore()
 let generation = 0
 let disposed = false
-onBeforeUnmount(() => { disposed = true; generation += 1 })
+onBeforeUnmount(() => {
+  disposed = true
+  generation += 1
+})
 const doctorId = ref('')
 const previewResult = ref(null)
 const currentStep = ref(0)
@@ -214,7 +218,13 @@ function goToReview() {
 }
 
 const confirmImport = async () => {
-  if (importing.value || previewing.value || !selectedFile.value || !previewResult.value?.preview_token) return
+  if (
+    importing.value ||
+    previewing.value ||
+    !selectedFile.value ||
+    !previewResult.value?.preview_token
+  )
+    return
   importing.value = true
   try {
     previewResult.value = await importService.importPatients(
@@ -230,15 +240,19 @@ const confirmImport = async () => {
   }
 }
 
-watch(doctorId, () => { generation += 1; previewResult.value = null; currentStep.value = 0; previewing.value = false }, { flush: 'sync' })
+watch(
+  doctorId,
+  () => {
+    generation += 1
+    previewResult.value = null
+    currentStep.value = 0
+    previewing.value = false
+  },
+  { flush: 'sync' },
+)
 
 async function downloadTemplate() {
   const blob = await importService.downloadPatientTemplate()
-  const url = window.URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = 'patients_import_template_v1.csv'
-  anchor.click()
-  window.URL.revokeObjectURL(url)
+  downloadBlob(blob, 'patients_import_template_v1.csv')
 }
 </script>

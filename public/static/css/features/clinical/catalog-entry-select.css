@@ -1,0 +1,12 @@
+.catalog-entry-select__selected {
+  min-height: 0;
+}
+.catalog-entry-select__remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-danger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

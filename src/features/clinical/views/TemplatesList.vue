@@ -68,13 +68,13 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import ListView from '@/components/ui/ListView.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import TableActions from '@/components/ui/TableActions.vue'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
 import templateService from '@/features/clinical/services/templateService'
 import { makeCursorFetchFn } from '@/utils/listFetch'
 
@@ -87,42 +87,45 @@ const columns = [
 ]
 
 const refreshKey = ref(0)
-const searchQuery = useRouteQuery('search', '')
-const activityQuery = useRouteQuery('activity', '')
-const sortByQuery = useRouteQuery('sort_by', 'name')
-const sortOrderQuery = useRouteQuery('sort_order', 'asc')
 
-const filters = computed({
-  get: () => ({
-    search: searchQuery.value,
-    activity: activityQuery.value,
-    sort_by: sortByQuery.value,
-    sort_order: sortOrderQuery.value,
-  }),
-  set: (value) => {
-    searchQuery.value = value.search || ''
-    activityQuery.value = value.activity || ''
-    sortByQuery.value = value.sort_by || 'name'
-    sortOrderQuery.value = value.sort_order || 'asc'
-  },
+const filters = useRouteFilters({
+  search: '',
+  activity: '',
+  sort_by: 'name',
+  sort_order: 'asc',
 })
 
 const tableFilters = [
   { key: 'search', type: 'text', placeholder: 'ابحث بالاسم أو الوصف' },
-  { key: 'activity', type: 'select', placeholder: 'جميع الحالات', options: [
-    { value: '', label: 'جميع الحالات' },
-    { value: 'active', label: 'النشطة' },
-    { value: 'inactive', label: 'المتقاعدة' },
-  ] },
-  { key: 'sort_by', type: 'select', placeholder: 'الفرز حسب', options: [
-    { value: 'name', label: 'الاسم' },
-    { value: 'category', label: 'التصنيف' },
-    { value: 'updated_at', label: 'آخر تعديل' },
-  ] },
-  { key: 'sort_order', type: 'select', placeholder: 'اتجاه الفرز', options: [
-    { value: 'asc', label: 'تصاعدي' },
-    { value: 'desc', label: 'تنازلي' },
-  ] },
+  {
+    key: 'activity',
+    type: 'select',
+    placeholder: 'جميع الحالات',
+    options: [
+      { value: '', label: 'جميع الحالات' },
+      { value: 'active', label: 'النشطة' },
+      { value: 'inactive', label: 'المتقاعدة' },
+    ],
+  },
+  {
+    key: 'sort_by',
+    type: 'select',
+    placeholder: 'الفرز حسب',
+    options: [
+      { value: 'name', label: 'الاسم' },
+      { value: 'category', label: 'التصنيف' },
+      { value: 'updated_at', label: 'آخر تعديل' },
+    ],
+  },
+  {
+    key: 'sort_order',
+    type: 'select',
+    placeholder: 'اتجاه الفرز',
+    options: [
+      { value: 'asc', label: 'تصاعدي' },
+      { value: 'desc', label: 'تنازلي' },
+    ],
+  },
 ]
 
 const fetchFn = makeCursorFetchFn(templateService, {

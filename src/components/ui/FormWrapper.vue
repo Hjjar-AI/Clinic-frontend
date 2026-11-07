@@ -7,6 +7,7 @@
       v-if="backLabel || showBackLink"
       :label="backLabel || 'العودة'"
     />
+    <slot name="breadcrumbs" />
     <BaseCard>
       <template
         v-if="headerTitle"
@@ -19,36 +20,50 @@
         />
       </template>
       <FormErrorSummary :errors="validationErrors" />
-      <ResourceFeedback :loading="!ready" :error="loadError" retryable @retry="$emit('retry')" />
+      <ResourceFeedback
+        :loading="!ready"
+        :error="loadError"
+        retryable
+        @retry="$emit('retry')"
+      />
       <form @submit.prevent="ready && $emit('submit')">
-        <fieldset class="form-load-fields" :disabled="!ready">
-        <slot />
-        <FormActions
-          :submitting="submitting"
-          :submit-text="submitText"
-          :loading-text="loadingText"
-          :submit-variant="submitVariant"
-          :submit-icon="submitIcon"
-          :cancel-text="cancelText"
-          :cancel-to="cancelTo"
-          :cancel-fn="cancelFn"
-          @cancel="$emit('cancel')"
-        />
+        <fieldset
+          class="form-load-fields"
+          :disabled="!ready"
+        >
+          <slot />
+          <FormActions
+            :submitting="submitting"
+            :submit-text="submitText"
+            :loading-text="loadingText"
+            :submit-variant="submitVariant"
+            :submit-icon="submitIcon"
+            :cancel-text="cancelText"
+            :cancel-to="cancelTo"
+            :cancel-fn="cancelFn"
+            @cancel="$emit('cancel')"
+          />
         </fieldset>
       </form>
-      <AlertBar v-if="submitError" severity="danger" :title="submitError" role="alert" class="mt-3" />
+      <AlertBar
+        v-if="submitError"
+        severity="danger"
+        :title="submitError"
+        role="alert"
+        class="mt-3"
+      />
     </BaseCard>
   </div>
 </template>
 
 <script setup>
+import AlertBar from './AlertBar.vue'
 import BackLink from './BackLink.vue'
 import BaseCard from './BaseCard.vue'
 import CardHeader from './CardHeader.vue'
 import FormActions from './FormActions.vue'
-import ResourceFeedback from './ResourceFeedback.vue'
-import AlertBar from './AlertBar.vue'
 import FormErrorSummary from './FormErrorSummary.vue'
+import ResourceFeedback from './ResourceFeedback.vue'
 
 defineProps({
   ready: { type: Boolean, default: true },

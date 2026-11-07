@@ -57,77 +57,122 @@
 
 /* ===== Visit Cards (moved from components.css) ===== */
 .visit-card-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 .visit-card-link:hover .visit-card {
-    background-color: var(--color-primary-light);
-    transform: translateX(-2px);
+  background-color: var(--color-primary-light);
+  transform: translateX(-2px);
 }
 
 .visit-card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    min-height: 120px;
-    transition: background-color var(--transition-fast), transform var(--transition-fast);
-    cursor: pointer;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-2);
-    padding: var(--space-3) var(--space-4);
-    border-inline-start: var(--border-width-3) solid var(--color-border);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-elevation-1);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 120px;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: var(--border-width-3) solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevation-1);
 }
-.visit-card--success { border-inline-start-color: var(--color-success); }
-.visit-card--warning { border-inline-start-color: var(--color-warning); }
-.visit-card--danger  { border-inline-start-color: var(--color-danger); }
+.visit-card--success {
+  border-inline-start-color: var(--color-success);
+}
+.visit-card--warning {
+  border-inline-start-color: var(--color-warning);
+}
+.visit-card--danger {
+  border-inline-start-color: var(--color-danger);
+}
 
 .visit-card__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-    flex-wrap: wrap;
-    gap: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
-.visit-card__date { display: flex; align-items: center; gap: var(--space-1); }
-.visit-card__day { font-size: var(--text-xl); font-weight: var(--font-weight-bold); color: var(--color-primary); line-height: 1; }
-.visit-card__month { font-size: var(--text-xs); color: var(--color-text-muted); text-transform: uppercase; }
-.visit-card__meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
-.visit-card__age { font-size: var(--text-xs); color: var(--color-text-muted); }
+.visit-card__date {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.visit-card__day {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1;
+}
+.visit-card__month {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+.visit-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.visit-card__age {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
 
 .visit-card__body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-1);
-    margin-bottom: var(--space-2);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
 }
-.visit-card__diagnosis { font-size: var(--text-base); font-weight: var(--font-weight-semibold); color: var(--color-text); }
-.visit-card__complaint { font-size: var(--text-sm); color: var(--color-text-muted); }
+.visit-card__diagnosis {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+.visit-card__complaint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
 
 .visit-card__actions {
-    display: flex;
-    gap: var(--space-1);
-    flex-wrap: wrap;
-    margin-top: auto;
-    padding-top: var(--space-2);
-    border-top: var(--border-width-1) solid var(--color-border-subtle);
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: var(--space-2);
+  border-top: var(--border-width-1) solid var(--color-border-subtle);
 }
 
 .visit-patient-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 12px;
-    margin-top: 6px;
-    font-size: 0.8rem;
-    padding: 6px 10px;
-    border-radius: var(--radius-sm);
-    border-inline-start: var(--border-width-3) solid var(--color-primary);
-    align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border-inline-start: var(--border-width-3) solid var(--color-primary);
+  align-items: center;
 }
 
-@container (max-width: 640px) { .visit-layout { flex-direction: column; align-items: stretch; } }
+@container (max-width: 640px) {
+  .visit-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+.visit-patient-info__meta {
+  color: var(--color-text-inverse);
+  opacity: 0.9;
+}

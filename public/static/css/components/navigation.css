@@ -24,7 +24,9 @@
   overflow: hidden;
 }
 
-.sidebar-brand i { font-size: var(--icon-xl); }
+.sidebar-brand i {
+  font-size: var(--icon-xl);
+}
 
 .sidebar-nav {
   flex: 1;
@@ -42,14 +44,19 @@
   border-radius: var(--radius-md);
   color: var(--color-text-soft);
   text-decoration: none;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
   font-size: var(--text-sm);
   white-space: nowrap;
   overflow: hidden;
   min-height: 44px; /* touch target */
 }
 
-.sidebar-link i { width: var(--icon-md); text-align: center; }
+.sidebar-link i {
+  width: var(--icon-md);
+  text-align: center;
+}
 
 .sidebar-link:hover,
 .sidebar-link.router-link-active {
@@ -88,7 +95,11 @@
    rendering without its brand gradient. Now LTR-default plus an explicit
    RTL override. */
 .app-topbar {
-  background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary));
+  background: linear-gradient(
+    to right,
+    var(--color-primary-dark),
+    var(--color-primary)
+  );
   border-bottom: var(--border-width-1) solid var(--color-border);
   display: flex;
   align-items: center;
@@ -97,8 +108,12 @@
   color: var(--color-text-inverse);
 }
 
-[dir="rtl"] .app-topbar {
-  background: linear-gradient(to left, var(--color-primary-dark), var(--color-primary));
+[dir='rtl'] .app-topbar {
+  background: linear-gradient(
+    to left,
+    var(--color-primary-dark),
+    var(--color-primary)
+  );
 }
 
 .app-topbar__left {
@@ -136,7 +151,8 @@
   color: var(--color-text);
 }
 .sidebar-toggle:focus-visible {
-  outline: var(--interact-focus-ring-width) solid var(--interact-focus-ring-color);
+  outline: var(--interact-focus-ring-width) solid
+    var(--interact-focus-ring-color);
   outline-offset: var(--interact-focus-ring-offset);
   box-shadow: var(--shadow-focus-ring);
 }
@@ -153,23 +169,77 @@
   padding-inline-start: var(--space-8);
 }
 
-.sidebar-mobile-close { align-self: flex-end; margin-inline: var(--space-2); }
-.sidebar-collapse-icon { transform: rotate(180deg); transition: transform var(--transition-base); }
-.collapsed .sidebar-collapse-icon { transform: rotate(0deg); }
-.app-topbar { gap: var(--space-3); }
-.navbar__search { flex: 1 1 auto; min-inline-size: 0; max-inline-size: 32rem; }
-.app-topbar__right { flex-shrink: 0; }
-.navbar__link { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1); min-inline-size: 44px; min-block-size: 44px; }
-@media (max-width: 1024px) { .topbar-refresh { display: none; } }
+.sidebar-mobile-close {
+  align-self: flex-end;
+  margin-inline: var(--space-2);
+}
+.sidebar-collapse-icon {
+  transform: rotate(180deg);
+  transition: transform var(--transition-base);
+}
+.collapsed .sidebar-collapse-icon {
+  transform: rotate(0deg);
+}
+.app-topbar {
+  gap: var(--space-3);
+}
+.navbar__search {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  max-inline-size: 32rem;
+}
+.app-topbar__right {
+  flex-shrink: 0;
+}
+.navbar__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
+@media (max-width: 1024px) {
+  .topbar-refresh {
+    display: none;
+  }
+}
 @media (max-width: 768px) {
-  :root { --topbar-height: 112px; }
-  .app-topbar { flex-wrap: wrap; align-content: center; gap: 0 var(--space-2); padding-inline: var(--space-3); }
-  .app-topbar__left { flex: 1 1 100%; gap: var(--space-2); }
-  .app-topbar__right { flex: 1 1 100%; justify-content: flex-end; gap: var(--space-1); }
-  .navbar__search { max-inline-size: none; }
+  :root {
+    --topbar-height: 112px;
+  }
+  .app-topbar {
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 0 var(--space-2);
+    padding-inline: var(--space-3);
+  }
+  .app-topbar__left {
+    flex: 1 1 100%;
+    gap: var(--space-2);
+  }
+  .app-topbar__right {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    gap: var(--space-1);
+  }
+  .navbar__search {
+    max-inline-size: none;
+  }
 }
 
 /* Directional glyphs follow the actual inherited document direction. */
-.sidebar-collapse-icon:dir(rtl) { transform: rotate(0deg); }
-.collapsed .sidebar-collapse-icon:dir(rtl) { transform: rotate(180deg); }
-.directional-back:dir(ltr), .back-link:dir(ltr) > .fas { transform: rotate(180deg); }
+.sidebar-collapse-icon:dir(rtl) {
+  transform: rotate(0deg);
+}
+.collapsed .sidebar-collapse-icon:dir(rtl) {
+  transform: rotate(180deg);
+}
+.directional-back:dir(ltr),
+.back-link:dir(ltr) > .fas {
+  transform: rotate(180deg);
+}
+.page-header-new__actions .btn--danger,
+.table-actions .btn--danger {
+  margin-inline-start: var(--space-3);
+}

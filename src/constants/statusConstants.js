@@ -1,3 +1,4 @@
+import { statusLabels } from '@/constants/statusPresentation'
 // frontend/src/constants/statusConstants.js
 
 export const APPOINTMENT_STATUS = {
@@ -36,28 +37,11 @@ export const ROLES = {
   RECEPTIONIST: 'receptionist',
 }
 
-export const APPOINTMENT_STATUS_LABELS = {
-  scheduled: 'مجدول',
-  confirmed: 'مؤكد',
-  arrived: 'وصل',
-  completed: 'مكتمل',
-  cancelled: 'ملغي',
-  'no-show': 'غائب',
-}
+export const APPOINTMENT_STATUS_LABELS = statusLabels('appointment')
 
-export const TASK_STATUS_LABELS = {
-  open: 'مفتوحة',
-  in_progress: 'قيد التنفيذ',
-  completed: 'مكتمل',
-  cancelled: 'ملغي',
-}
+export const TASK_STATUS_LABELS = statusLabels('task')
 
-export const VISIT_STATUS_LABELS = {
-  draft: 'مسودة',
-  final: 'نهائية',
-  amended: 'معدلة',
-  locked: 'مقفلة',
-}
+export const VISIT_STATUS_LABELS = statusLabels('visit')
 
 export const STATUS_TRANSITIONS = {
   appointment: {
@@ -88,13 +72,7 @@ export const STATUS_TRANSITIONS = {
   },
 }
 
-export const INVOICE_STATUS_LABELS = {
-  draft: 'مسودة',
-  issued: 'صادرة',
-  paid: 'مدفوعة',
-  cancelled: 'ملغية',
-  overdue: 'متأخرة',
-}
+export const INVOICE_STATUS_LABELS = statusLabels('invoice')
 
 export const RISK_LEVELS = {
   HIGH: 'High',
@@ -106,7 +84,11 @@ export const RISK_LEVELS = {
 export const SUICIDE_RISK_LEVELS = ['Low', 'Moderate', 'High']
 export const VIOLENCE_RISK_LEVELS = ['Low', 'Moderate', 'High']
 export const LEVEL_OF_CARE = [
-  'Outpatient', 'IOP', 'PHP', 'Inpatient', 'Residential'
+  'Outpatient',
+  'IOP',
+  'PHP',
+  'Inpatient',
+  'Residential',
 ]
 export const FOLLOW_UP_METHODS = ['In-person', 'Telehealth', 'Phone']
 
@@ -123,5 +105,15 @@ export const MARITAL_STATUS_LABELS = {
   widowed: { male: 'أرمل', female: 'أرملة', unknown: 'أرمل / أرملة' },
 }
 export function maritalStatusLabel(value, gender = '') {
-  return MARITAL_STATUS_LABELS[value]?.[gender === GENDER_MALE ? 'male' : gender === GENDER_FEMALE ? 'female' : 'unknown'] || value || 'غير معروف'
+  return (
+    MARITAL_STATUS_LABELS[value]?.[
+      gender === GENDER_MALE
+        ? 'male'
+        : gender === GENDER_FEMALE
+          ? 'female'
+          : 'unknown'
+    ] ||
+    value ||
+    'غير معروف'
+  )
 }

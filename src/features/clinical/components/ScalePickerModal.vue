@@ -5,8 +5,14 @@
     size="sm"
     @update:model-value="$emit('close')"
   >
+    <ResourceFeedback
+      :loading="loading"
+      :error="error"
+      retryable
+      @retry="load"
+    />
     <ul
-      v-if="scales.length"
+      v-if="!loading && !error && scales.length"
       class="list-unstyled"
     >
       <li
@@ -23,7 +29,7 @@
       </li>
     </ul>
     <p
-      v-else
+      v-else-if="!loading && !error"
       class="text-muted text-center"
     >
       لا توجد مقاييس متاحة
@@ -32,21 +38,23 @@
 </template>
 
 <script setup>
-import { onMounted,ref } from 'vue'
+import { storeToRefs } from 'pinia'
 
 import BaseModal from '@/components/ui/BaseModal.vue'
-import { useScaleStore } from '@/features/clinical/stores/scales'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
+import { useLatestResource } from '@/composables/useLatestResource'
+import { useScaleLookup } from '@/features/clinical/stores/scaleLookup'
 
-defineProps({ modelValue: Boolean })
+const props = defineProps({ modelValue: Boolean })
 const emit = defineEmits(['select', 'close'])
-
-const scaleStore = useScaleStore()
-const scales = ref([])
-
-onMounted(async () => {
-  await scaleStore.fetchScales()
-  scales.value = scaleStore.scales
-})
-
-function select(scale) { emit('select', scale) }
+const catalog = useScaleLookup()
+const { items: scales } = storeToRefs(catalog)
+const { loading, error, load } = useLatestResource(
+  () => props.modelValue,
+  (open) => (open ? catalog.fetch() : null),
+  'تعذر تحميل المقاييس',
+)
+function select(scale) {
+  emit('select', scale)
+}
 </script>

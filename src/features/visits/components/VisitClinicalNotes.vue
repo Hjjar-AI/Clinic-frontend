@@ -1,9 +1,10 @@
 <template>
-  <CollapsibleSection id="visit-examination" tabindex="-1"
+  <CollapsibleSection
+    id="visit-examination"
+    tabindex="-1"
     title="ملاحظات سريرية"
     icon="brain"
-    :open="true"
-    persist-key="visit-clinical"
+    :open="sectionOpen"
   >
     <FormTextarea
       v-model="form.mse"
@@ -56,6 +57,8 @@
 </template>
 
 <script setup>
+import { useVisitSection } from '@/features/visits/composables/useVisitSections'
+const sectionOpen = useVisitSection('visit-clinical')
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
 import FormField from '@/components/ui/FormField.vue'
 import FormTextarea from '@/components/ui/FormTextarea.vue'
@@ -63,7 +66,7 @@ import ScaleRenderer from '@/features/clinical/components/ScaleRenderer.vue'
 
 defineProps({
   form: Object,
-  scales: Array
+  scales: Array,
 })
 
 defineEmits(['add-scale', 'remove-scale', 'update-scale-field'])

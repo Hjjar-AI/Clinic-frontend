@@ -12,11 +12,17 @@
       @reset="$emit('filter-reset')"
     />
 
-    <ResourceFeedback :error="error ? 'تعذر تحميل القائمة' : ''" retryable @retry="initialLoad" />
+    <ResourceFeedback
+      :error="error ? 'تعذر تحميل القائمة' : ''"
+      retryable
+      @retry="initialLoad"
+    />
     <!-- Table -->
     <DataTable
       :preference-key="tableKey"
-      :sort-by="currentFilters.sort_by" :sort-order="currentFilters.sort_order" @sort="sortColumn"
+      :visible-keys="visibleKeys"
+      :sort-by="currentFilters.sort_by"
+      :sort-order="currentFilters.sort_order"
       :columns="columns"
       :items="items"
       :loading="pageStatus === 'loading'"
@@ -29,9 +35,13 @@
       :empty-description="emptyDescription"
       :empty-action-text="emptyActionText"
       :empty-action-url="emptyActionUrl"
+      :on-row-click="
+        hasRowHandler ? (item) => $emit('row-click', item) : undefined
+      "
+      @update:visible-keys="$emit('update:visibleKeys', $event)"
+      @sort="sortColumn"
       @toggle-all="(checked, ids) => $emit('toggle-all', checked, ids)"
       @toggle-item="(id) => $emit('toggle-item', id)"
-      :on-row-click="hasRowHandler ? (item) => $emit('row-click', item) : undefined"
     >
       <template
         v-for="(_, slot) in $slots"
@@ -67,19 +77,27 @@
 </template>
 
 <script setup>
+import {
+  computed,
+  getCurrentInstance,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 import { useRoute } from 'vue-router'
-import { useAuthStore } from '@/features/auth/stores/auth'
-import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
-import { computed,getCurrentInstance,onBeforeUnmount,onMounted,ref, watch } from 'vue'
 
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { useDate } from '@/composables/useDate'
 import { usePagination } from '@/composables/usePagination'
+import { useAuthStore } from '@/features/auth/stores/auth'
 import { debounce } from '@/utils'
 
 import DataTable from './DataTable.vue'
 import FilterBar from './FilterBar.vue'
 
 const props = defineProps({
+  visibleKeys: { type: Array, default: null },
   columns: { type: Array, required: true },
   fetchFn: { type: Function, required: true },
   filters: { type: Array, default: () => [] },
@@ -98,6 +116,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
+  'update:visibleKeys',
   'toggle-all',
   'toggle-item',
   'row-click',
@@ -111,18 +130,61 @@ const { toISODate, parseDate } = useDate()
 
 const route = useRoute()
 const auth = useAuthStore()
-const tableKey = computed(() => route?.name ? `${route.name}:${props.columns.map(column => column.key).join('|')}` : '')
-const sortStorageKey = computed(() => auth.user?.id && tableKey.value ? `clinic:table-sort:${auth.user.id}:${tableKey.value}` : null)
-const sortKeys = computed(() => (props.filters.find(field => field.key === 'sort_by')?.options || []).map(option => option.value))
+const tableKey = computed(() =>
+  route?.name
+    ? `${route.name}:${props.columns.map((column) => column.key).join('|')}`
+    : '',
+)
+const sortStorageKey = computed(() =>
+  auth.user?.id && tableKey.value
+    ? `clinic:table-sort:${auth.user.id}:${tableKey.value}`
+    : null,
+)
+const sortKeys = computed(() =>
+  (props.filters.find((field) => field.key === 'sort_by')?.options || []).map(
+    (option) => option.value,
+  ),
+)
 const currentFilters = ref({ ...props.filterValues })
 function sortColumn(key) {
   if (!sortKeys.value.includes(key)) return
-  onFilterChange({ ...currentFilters.value, sort_by: key, sort_order: currentFilters.value.sort_by === key && currentFilters.value.sort_order === 'asc' ? 'desc' : 'asc' })
+  onFilterChange({
+    ...currentFilters.value,
+    sort_by: key,
+    sort_order:
+      currentFilters.value.sort_by === key &&
+      currentFilters.value.sort_order === 'asc'
+        ? 'desc'
+        : 'asc',
+  })
 }
-watch(currentFilters, value => {
-  try { if (sortStorageKey.value && sortKeys.value.includes(value.sort_by)) localStorage.setItem(sortStorageKey.value, JSON.stringify({ sort_by: value.sort_by, sort_order: value.sort_order === 'asc' ? 'asc' : 'desc' })) } catch { /* Sort remains usable. */ }
-}, { deep: true })
-const pageStatus = computed(() => error.value ? 'error' : loading.value ? 'loading' : items.value.length ? 'content' : 'empty')
+watch(
+  currentFilters,
+  (value) => {
+    try {
+      if (sortStorageKey.value && sortKeys.value.includes(value.sort_by))
+        localStorage.setItem(
+          sortStorageKey.value,
+          JSON.stringify({
+            sort_by: value.sort_by,
+            sort_order: value.sort_order === 'asc' ? 'asc' : 'desc',
+          }),
+        )
+    } catch {
+      /* Sort remains usable. */
+    }
+  },
+  { deep: true },
+)
+const pageStatus = computed(() =>
+  error.value
+    ? 'error'
+    : loading.value
+      ? 'loading'
+      : items.value.length
+        ? 'content'
+        : 'empty',
+)
 
 function normalizeFilters(filters) {
   const normalized = { ...filters }
@@ -178,26 +240,43 @@ onBeforeUnmount(() => debouncedRefresh.cancel())
 
 onMounted(() => {
   try {
-    const saved = JSON.parse(sortStorageKey.value && localStorage.getItem(sortStorageKey.value))
-    if (!route?.query.sort_by && !route?.query.sort_order && saved && sortKeys.value.includes(saved.sort_by)) { currentFilters.value = { ...currentFilters.value, sort_by: saved.sort_by, sort_order: saved.sort_order === 'asc' ? 'asc' : 'desc' }; emit('update:filterValues', currentFilters.value) }
-  } catch { /* Defaults remain usable. */ }
+    const saved = JSON.parse(
+      sortStorageKey.value && localStorage.getItem(sortStorageKey.value),
+    )
+    if (
+      !route?.query.sort_by &&
+      !route?.query.sort_order &&
+      saved &&
+      sortKeys.value.includes(saved.sort_by)
+    ) {
+      currentFilters.value = {
+        ...currentFilters.value,
+        sort_by: saved.sort_by,
+        sort_order: saved.sort_order === 'asc' ? 'asc' : 'desc',
+      }
+      emit('update:filterValues', currentFilters.value)
+    }
+  } catch {
+    /* Defaults remain usable. */
+  }
   initialLoad()
 })
 
 watch(
   () => props.filterValues,
   (newValues) => {
-    if (JSON.stringify(newValues) === JSON.stringify(currentFilters.value)) return
+    if (JSON.stringify(newValues) === JSON.stringify(currentFilters.value))
+      return
     currentFilters.value = { ...newValues }
     debouncedRefresh()
   },
-  { deep: true }
+  { deep: true },
 )
 
 watch(
   () => props.refreshKey,
   () => {
     initialLoad()
-  }
+  },
 )
 </script>

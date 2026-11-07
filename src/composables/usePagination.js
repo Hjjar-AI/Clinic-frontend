@@ -1,5 +1,7 @@
 // frontend/src/composables/usePagination.js
-import { computed,ref,onScopeDispose } from 'vue'
+import { computed, onScopeDispose, ref } from 'vue'
+
+import { normalizeCursorResponse } from '@/utils/cursorResponse'
 
 /**
  * Pagination composable.
@@ -92,60 +94,9 @@ export function usePagination(options = {}) {
   const currentPage = ref(1)
   const totalPages = ref(1)
   let generation = 0
-  onScopeDispose(() => { generation += 1 })
-
-  function normalizeResult(result) {
-    const source = result || {}
-
-    // Supports:
-    // - raw Axios response
-    // - already-unwrapped payload
-    // - { data: [...] }
-    // - { items: [...], meta: {...} }
-    const payload = source?.data?.data ?? source?.data ?? source
-
-    let list = []
-
-    if (Array.isArray(payload)) {
-      list = payload
-    } else if (payload && typeof payload === 'object') {
-      list = payload.items || payload.results || payload.data || []
-    }
-
-    if (!Array.isArray(list)) list = []
-
-    const meta =
-      (!Array.isArray(payload) && payload?.meta) ||
-      source?.meta ||
-      source?.data?.meta ||
-      {}
-
-    const normalizedNextCursor =
-      source.nextCursor ??
-      source.next_cursor ??
-      meta.next_cursor ??
-      meta.nextCursor ??
-      null
-
-    const rawHasMore =
-      source.hasMore ??
-      source.has_more ??
-      meta.has_more
-
-    const normalizedHasMore =
-      rawHasMore !== undefined && rawHasMore !== null
-        ? Boolean(rawHasMore)
-        : Boolean(normalizedNextCursor)
-
-    const normalizedTotal = source.total ?? meta.total ?? undefined
-
-    return {
-      items: list,
-      nextCursor: normalizedNextCursor,
-      hasMore: normalizedHasMore,
-      total: normalizedTotal,
-    }
-  }
+  onScopeDispose(() => {
+    generation += 1
+  })
 
   async function loadCursor(cursor = null, { append = false } = {}) {
     if (!fetchFn) return
@@ -168,7 +119,7 @@ export function usePagination(options = {}) {
       })
 
       if (request !== generation) return
-      const normalized = normalizeResult(rawResult)
+      const normalized = normalizeCursorResponse(rawResult)
 
       if (append) {
         items.value = [...items.value, ...normalized.items]
@@ -185,7 +136,10 @@ export function usePagination(options = {}) {
     } catch (e) {
       if (request === generation) error.value = e
     } finally {
-      if (request === generation) { loading.value = false; loadingMore.value = false }
+      if (request === generation) {
+        loading.value = false
+        loadingMore.value = false
+      }
     }
   }
 
@@ -209,7 +163,7 @@ export function usePagination(options = {}) {
       })
 
       if (request !== generation) return
-      const normalized = normalizeResult(rawResult)
+      const normalized = normalizeCursorResponse(rawResult)
 
       items.value = normalized.items
       currentPage.value = page

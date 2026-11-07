@@ -4,7 +4,9 @@
     :status="pageStatus"
     empty-title="لا توجد سجلات"
     empty-action-text="إضافة مريض جديد"
-    :empty-action-url="authStore.can('edit_patient') ? { name: 'PatientCreate' } : null"
+    :empty-action-url="
+      authStore.can('edit_patient') ? { name: 'PatientCreate' } : null
+    "
   >
     <div class="patients-page-wrapper">
       <Breadcrumb />
@@ -35,15 +37,6 @@
           </BaseButton>
 
           <BaseButton
-            variant="ghost"
-            size="sm"
-            aria-label="اختيار أعمدة قائمة المرضى"
-            @click="showColumns = !showColumns"
-          >
-            <Icon icon="columns" /> الأعمدة
-          </BaseButton>
-
-          <BaseButton
             v-if="authStore.can('edit_patient')"
             variant="primary"
             :to="{ name: 'PatientCreate' }"
@@ -53,15 +46,11 @@
         </div>
       </PageHeader>
 
-      <ColumnVisibilityPanel
-        :visible="showColumns"
-        :columns="configurableColumns"
-        @toggle-column="toggleColumn"
-      />
-
       <BaseCard>
-        <ListView :refresh-key="listRefresh"
-          :columns="visibleColumns"
+        <ListView
+          v-model:visible-keys="visibleKeys"
+          :refresh-key="listRefresh"
+          :columns="allColumns"
           :fetch-fn="fetchPatients"
           :filters="tableFilters"
           :filter-values="filters"
@@ -136,7 +125,11 @@
           <template #completeness="{ item }">
             <Badge
               :severity="item.completeness?.complete ? 'success' : 'warning'"
-              :label="item.completeness?.complete ? 'مكتمل' : `${item.completeness?.percent || 0}%`"
+              :label="
+                item.completeness?.complete
+                  ? 'مكتمل'
+                  : `${item.completeness?.percent || 0}%`
+              "
               :title="missingFieldsLabel(item.completeness?.missing_fields)"
             />
           </template>
@@ -187,11 +180,11 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import PageContainer from '@/components/layout/PageContainer.vue'
-import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import Badge from '@/components/ui/Badge.vue'
+import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import DateCell from '@/components/ui/DateCell.vue'
 import ListView from '@/components/ui/ListView.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -201,18 +194,20 @@ import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useCopy } from '@/composables/useCopy'
 import { useNotify } from '@/composables/useNotify'
 import { usePageStatus } from '@/composables/usePageStatus'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
+import { useTableColumns } from '@/composables/useTableColumns'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import PatientLink from '@/features/patients/components/PatientLink.vue'
-import ColumnVisibilityPanel from '@/features/patients/components/ColumnVisibilityPanel.vue'
 import patientService from '@/features/patients/services/patientService'
 import { usePatientStore } from '@/features/patients/stores/patients'
 import { useRefreshStore } from '@/stores/refresh'
 import { useSelectionStore } from '@/stores/selection'
 import { CONFIRM } from '@/utils/confirmMessages'
+import { downloadBlob } from '@/utils/download'
 import { makeCursorFetchFn } from '@/utils/listFetch'
 import { fullName } from '@/utils/normalize'
 
+const route = useRoute()
 const router = useRouter()
 const patientStore = usePatientStore()
 const authStore = useAuthStore()
@@ -224,67 +219,52 @@ const { notify } = useNotify()
 
 const listRefresh = ref(0)
 const refreshStore = useRefreshStore()
-const {
-  status: pageStatus,
-  setContent,
-  setError,
-} = usePageStatus()
+const { status: pageStatus, setContent, setError } = usePageStatus()
 
-const searchQuery = useRouteQuery('search', '')
-const completenessQuery = useRouteQuery('completeness', '')
-const activeQuery = useRouteQuery('active', '')
-const sortByQuery = useRouteQuery('sort_by', 'name')
-const sortOrderQuery = useRouteQuery('sort_order', 'asc')
-
-const filters = computed({
-  get: () => ({
-    search: searchQuery.value,
-    completeness: completenessQuery.value,
-    active: activeQuery.value,
-    sort_by: sortByQuery.value,
-    sort_order: sortOrderQuery.value,
-  }),
-  set: (value) => {
-    searchQuery.value = value.search || ''
-    completenessQuery.value = value.completeness || ''
-    activeQuery.value = value.active || ''
-    sortByQuery.value = value.sort_by || 'name'
-    sortOrderQuery.value = value.sort_order || 'asc'
-  },
-})
-
-const showColumns = ref(false)
-const columnVisibility = ref({
-  national_id: true,
-  phone: true,
-  doctor: true,
-  registration_date: true,
-  completeness: true,
+const filters = useRouteFilters({
+  search: '',
+  completeness: '',
+  active: '',
+  sort_by: 'name',
+  sort_order: 'asc',
 })
 
 const allColumns = computed(() => [
-  { key: 'patient_number', label: 'رقم الملف', visible: true },
-  { key: 'name', label: 'الاسم' },
-  { key: 'national_id', label: 'الرقم الوطني', visible: columnVisibility.value.national_id },
-  { key: 'phone', label: 'الهاتف', visible: columnVisibility.value.phone },
-  { key: 'doctor', label: 'فريق الرعاية', visible: columnVisibility.value.doctor && authStore.can('view_patients') },
-  { key: 'registration_date', label: 'تاريخ التسجيل', visible: columnVisibility.value.registration_date },
-  { key: 'completeness', label: 'اكتمال الملف', visible: columnVisibility.value.completeness },
+  { key: 'patient_number', label: 'رقم الملف', fixed: true },
+  { key: 'name', label: 'الاسم', fixed: true },
+  { key: 'national_id', label: 'الرقم الوطني' },
+  { key: 'phone', label: 'الهاتف' },
+  ...(authStore.can('view_patients')
+    ? [{ key: 'doctor', label: 'فريق الرعاية' }]
+    : []),
+  { key: 'registration_date', label: 'تاريخ التسجيل' },
+  { key: 'completeness', label: 'اكتمال الملف' },
 ])
+const { visibleKeys } = useTableColumns(
+  allColumns,
+  () =>
+    `${route.name}:${allColumns.value.map((column) => column.key).join('|')}`,
+)
+const visibleColumns = computed(() =>
+  allColumns.value.filter((column) => visibleKeys.value.includes(column.key)),
+)
 
-const visibleColumns = computed(() => allColumns.value.filter((column) => column.visible !== false))
-const configurableColumns = computed(() => allColumns.value
-  .filter((column) => column.key !== 'name' && (column.key !== 'doctor' || authStore.can('view_patients')))
-  .map((column) => ({ ...column, visible: columnVisibility.value[column.key] !== false })))
-
-const exportFields = computed(() => visibleColumns.value.map((column) => ({
-  name: 'full_name', patient_number: 'patient_number',
-  national_id: 'national_id',
-  phone: 'phone',
-  doctor: 'doctor',
-  registration_date: 'registration_date',
-  completeness: 'completeness',
-}[column.key])).filter(Boolean))
+const exportFields = computed(() =>
+  visibleColumns.value
+    .map(
+      (column) =>
+        ({
+          name: 'full_name',
+          patient_number: 'patient_number',
+          national_id: 'national_id',
+          phone: 'phone',
+          doctor: 'doctor',
+          registration_date: 'registration_date',
+          completeness: 'completeness',
+        })[column.key],
+    )
+    .filter(Boolean),
+)
 
 const exportFilters = computed(() => ({
   ...filters.value,
@@ -306,15 +286,19 @@ const tableFilters = computed(() => [
       { value: 'incomplete', label: 'غير مكتمل' },
     ],
   },
-  ...(authStore.user?.role === 'admin' ? [{
-    key: 'active',
-    type: 'select',
-    placeholder: 'حالة الملف',
-    options: [
-      { value: 'true', label: 'نشط' },
-      { value: 'false', label: 'مؤرشف / غير نشط' },
-    ],
-  }] : []),
+  ...(authStore.user?.role === 'admin'
+    ? [
+        {
+          key: 'active',
+          type: 'select',
+          placeholder: 'حالة الملف',
+          options: [
+            { value: 'true', label: 'نشط' },
+            { value: 'false', label: 'مؤرشف / غير نشط' },
+          ],
+        },
+      ]
+    : []),
   {
     key: 'sort_by',
     type: 'select',
@@ -388,17 +372,8 @@ function copyItem(text) {
 async function confirmResetFilters() {
   const ok = await confirm(CONFIRM.CLEAR_FILTERS)
   if (ok) {
-    searchQuery.value = ''
-    completenessQuery.value = ''
-    activeQuery.value = ''
-    sortByQuery.value = 'name'
-    sortOrderQuery.value = 'asc'
+    filters.value = {}
   }
-}
-
-function toggleColumn(key, visible) {
-  columnVisibility.value = { ...columnVisibility.value, [key]: visible }
-  window.localStorage.setItem('patients:list-columns', JSON.stringify(columnVisibility.value))
 }
 
 function missingFieldsLabel(fields = []) {
@@ -410,7 +385,9 @@ function missingFieldsLabel(fields = []) {
     doctor: 'فريق الرعاية',
     registration_date: 'تاريخ التسجيل',
   }
-  return fields.length ? `الحقول الناقصة: ${fields.map((field) => labels[field] || field).join('، ')}` : 'الملف مكتمل'
+  return fields.length
+    ? `الحقول الناقصة: ${fields.map((field) => labels[field] || field).join('، ')}`
+    : 'الملف مكتمل'
 }
 
 async function deletePatient(patient) {
@@ -427,12 +404,7 @@ async function deletePatient(patient) {
 async function handlePdfDownload(patientId) {
   try {
     const blob = await patientService.exportPdf(patientId)
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `patient_${patientId}.pdf`
-    a.click()
-    window.URL.revokeObjectURL(url)
+    downloadBlob(blob, `patient_${patientId}.pdf`)
   } catch {
     notify('فشل تصدير PDF', 'danger')
   }
@@ -441,35 +413,26 @@ async function handlePdfDownload(patientId) {
 async function handleWordDownload(patientId) {
   try {
     const blob = await patientService.exportWord(patientId)
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `patient_${patientId}.docx`
-    a.click()
-    window.URL.revokeObjectURL(url)
+    downloadBlob(blob, `patient_${patientId}.docx`)
   } catch {
     notify('فشل تصدير Word', 'danger')
   }
 }
 
 const { loading: exportingCsv, execute: doExportCsv } = useApi(async () => {
-  const blob = await patientService.exportCsv(exportFields.value, exportFilters.value)
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'patients_export.csv'
-  a.click()
-  window.URL.revokeObjectURL(url)
+  const blob = await patientService.exportCsv(
+    exportFields.value,
+    exportFilters.value,
+  )
+  downloadBlob(blob, 'patients_export.csv')
 })
 
 const { loading: exportingExcel, execute: doExportExcel } = useApi(async () => {
-  const blob = await patientService.exportExcel(exportFields.value, exportFilters.value)
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'patients_export.xlsx'
-  a.click()
-  window.URL.revokeObjectURL(url)
+  const blob = await patientService.exportExcel(
+    exportFields.value,
+    exportFilters.value,
+  )
+  downloadBlob(blob, 'patients_export.xlsx')
 })
 
 function handleExportAll(format) {
@@ -478,12 +441,6 @@ function handleExportAll(format) {
 }
 
 onMounted(() => {
-  try {
-    const saved = JSON.parse(window.localStorage.getItem('patients:list-columns') || '{}')
-    columnVisibility.value = { ...columnVisibility.value, ...saved }
-  } catch {
-    // Ignore invalid browser preferences and retain safe defaults.
-  }
   // PageContainer only renders its slot (and therefore mounts ListView)
   // when `status === 'content'`. Previously this file set `'loading'` and
   // never advanced, so ListView never mounted and never fetched. Let

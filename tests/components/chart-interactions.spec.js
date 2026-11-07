@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest'
 import { reactive } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
-import StatisticsChart from '@/components/charts/StatisticsChart.vue'
+import StatisticsChart from '@/features/reports/components/StatisticsChart.vue'
 import MiniBarChart from '@/components/charts/MiniBarChart.vue'
 import { getChartColors } from '@/composables/useChart'
 

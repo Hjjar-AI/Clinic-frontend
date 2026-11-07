@@ -1,6 +1,7 @@
 // frontend/src/features/tasks/stores/tasks.js
 import taskService from '@/features/tasks/services/taskService'
 import { createCrudStore } from '@/stores/crudStoreFactory'
+import { normalizeCursorResponse } from '@/utils/cursorResponse'
 
 export const useTaskStore = createCrudStore('tasks', {
   fetchAll: (params) => taskService.getAll(params),
@@ -40,30 +41,12 @@ export const useTaskStore = createCrudStore('tasks', {
 
         const result = await taskService.getAll(params)
 
-        const payload = result?.data?.data ?? result?.data ?? result
-
-        let list = []
-
-        if (Array.isArray(payload)) {
-          list = payload
-        } else if (payload && typeof payload === 'object') {
-          list = payload.items || payload.results || []
-        }
-
-        const meta =
-          (!Array.isArray(payload) && payload?.meta) ||
-          result?.meta ||
-          result?.data?.meta ||
-          {}
-
-        this.items = list
-
-        return {
-          data: list,
-          nextCursor: meta.next_cursor || null,
-          hasMore: meta.has_more ?? Boolean(meta.next_cursor),
-          total: meta.total,
-        }
+        const { items, nextCursor, hasMore, total } = normalizeCursorResponse(
+          result,
+          { keys: ['items', 'tasks', 'results'] },
+        )
+        this.items = items
+        return { data: items, nextCursor, hasMore, total }
       },
 
       async completeTask(id, version) {

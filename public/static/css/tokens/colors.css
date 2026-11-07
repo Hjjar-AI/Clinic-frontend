@@ -1,5 +1,7 @@
 /* tokens/colors.css */
-:root {
+:root,
+body.theme-default,
+.theme-swatch--default {
   /* ========== Brand ========== */
   --palette-color-primary: #3c6e71;
   --color-primary: var(--palette-color-primary);
@@ -16,7 +18,9 @@
 
   /* ========== Secondary ========== */
   --palette-color-secondary: #6b7a8f;
-  --color-secondary: var(--palette-color-secondary);   /* changed: no longer duplicate of primary-dark */
+  --color-secondary: var(
+    --palette-color-secondary
+  ); /* changed: no longer duplicate of primary-dark */
   --palette-color-secondary-dark: #4a5a70;
   --color-secondary-dark: var(--palette-color-secondary-dark);
   --palette-color-secondary-light: #eef1f5;
@@ -164,23 +168,33 @@
 
   /* ========== Card header gradients ========== */
   --palette-color-card-header-primary-start: var(--palette-color-primary-light);
-  --color-card-header-primary-start: var(--palette-color-card-header-primary-start);
+  --color-card-header-primary-start: var(
+    --palette-color-card-header-primary-start
+  );
   --palette-color-card-header-primary-end: var(--palette-color-primary-soft);
   --color-card-header-primary-end: var(--palette-color-card-header-primary-end);
   --palette-color-card-header-neutral-start: var(--palette-color-surface-soft);
-  --color-card-header-neutral-start: var(--palette-color-card-header-neutral-start);
+  --color-card-header-neutral-start: var(
+    --palette-color-card-header-neutral-start
+  );
   --palette-color-card-header-neutral-end: var(--palette-color-surface-strong);
   --color-card-header-neutral-end: var(--palette-color-card-header-neutral-end);
   --palette-color-card-header-warning-start: var(--palette-color-warning-light);
-  --color-card-header-warning-start: var(--palette-color-card-header-warning-start);
+  --color-card-header-warning-start: var(
+    --palette-color-card-header-warning-start
+  );
   --palette-color-card-header-warning-end: var(--palette-color-warning-soft);
   --color-card-header-warning-end: var(--palette-color-card-header-warning-end);
   --palette-color-card-header-danger-start: var(--palette-color-danger-light);
-  --color-card-header-danger-start: var(--palette-color-card-header-danger-start);
+  --color-card-header-danger-start: var(
+    --palette-color-card-header-danger-start
+  );
   --palette-color-card-header-danger-end: var(--palette-color-danger-soft);
   --color-card-header-danger-end: var(--palette-color-card-header-danger-end);
   --palette-color-card-header-success-start: var(--palette-color-success-light);
-  --color-card-header-success-start: var(--palette-color-card-header-success-start);
+  --color-card-header-success-start: var(
+    --palette-color-card-header-success-start
+  );
   --palette-color-card-header-success-end: var(--palette-color-success-soft);
   --color-card-header-success-end: var(--palette-color-card-header-success-end);
   --palette-color-card-header-info-start: var(--palette-color-info-light);
@@ -188,7 +202,9 @@
   --palette-color-card-header-info-end: var(--palette-color-info-soft);
   --color-card-header-info-end: var(--palette-color-card-header-info-end);
   --palette-color-card-header-purple-start: var(--palette-color-purple-light);
-  --color-card-header-purple-start: var(--palette-color-card-header-purple-start);
+  --color-card-header-purple-start: var(
+    --palette-color-card-header-purple-start
+  );
   --palette-color-card-header-purple-end: var(--palette-color-purple-soft);
   --color-card-header-purple-end: var(--palette-color-card-header-purple-end);
 
@@ -211,25 +227,26 @@
   --color-on-purple-hover: #ffffff;
   --color-on-neutral: #000000;
   --color-on-neutral-hover: #ffffff;
-}@supports (color: color-mix(in srgb, red, black)) {
-body.dark-mode {
-  --color-on-primary: #ffffff;
-  --color-on-primary-hover: #ffffff;
-  --color-on-secondary: #ffffff;
-  --color-on-secondary-hover: #ffffff;
-  --color-on-accent: #ffffff;
-  --color-on-accent-hover: #ffffff;
-  --color-on-success: #ffffff;
-  --color-on-success-hover: #ffffff;
-  --color-on-danger: #ffffff;
-  --color-on-danger-hover: #ffffff;
-  --color-on-warning: #ffffff;
-  --color-on-warning-hover: #ffffff;
-  --color-on-info: #ffffff;
-  --color-on-info-hover: #ffffff;
-  --color-on-purple: #ffffff;
-  --color-on-purple-hover: #ffffff;
-  --color-on-neutral: #ffffff;
-  --color-on-neutral-hover: #ffffff;
 }
+@supports (color: color-mix(in srgb, red, black)) {
+  body.dark-mode {
+    --color-on-primary: #ffffff;
+    --color-on-primary-hover: #ffffff;
+    --color-on-secondary: #ffffff;
+    --color-on-secondary-hover: #ffffff;
+    --color-on-accent: #ffffff;
+    --color-on-accent-hover: #ffffff;
+    --color-on-success: #ffffff;
+    --color-on-success-hover: #ffffff;
+    --color-on-danger: #ffffff;
+    --color-on-danger-hover: #ffffff;
+    --color-on-warning: #ffffff;
+    --color-on-warning-hover: #ffffff;
+    --color-on-info: #ffffff;
+    --color-on-info-hover: #ffffff;
+    --color-on-purple: #ffffff;
+    --color-on-purple-hover: #ffffff;
+    --color-on-neutral: #ffffff;
+    --color-on-neutral-hover: #ffffff;
+  }
 }

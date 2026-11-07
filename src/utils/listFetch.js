@@ -1,3 +1,4 @@
+import { normalizeCursorResponse } from '@/utils/cursorResponse'
 // frontend/src/utils/listFetch.js
 /**
  * Factory that produces a standard cursor-paginated fetchFn for <ListView>.
@@ -17,11 +18,14 @@
  *   data: any[], nextCursor: string|null, hasMore: boolean, total: number|undefined
  * }>}
  */
-export function makeCursorFetchFn(service, {
-  listKey = 'items',
-  getParams = () => ({}),
-  transform = (list) => list,
-} = {}) {
+export function makeCursorFetchFn(
+  service,
+  {
+    listKey = 'items',
+    getParams = () => ({}),
+    transform = (list) => list,
+  } = {},
+) {
   return async ({ cursor, limit, filters, sort } = {}) => {
     const params = { ...getParams(filters) }
     if (limit) params.per_page = limit
@@ -32,26 +36,10 @@ export function makeCursorFetchFn(service, {
     }
 
     const result = await service.getAll(params)
-    const payload = result?.data?.data ?? result?.data ?? result
-
-    let list = []
-    if (Array.isArray(payload)) {
-      list = payload
-    } else if (payload && typeof payload === 'object') {
-      list = payload[listKey] || payload.items || payload.results || []
-    }
-
-    const meta =
-      (!Array.isArray(payload) && payload?.meta) ||
-      result?.meta ||
-      result?.data?.meta ||
-      {}
-
-    return {
-      data: transform(list),
-      nextCursor: meta.next_cursor || null,
-      hasMore: meta.has_more ?? Boolean(meta.next_cursor),
-      total: meta.total,
-    }
+    const { items, nextCursor, hasMore, total } = normalizeCursorResponse(
+      result,
+      { keys: [listKey, 'items', 'results'] },
+    )
+    return { data: transform(items), nextCursor, hasMore, total }
   }
 }

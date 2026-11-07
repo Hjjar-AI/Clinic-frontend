@@ -13,10 +13,14 @@
 
       <div class="panel panel--blue rounded mb-3 p-3">
         <p><strong>المريض:</strong> {{ patientName }}</p>
-        <p><strong>تاريخ الزيارة:</strong> <span class="numeric">{{ visit.visit_date }}</span></p>
+        <p>
+          <strong>تاريخ الزيارة:</strong>
+          <span class="numeric">{{ visit.visit_date }}</span>
+        </p>
         <p><strong>الشكوى الرئيسية:</strong> {{ visit.main_complaints }}</p>
         <p>
-          <strong>التشخيصات:</strong> <DiagnosisList
+          <strong>التشخيصات:</strong>
+          <DiagnosisList
             :diagnoses="visit.diagnoses || []"
             variant="full"
           />
@@ -24,10 +28,11 @@
         <p>
           <strong>الأدوية الحالية:</strong>
           <span
-            v-for="(m,i) in visit.medications"
+            v-for="(m, i) in visit.medications"
             :key="i"
           >
-            {{ m.display_name || m.name }} <span class="tag tag--dose numeric">{{ m.dosage }}</span><span v-if="i < visit.medications.length-1">, </span>
+            {{ m.display_name || m.name }}
+            <span class="tag tag--dose numeric">{{ m.dosage }}</span><span v-if="i < visit.medications.length - 1">, </span>
           </span>
         </p>
         <div class="form-group no-print">
@@ -43,7 +48,9 @@
           <small
             v-if="reasonError"
             class="text-danger"
-          >{{ reasonError }}</small>
+          >{{
+            reasonError
+          }}</small>
         </div>
         <p class="print-only">
           <strong>سبب التحويل:</strong> {{ reason || 'لم يحدد' }}
@@ -55,7 +62,9 @@
       </p>
       <p>مع خالص الشكر والتقدير،</p>
       <p><strong>الطبيب المعالج:</strong> _________________</p>
-      <p><strong>التاريخ:</strong> <span class="numeric">{{ currentDate }}</span></p>
+      <p>
+        <strong>التاريخ:</strong> <span class="numeric">{{ currentDate }}</span>
+      </p>
 
       <div class="mt-3 text-center no-print">
         <BaseButton
@@ -71,16 +80,17 @@
 </template>
 
 <script setup>
-import { computed,onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useApi } from '@/composables/useApi'
 import { useDate } from '@/composables/useDate'
 import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'
-import LetterSheet from '@/features/clinical/components/LetterSheet.vue'
+import LetterSheet from '@/features/prescription/components/LetterSheet.vue'
 import referralService from '@/features/prescription/services/referralService'
 import { useSettingsStore } from '@/features/settings/stores/settings'
 import { useVisitStore } from '@/features/visits/stores/visits'
+import { downloadBlob } from '@/utils/download'
 
 const route = useRoute()
 const visitStore = useVisitStore()
@@ -91,7 +101,9 @@ const visit = ref(null)
 const reason = ref(route.query.reason || '')
 const reasonError = ref('')
 const currentDate = formatDate(new Date())
-const clinicName = computed(() => settingsStore.settings.clinic_name || 'عيادة الإتزان')
+const clinicName = computed(
+  () => settingsStore.settings.clinic_name || 'عيادة الإتزان',
+)
 
 const patientName = computed(() => visit.value?.patient?.full_name || '')
 
@@ -102,13 +114,12 @@ onMounted(async () => {
 })
 
 const { loading: exporting, execute: doExportPdf } = useApi(async () => {
-  const response = await referralService.generateReferralPdf(visitId, reason.value, visit.value.version)
-  const url = window.URL.createObjectURL(new Blob([response.data]))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `referral_${visitId}.pdf`
-  a.click()
-  window.URL.revokeObjectURL(url)
+  const response = await referralService.generateReferralPdf(
+    visitId,
+    reason.value,
+    visit.value.version,
+  )
+  downloadBlob(new Blob([response.data]), `referral_${visitId}.pdf`)
 })
 
 async function exportPdf() {
@@ -120,4 +131,7 @@ async function exportPdf() {
 }
 </script>
 
-<style scoped src="../../../styles/features/prescription/views/referral-letter.css"></style>
+<style
+  scoped
+  src="../../../styles/features/prescription/views/referral-letter.css"
+></style>

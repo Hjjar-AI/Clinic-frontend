@@ -1,6 +1,9 @@
 <!-- frontend/src/features/appointments/views/AppointmentForm.vue -->
 <template>
-  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry" width="sm"
+  <FormWrapper
+    :ready="resourceReady"
+    :load-error="resourceError"
+    width="sm"
     :header-title="isEdit ? 'تعديل الموعد' : 'حجز موعد جديد'"
     header-icon="calendar-plus"
     :back-label="'العودة للتقويم'"
@@ -9,9 +12,10 @@
     :cancel-to="{ name: 'AppointmentsCalendar' }"
     :validation-errors="errors"
     :submit-error="submitError"
+    @retry="resource.retry"
     @submit="handleSubmit"
   >
-    <template #headerTitle>
+    <template #breadcrumbs>
       <Breadcrumb />
     </template>
 
@@ -20,7 +24,8 @@
       required
       :error="errors.patient_id"
     >
-      <SearchInput v-if="!isEdit"
+      <SearchInput
+        v-if="!isEdit"
         v-model="selectedPatient"
         :search-fn="searchPatients"
         :option-label="patientLabel"
@@ -112,8 +117,15 @@
 </template>
 
 <script setup>
-import { useResourceLoad } from '@/composables/useResourceLoad'
-import { computed,nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import SearchInput from '@/components/common/SearchInput.vue'
@@ -124,13 +136,16 @@ import FormField from '@/components/ui/FormField.vue'
 import FormSelect from '@/components/ui/FormSelect.vue'
 import FormTextarea from '@/components/ui/FormTextarea.vue'
 import FormWrapper from '@/components/ui/FormWrapper.vue'
-import { useApi } from '@/composables/useApi'
 import { useDate } from '@/composables/useDate'
 import { useFormDirty } from '@/composables/useFormDirty'
 import { useFormDraft } from '@/composables/useFormDraft'
 import { useFormSubmission } from '@/composables/useFormSubmission'
 import { useNotify } from '@/composables/useNotify'
-import { APPOINTMENT_STATUS_LABELS, STATUS_TRANSITIONS } from '@/constants/statusConstants'
+import { useResourceLoad } from '@/composables/useResourceLoad'
+import {
+  APPOINTMENT_STATUS_LABELS,
+  STATUS_TRANSITIONS,
+} from '@/constants/statusConstants'
 import TimeSlotPicker from '@/features/appointments/components/TimeSlotPicker.vue'
 import { useAppointmentStore } from '@/features/appointments/stores/appointments'
 import patientService from '@/features/patients/services/patientService'
@@ -143,13 +158,8 @@ const appointmentStore = useAppointmentStore()
 const { formatDate, normalizeFormDates } = useDate()
 const { notify } = useNotify()
 
-const {
-  draft,
-  restoreDraftToForm,
-  pauseDraft,
-  resumeDraft,
-  clearDraft,
-} = useFormDraft()
+const { draft, restoreDraftToForm, pauseDraft, resumeDraft, clearDraft } =
+  useFormDraft()
 
 const isEdit = !!route.params.id
 const resource = useResourceLoad(!isEdit)
@@ -180,8 +190,14 @@ useFormDirty(isDirty)
 
 const originalStatus = ref('scheduled')
 const statusOptions = computed(() => {
-  const statuses = [originalStatus.value, ...(STATUS_TRANSITIONS.appointment[originalStatus.value] || [])]
-  return statuses.map(value => ({ value, label: APPOINTMENT_STATUS_LABELS[value] || value }))
+  const statuses = [
+    originalStatus.value,
+    ...(STATUS_TRANSITIONS.appointment[originalStatus.value] || []),
+  ]
+  return statuses.map((value) => ({
+    value,
+    label: APPOINTMENT_STATUS_LABELS[value] || value,
+  }))
 })
 
 // Field renamed `duration` -> `duration_minutes` to match the backend
@@ -215,21 +231,18 @@ const searchPatients = async (query) => {
   return payload?.patients || []
 }
 
-const { execute: execSubmit } = useApi(
-  async () => {
-    const payload = normalizeFormDates(form.value, ['appointment_date'])
+const execSubmit = async () => {
+  const payload = normalizeFormDates(form.value, ['appointment_date'])
 
-    if (isEdit) {
-      await appointmentStore.updateAppointment(route.params.id, payload)
-    } else {
-      await appointmentStore.createAppointment(payload)
-    }
+  if (isEdit) {
+    await appointmentStore.updateAppointment(route.params.id, payload)
+  } else {
+    await appointmentStore.createAppointment(payload)
+  }
 
-    isDirty.value = false
-    router.push('/appointments')
-  },
-  { silent: true }
-)
+  isDirty.value = false
+  router.push('/appointments')
+}
 
 const {
   submit,
@@ -238,7 +251,7 @@ const {
 } = useFormSubmission(validateForm, execSubmit)
 
 function validateForm() {
-  Object.keys(errors).forEach(key => delete errors[key])
+  Object.keys(errors).forEach((key) => delete errors[key])
   let valid = true
   if (!form.value.patient_id) {
     errors.patient_id = 'المريض مطلوب'
@@ -256,7 +269,10 @@ function validateForm() {
     errors.appointment_time = 'اختر وقتاً متاحاً'
     valid = false
   }
-  if (['cancelled', 'no-show'].includes(form.value.status) && !form.value.status_reason?.trim()) {
+  if (
+    ['cancelled', 'no-show'].includes(form.value.status) &&
+    !form.value.status_reason?.trim()
+  ) {
     errors.status_reason = 'السبب مطلوب'
     valid = false
   }
@@ -269,88 +285,97 @@ function markDirty() {
 
 let stopDraftWatcher = null
 
-onMounted(() => resource.load(async (isCurrent) => {
-  if (route.query.date) {
-    form.value.appointment_date = route.query.date
-  }
-  if (route.query.time) {
-    form.value.appointment_time = route.query.time
-  }
-
-  if (!isEdit && route.query.patientId) {
-    try {
-      const patient = unwrapResponse(await patientService.getById(route.query.patientId))
-      onPatientSelected(patient)
-    } catch {
-      notify('تعذر تحميل المريض المحدد.', 'warning')
+onMounted(() =>
+  resource.load(async (isCurrent) => {
+    if (route.query.date) {
+      form.value.appointment_date = route.query.date
     }
-  }
-
-  if (isEdit) {
-    try {
-      const data = await appointmentStore.fetchAppointment(route.params.id)
-    if (!data?.id || !Number.isInteger(data.version) || data.version < 1) throw new Error('تعذر تحميل إصدار السجل')
-      if (!isCurrent()) return
-      Object.assign(form.value, data)
-      originalStatus.value = data.status || 'scheduled'
-      form.value.version = data.version || 1
-      form.value.patient_id = data.patient || ''
-      form.value.doctor_id = data.doctor || ''
-      form.value.appointment_time = (data.appointment_time || '').slice(0, 5)
-      originalTime.value = form.value.appointment_time
-
-      if (form.value.appointment_date) {
-        const parsed = new Date(form.value.appointment_date)
-        if (!Number.isNaN(parsed.getTime())) {
-          form.value.appointment_date = formatDate(parsed)
-        }
-      }
-
-      originalDate.value = form.value.appointment_date
-      originalDoctorId.value = form.value.doctor_id
-      originalDuration.value = form.value.duration_minutes
-
-      if (data.patient_name && data.patient) {
-        selectedPatient.value = {
-          id: data.patient,
-          full_name: data.patient_name,
-        }
-      }
-    } catch {
-      throw new Error('تعذر تحميل الموعد')
+    if (route.query.time) {
+      form.value.appointment_time = route.query.time
     }
-  }
 
-  if (!isCurrent()) return
-  const restored = restoreDraftToForm()
-  if (restored) {
-    Object.assign(form.value, restored)
-    notify('تم استعادة المسودة', 'info', { duration: 3000 })
-  }
+    if (!isEdit && route.query.patientId) {
+      try {
+        const patient = unwrapResponse(
+          await patientService.getById(route.query.patientId),
+        )
+        onPatientSelected(patient)
+      } catch {
+        notify('تعذر تحميل المريض المحدد.', 'warning')
+      }
+    }
 
-  if (!isCurrent()) return
-  resumeDraft()
+    if (isEdit) {
+      try {
+        const data = await appointmentStore.fetchAppointment(route.params.id)
+        if (!data?.id || !Number.isInteger(data.version) || data.version < 1)
+          throw new Error('تعذر تحميل إصدار السجل')
+        if (!isCurrent()) return
+        Object.assign(form.value, data)
+        originalStatus.value = data.status || 'scheduled'
+        form.value.version = data.version || 1
+        form.value.patient_id = data.patient || ''
+        form.value.doctor_id = data.doctor || ''
+        form.value.appointment_time = (data.appointment_time || '').slice(0, 5)
+        originalTime.value = form.value.appointment_time
 
-  // Single draft watcher. Previously this file registered the same watcher
-  // twice — once inside this onMounted and once in a separate onMounted —
-  // and only the second one was torn down. The first leaked across route
-  // navigations.
-  stopDraftWatcher = watch(
-    () => form.value,
-    (value) => {
-      draft.value = value
-    },
-    { deep: true, immediate: true }
-  )
+        if (form.value.appointment_date) {
+          const parsed = new Date(form.value.appointment_date)
+          if (!Number.isNaN(parsed.getTime())) {
+            form.value.appointment_date = formatDate(parsed)
+          }
+        }
 
-  await nextTick()
-  isDirty.value = false
-  trackingDirty.value = true
-}))
+        originalDate.value = form.value.appointment_date
+        originalDoctorId.value = form.value.doctor_id
+        originalDuration.value = form.value.duration_minutes
 
-watch(form, () => {
-  if (trackingDirty.value) isDirty.value = true
-}, { deep: true })
+        if (data.patient_name && data.patient) {
+          selectedPatient.value = {
+            id: data.patient,
+            full_name: data.patient_name,
+          }
+        }
+      } catch {
+        throw new Error('تعذر تحميل الموعد')
+      }
+    }
+
+    if (!isCurrent()) return
+    const restored = restoreDraftToForm()
+    if (restored) {
+      Object.assign(form.value, restored)
+      notify('تم استعادة المسودة', 'info', { duration: 3000 })
+    }
+
+    if (!isCurrent()) return
+    resumeDraft()
+
+    // Single draft watcher. Previously this file registered the same watcher
+    // twice — once inside this onMounted and once in a separate onMounted —
+    // and only the second one was torn down. The first leaked across route
+    // navigations.
+    stopDraftWatcher = watch(
+      () => form.value,
+      (value) => {
+        draft.value = value
+      },
+      { deep: true, immediate: true },
+    )
+
+    await nextTick()
+    isDirty.value = false
+    trackingDirty.value = true
+  }),
+)
+
+watch(
+  form,
+  () => {
+    if (trackingDirty.value) isDirty.value = true
+  },
+  { deep: true },
+)
 
 onBeforeUnmount(() => {
   if (stopDraftWatcher) stopDraftWatcher()

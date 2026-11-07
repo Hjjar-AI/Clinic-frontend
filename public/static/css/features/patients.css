@@ -75,7 +75,10 @@
 @media (max-width: 768px) {
   .bulk-actions-bar {
     position: fixed;
-    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
+    bottom: calc(
+      var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) +
+        var(--space-2)
+    );
     top: auto;
     inset-inline: 0;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
@@ -89,12 +92,38 @@
     width: 100%;
     justify-content: flex-end;
   }
-}@container (max-width: 640px) {
-  .grid--profile { grid-template-columns: minmax(0, 1fr); }
-  .patient-summary-sidebar { position: static; width: 100%; }
+}
+@container (max-width: 640px) {
+  .grid--profile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .patient-summary-sidebar {
+    position: static;
+    width: 100%;
+  }
 }
 
-.patient-record-values { display: grid; grid-template-columns: minmax(7rem, 1fr) minmax(0, 2fr); gap: var(--space-2); }
-.patient-record-values dt { font-weight: var(--font-weight-semibold); }
-.patient-record-values dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
-@container (max-width: 400px) { .patient-record-values { grid-template-columns: minmax(0, 1fr); } }
+.patient-record-values {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) minmax(0, 2fr);
+  gap: var(--space-2);
+}
+.patient-record-values dt {
+  font-weight: var(--font-weight-semibold);
+}
+.patient-record-values dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+@container (max-width: 400px) {
+  .patient-record-values {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.patient-search-control {
+  max-width: 250px;
+}
+.care-team-role-select {
+  max-width: 150px;
+}

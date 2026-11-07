@@ -1,9 +1,10 @@
 <template>
-  <CollapsibleSection id="visit-history" tabindex="-1"
+  <CollapsibleSection
+    id="visit-history"
+    tabindex="-1"
     title="البيانات الأساسية"
     icon="info-circle"
-    :open="true"
-    persist-key="visit-basic"
+    :open="sectionOpen"
   >
     <div class="grid-2">
       <FormDate
@@ -100,6 +101,8 @@
 </template>
 
 <script setup>
+import { useVisitSection } from '@/features/visits/composables/useVisitSections'
+const sectionOpen = useVisitSection('visit-basic')
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
 import FormDate from '@/components/ui/FormDate.vue'
 import FormField from '@/components/ui/FormField.vue'
@@ -109,6 +112,6 @@ import ClinicalTextArea from '@/features/clinical/components/ClinicalTextArea.vu
 defineProps({
   form: Object,
   errors: Object,
-  ageDisplay: String
+  ageDisplay: String,
 })
 </script>

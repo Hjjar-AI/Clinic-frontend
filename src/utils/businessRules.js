@@ -1,3 +1,4 @@
+import { STATUS_PRESENTATION } from '@/constants/statusPresentation'
 // frontend/src/utils/businessRules.js
 
 /**
@@ -17,13 +18,7 @@
  * @param {Date|string} [visitDate]
  * @returns {number|null}
  */
-export function calculateAge(dobYear, visitDate = null) {
-  if (!dobYear) return null
-  const year = visitDate
-    ? new Date(visitDate).getFullYear()
-    : new Date().getFullYear()
-  return year - parseInt(dobYear)
-}
+export { calculateAge } from '@/utils/date'
 
 /**
  * Return the most recent risk level across suicide and violence.
@@ -33,10 +28,20 @@ export function calculateAge(dobYear, visitDate = null) {
  */
 export function getLatestRiskLevel(visits) {
   if (!visits?.length) return null
-  const latest = visits.find(v => v.suicide_risk_level || v.violence_risk_level)
+  const latest = visits.find(
+    (v) => v.suicide_risk_level || v.violence_risk_level,
+  )
   if (!latest) return null
-  if (latest.suicide_risk_level === 'High' || latest.violence_risk_level === 'High') return 'High'
-  if (latest.suicide_risk_level === 'Moderate' || latest.violence_risk_level === 'Moderate') return 'Moderate'
+  if (
+    latest.suicide_risk_level === 'High' ||
+    latest.violence_risk_level === 'High'
+  )
+    return 'High'
+  if (
+    latest.suicide_risk_level === 'Moderate' ||
+    latest.violence_risk_level === 'Moderate'
+  )
+    return 'Moderate'
   return 'Low'
 }
 
@@ -44,8 +49,10 @@ export function getLatestRiskLevel(visits) {
  * Map a risk level to its display label.
  */
 export function getRiskLabel(level) {
-  const labels = { High: 'مرتفع', Moderate: 'متوسط', Low: 'منخفض' }
-  return labels[level] || 'غير محدد'
+  return (
+    STATUS_PRESENTATION.risk[level]?.label ||
+    STATUS_PRESENTATION.risk.null.label
+  )
 }
 
 /**
@@ -71,22 +78,4 @@ export function isAppointmentConflicting(newTime, durationMinutes, occupied) {
   const end = start + durationMinutes
 
   return occupied.some(({ start: s, end: e }) => timesOverlap(start, end, s, e))
-}
-
-/**
- * Validate a national ID (10-12 digits).
- * Return true if valid.
- */
-export function isValidNationalId(id) {
-  if (!id) return true
-  return /^\d{10,12}$/.test(id.trim())
-}
-
-/**
- * Validate a phone number (starts with 0, 9-10 digits).
- */
-export function isValidPhone(phone) {
-  if (!phone) return true
-  const cleaned = phone.replace(/[^\d]/g, '')
-  return /^0\d{8,9}$/.test(cleaned)
 }

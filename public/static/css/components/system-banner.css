@@ -1,0 +1,26 @@
+.system-banner {
+  position: relative;
+  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.system-banner--info {
+  background: var(--color-info-dark);
+  color: var(--color-text-inverse);
+}
+
+.system-banner--warning {
+  background: var(--color-warning);
+  color: var(--color-warning-dark);
+}
+
+.system-banner__icon {
+  font-size: var(--icon-lg);
+}

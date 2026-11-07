@@ -14,30 +14,38 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 
 import { useApi } from '@/composables/useApi'
 import BackupLayout from '@/features/backup/components/BackupLayout.vue'
 import backupService from '@/features/backup/services/backupService'
 import { unwrapResponse } from '@/services/apiClient'
+import { downloadBlob } from '@/utils/download'
 
 let generation = 0
-onBeforeUnmount(() => { generation += 1 })
+onBeforeUnmount(() => {
+  generation += 1
+})
 const selectedFile = ref(null)
 const previewData = ref(null)
 const selectedBackupType = ref('full')
 
-function resetPreview() { generation += 1; previewData.value = null }
-function onFileSelected(file) { if (restoreLoading.value) return; selectedFile.value = file; resetPreview() }
+function resetPreview() {
+  generation += 1
+  previewData.value = null
+}
+function onFileSelected(file) {
+  if (restoreLoading.value) return
+  selectedFile.value = file
+  resetPreview()
+}
 
 const { loading: backupLoading, execute: doBackup } = useApi(async () => {
   const res = await backupService.createBackup(selectedBackupType.value)
-  const url = window.URL.createObjectURL(new Blob([res.data]))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = selectedBackupType.value === 'json' ? 'backup.json' : 'backup.zip'
-  a.click()
-  window.URL.revokeObjectURL(url)
+  downloadBlob(
+    new Blob([res.data]),
+    selectedBackupType.value === 'json' ? 'backup.json' : 'backup.zip',
+  )
 })
 
 const handleCreateBackup = (type) => {
@@ -49,12 +57,18 @@ const handleCreateBackup = (type) => {
 const { loading: previewLoading, execute: doPreview } = useApi(async () => {
   if (!selectedFile.value) return
   const request = generation
-  const file = selectedFile.value, options = { ...restoreOptions.value }
+  const file = selectedFile.value,
+    options = { ...restoreOptions.value }
   const response = await backupService.previewRestore(file, options)
   if (request === generation) previewData.value = unwrapResponse(response)
 })
 
-const handlePreviewRestore = (options) => { if (restoreLoading.value) return; resetPreview(); restoreOptions.value = { ...options }; doPreview().catch(() => {}) }
+const handlePreviewRestore = (options) => {
+  if (restoreLoading.value) return
+  resetPreview()
+  restoreOptions.value = { ...options }
+  doPreview().catch(() => {})
+}
 
 const restoreOptions = ref(null)
 const { loading: restoreLoading, execute: doRestore } = useApi(async () => {
@@ -63,7 +77,13 @@ const { loading: restoreLoading, execute: doRestore } = useApi(async () => {
 })
 
 const handleExecuteRestore = (options) => {
-  if (restoreLoading.value || previewLoading.value || !previewData.value?.preview_token || options.preview_token !== previewData.value.preview_token) return
+  if (
+    restoreLoading.value ||
+    previewLoading.value ||
+    !previewData.value?.preview_token ||
+    options.preview_token !== previewData.value.preview_token
+  )
+    return
   restoreOptions.value = { ...options }
   doRestore().catch(() => {})
 }

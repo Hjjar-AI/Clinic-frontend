@@ -14,7 +14,7 @@ import DataTable from '@/components/ui/DataTable.vue'
 import ListView from '@/components/ui/ListView.vue'
 import AppTabs from '@/components/ui/AppTabs.vue'
 import AppTabPanel from '@/components/ui/AppTabPanel.vue'
-import EditableNotes from '@/components/ui/EditableNotes.vue'
+import SessionScratchpad from '@/features/dashboard/components/SessionScratchpad.vue'
 import SignaturePad from '@/components/ui/SignaturePad.vue'
 import { useConfirmStore } from '@/stores/confirm'
 import { changeSession } from '@/services/sessionState'
@@ -109,7 +109,7 @@ describe('list and keyboard ownership', () => {
 
 describe('privacy and signature state', () => {
   it('scratchpad removes legacy plaintext storage and clears on account change', async () => {
-    localStorage.setItem('dashboard_notes_1', 'Synthetic legacy private text'); const wrapper = mount(EditableNotes, { props: { userId: 1 } })
+    localStorage.setItem('dashboard_notes_1', 'Synthetic legacy private text'); const wrapper = mount(SessionScratchpad, { props: { userId: 1 } })
     expect(localStorage.getItem('dashboard_notes_1')).toBeNull(); await wrapper.get('textarea').setValue('Synthetic new private text'); expect(localStorage.length).toBe(0)
     changeSession(2); await flushPromises(); expect(wrapper.get('textarea').element.value).toBe('')
   })

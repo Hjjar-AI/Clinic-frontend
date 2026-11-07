@@ -1,8 +1,8 @@
 <template>
   <div
     ref="wrapper"
-    @focusout="onFocusOut"
     :class="variant === 'global' ? 'navbar__search' : 'searchable-select'"
+    @focusout="onFocusOut"
   >
     <div class="input-clear-wrapper">
       <input
@@ -15,11 +15,13 @@
         aria-autocomplete="list"
         :aria-expanded="open && Boolean(panelRef)"
         :aria-controls="listId"
-        :aria-activedescendant="activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined"
-        @keydown="onKeydown"
+        :aria-activedescendant="
+          activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined
+        "
         :aria-label="placeholder"
+        @keydown="onKeydown"
         @input="onInput($event.target.value)"
-        @focus="open = true"
+        @focus="focusSearch"
       >
       <span
         v-if="loading && variant === 'global'"
@@ -37,9 +39,16 @@
         @click="clear"
       />
     </div>
+    <small
+      v-if="searchError"
+      role="alert"
+      class="text-danger"
+    >تعذر البحث؛ أعد المحاولة</small>
     <Transition name="dropdown-fade">
       <ul
-        v-if="open && (rawQuery.trim().length >= minLength || recentSearches.length)"
+        v-if="
+          open && (rawQuery.trim().length >= minLength || recentSearches.length)
+        "
         :id="listId"
         ref="panelRef"
         role="listbox"
@@ -53,7 +62,7 @@
           </li>
           <li
             v-for="(term, idx) in recentSearches"
-            :key="'recent-'+idx"
+            :key="'recent-' + idx"
           >
             <BaseButton
               class="search-result-item"
@@ -66,9 +75,9 @@
         <li
           v-for="(item, index) in results"
           :id="`${listId}-${index}`"
+          :key="getOptionKey(item)"
           role="option"
           :aria-selected="index === activeIndex"
-          :key="getOptionKey(item)"
           :class="{ 'search-result--active': index === activeIndex }"
         >
           <BaseButton
@@ -82,7 +91,10 @@
             >
               <span v-if="highlight && rawQuery">
                 <template
-                  v-for="(part, partIndex) in highlightParts(getOptionLabel(item), rawQuery)"
+                  v-for="(part, partIndex) in highlightParts(
+                    getOptionLabel(item),
+                    rawQuery,
+                  )"
                   :key="partIndex"
                 >
                   <mark v-if="part.match">{{ part.text }}</mark>
@@ -93,11 +105,22 @@
             </slot>
           </BaseButton>
         </li>
-        <li v-if="loading" role="presentation" class="text-muted p-2">جاري البحث...</li>
-        <li v-else-if="rawQuery.trim().length >= minLength && !results.length" role="presentation" class="no-results text-muted text-sm text-center p-2">لا توجد نتائج</li>
+        <li
+          v-if="loading"
+          role="presentation"
+          class="text-muted p-2"
+        >
+          جاري البحث...
+        </li>
+        <li
+          v-else-if="rawQuery.trim().length >= minLength && !results.length"
+          role="presentation"
+          class="no-results text-muted text-sm text-center p-2"
+        >
+          لا توجد نتائج
+        </li>
       </ul>
     </Transition>
-
   </div>
 </template>
 
@@ -105,9 +128,9 @@
 import { onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 
 import Icon from '@/components/ui/Icon.vue'
-import { STORAGE_KEYS } from '@/constants/storageKeys'
-import { useSearch } from '@/composables/useSearch'
 import { useFloatingPosition } from '@/composables/useFloatingPosition'
+import { useSearch } from '@/composables/useSearch'
+import { STORAGE_KEYS } from '@/constants/storageKeys'
 
 const RECENT_SEARCHES_KEY = STORAGE_KEYS.RECENT_SEARCHES
 const MAX_RECENT = 5
@@ -119,40 +142,77 @@ const props = defineProps({
   optionKey: { type: [String, Function], default: 'value' },
   placeholder: { type: String, default: 'ابحث...' },
   minLength: { type: Number, default: 2 },
-  variant: { type: String, default: 'inline', validator: v => ['inline','global'].includes(v) },
+  variant: {
+    type: String,
+    default: 'inline',
+    validator: (v) => ['inline', 'global'].includes(v),
+  },
   highlight: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['update:modelValue', 'select'])
+const emit = defineEmits(['update:modelValue', 'select', 'query-change'])
 
 const wrapper = ref(null)
 const open = ref(false)
-const { query: rawQuery, loading, results, onInput: search, clear: clearSearch } = useSearch(
-  value => props.searchFn(value), { minLength: props.minLength },
-)
-const { panelRef, positionStyle } = useFloatingPosition(wrapper, { active: open, maxHeight: 240 })
+const {
+  query: rawQuery,
+  loading,
+  results,
+  error: searchError,
+  onInput: search,
+  clear: clearSearch,
+} = useSearch((value) => props.searchFn(value), { minLength: props.minLength })
+const { panelRef, positionStyle } = useFloatingPosition(wrapper, {
+  active: open,
+  maxHeight: 240,
+})
 const listId = `search-${useId()}`
 const activeIndex = ref(-1)
 const recentSearches = ref([])
 
 onMounted(() => {
   // Historical patient labels must not survive the session in browser storage.
-  try { localStorage.removeItem(RECENT_SEARCHES_KEY) } catch { /* Storage can be unavailable. */ }
+  try {
+    localStorage.removeItem(RECENT_SEARCHES_KEY)
+  } catch {
+    /* Storage can be unavailable. */
+  }
 })
 
-watch(() => props.modelValue, (val, previous) => {
-  if (val) rawQuery.value = getOptionLabel(val)
-  else if (rawQuery.value === getOptionLabel(previous)) rawQuery.value = ''
-}, { immediate: true })
+watch(
+  () => props.modelValue,
+  (val, previous) => {
+    if (val) rawQuery.value = getOptionLabel(val)
+    else if (rawQuery.value === getOptionLabel(previous)) rawQuery.value = ''
+  },
+  { immediate: true },
+)
 
-function getOptionLabel(opt) { if (!opt) return ''; return typeof props.optionLabel === 'function' ? props.optionLabel(opt) : opt[props.optionLabel] || '' }
-function getOptionKey(opt) { if (!opt) return ''; return typeof props.optionKey === 'function' ? props.optionKey(opt) : opt[props.optionKey] || opt.id || '' }
+function getOptionLabel(opt) {
+  if (!opt) return ''
+  return typeof props.optionLabel === 'function'
+    ? props.optionLabel(opt)
+    : opt[props.optionLabel] || ''
+}
+function getOptionKey(opt) {
+  if (!opt) return ''
+  return typeof props.optionKey === 'function'
+    ? props.optionKey(opt)
+    : opt[props.optionKey] || opt.id || ''
+}
+
+function focusSearch() {
+  open.value = true
+  if (props.minLength === 0 && !rawQuery.value) onInput('')
+}
 
 function onInput(val) {
+  emit('query-change', val)
   activeIndex.value = -1
   results.value = []
   search(val)
-  open.value = val.trim().length >= props.minLength || recentSearches.value.length > 0
+  open.value =
+    val.trim().length >= props.minLength || recentSearches.value.length > 0
   if (props.modelValue && val !== getOptionLabel(props.modelValue)) {
     emit('update:modelValue', null)
     emit('select', null)
@@ -181,10 +241,17 @@ function onKeydown(event) {
     event.preventDefault()
     open.value = true
     if (results.value.length) {
-      activeIndex.value = activeIndex.value < 0
-        ? (event.key === 'ArrowDown' ? 0 : results.value.length - 1)
-        : (activeIndex.value + (event.key === 'ArrowDown' ? 1 : -1) + results.value.length) % results.value.length
-      panelRef.value?.querySelectorAll('[role=option]')[activeIndex.value]?.scrollIntoView?.({ block: 'nearest' })
+      activeIndex.value =
+        activeIndex.value < 0
+          ? event.key === 'ArrowDown'
+            ? 0
+            : results.value.length - 1
+          : (activeIndex.value +
+              (event.key === 'ArrowDown' ? 1 : -1) +
+              results.value.length) %
+            results.value.length
+      const activeOption = panelRef.value?.querySelectorAll('[role=option]')[activeIndex.value]
+      activeOption?.scrollIntoView?.({ block: 'nearest' })
     }
   } else if (event.key === 'Enter' && open.value && activeIndex.value >= 0) {
     event.preventDefault()
@@ -194,15 +261,15 @@ function onKeydown(event) {
 
 function saveRecent(term) {
   if (!term.trim()) return
-  const current = recentSearches.value.filter(t => t !== term)
+  const current = recentSearches.value.filter((t) => t !== term)
   current.unshift(term)
   recentSearches.value = current.slice(0, MAX_RECENT)
-
 }
 
 function select(opt) {
   saveRecent(getOptionLabel(opt))
-  emit('update:modelValue', opt); emit('select', opt)
+  emit('update:modelValue', opt)
+  emit('select', opt)
   dismiss()
   rawQuery.value = getOptionLabel(opt)
 }
@@ -211,8 +278,12 @@ function selectRecent(term) {
   onInput(term)
 }
 
+defineExpose({ clear })
+
 function clear() {
-  emit('update:modelValue', null); emit('select', null)
+  emit('query-change', '')
+  emit('update:modelValue', null)
+  emit('select', null)
   clearSearch()
   activeIndex.value = -1
   open.value = false
@@ -222,10 +293,13 @@ function highlightParts(text, search) {
   if (!search) return [{ text, match: false }]
   const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const regex = new RegExp(`(${escaped})`, 'gi')
-  return String(text).split(regex).filter(Boolean).map((part) => ({
-    text: part,
-    match: part.toLocaleLowerCase() === search.toLocaleLowerCase(),
-  }))
+  return String(text)
+    .split(regex)
+    .filter(Boolean)
+    .map((part) => ({
+      text: part,
+      match: part.toLocaleLowerCase() === search.toLocaleLowerCase(),
+    }))
 }
 
 function handleClickOutside(event) {
@@ -235,5 +309,8 @@ function handleClickOutside(event) {
 }
 
 onMounted(() => document.addEventListener('click', handleClickOutside))
-onBeforeUnmount(() => { dismiss(); document.removeEventListener('click', handleClickOutside) })
+onBeforeUnmount(() => {
+  dismiss()
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>

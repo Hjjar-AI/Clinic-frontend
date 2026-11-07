@@ -2,6 +2,7 @@ import { it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { defineComponent } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
+import { createVisitDefaults, hydrateVisit, duplicateVisit } from '@/features/visits/model/visitForm'
 import { useVisitForm } from '@/features/visits/composables/useVisitForm'
 import { useVisitStore } from '@/features/visits/stores/visits'
 
@@ -55,4 +56,23 @@ it('removing the last goal sends an empty list and omits server signing metadata
   expect(payload.version).toBe(5)
   expect(payload).not.toHaveProperty('signed_by_id')
   expect(payload).not.toHaveProperty('date_signed')
+})
+
+
+it('fresh and hydrated visit forms own their nested records across patients and duplication', () => {
+  const first = createVisitDefaults('07/11/2026')
+  first.goals.push({ title: 'Synthetic first goal', percentage: 0 })
+  first.clinical_data.private_note = 'Synthetic first note'
+  const second = createVisitDefaults('07/11/2026')
+  expect(second.goals).toEqual([])
+  expect(second.clinical_data).toEqual({})
+  const source = { visit_date: '2026-11-07', clinical_data: { goals: [{ title: 'Synthetic saved goal', percentage: null }] }, lab_values: [{ name: 'Synthetic lab', value: '0' }] }
+  const edit = hydrateVisit(source), duplicate = duplicateVisit(source, '08/11/2026')
+  edit.goals[0].title = 'Synthetic changed goal'
+  edit.lab_values[0].value = '1'
+  expect(source.clinical_data.goals[0].title).toBe('Synthetic saved goal')
+  expect(source.lab_values[0].value).toBe('0')
+  expect(duplicate.goals).toEqual([])
+  expect(duplicate.lab_values[0].value).toBe('0')
+  expect(duplicate.visit_date).toBe('08/11/2026')
 })

@@ -70,18 +70,18 @@
 <script setup>
 import { useRouter } from 'vue-router'
 
-import DuplicateVisitButton from '@/components/common/DuplicateVisitButton.vue'
-import VisitCard from '@/components/common/VisitCard.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import MedicationList from '@/features/clinical/components/MedicationList.vue'
+import DuplicateVisitButton from '@/features/visits/components/DuplicateVisitButton.vue'
+import VisitCard from '@/features/visits/components/VisitCard.vue'
 
 defineProps({
   patient: { type: Object, required: true },
   visits: { type: Array, required: true },
   latestVisit: { type: Object, default: null },
-  formattedMeds: { type: Array, default: () => [] }
+  formattedMeds: { type: Array, default: () => [] },
 })
 
 defineEmits(['export-visit-pdf'])
@@ -89,5 +89,7 @@ defineEmits(['export-visit-pdf'])
 const router = useRouter()
 const authStore = useAuthStore()
 
-function goToVisit(id) { if (id) router.push({ name: 'VisitDetail', params: { id } }) }
+function goToVisit(id) {
+  if (id) router.push({ name: 'VisitDetail', params: { id } })
+}
 </script>

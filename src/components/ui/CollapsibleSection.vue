@@ -15,7 +15,11 @@
             v-if="icon"
             :icon="icon"
           />
-          <span class="collapsible-section__title" role="heading" aria-level="2">{{ title }}</span>
+          <span
+            class="collapsible-section__title"
+            role="heading"
+            aria-level="2"
+          >{{ title }}</span>
         </div>
         <div
           class="collapsible-section__toggle"
@@ -38,12 +42,12 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-import { useWorkspaceStore } from '@/stores/workspace'
 import BaseCard from './BaseCard.vue'
 import Icon from './Icon.vue'
 
+const emit = defineEmits(['update:open'])
 const props = defineProps({
   title: { type: String, required: true },
   open: { type: Boolean, default: false },
@@ -51,22 +55,36 @@ const props = defineProps({
   icon: { type: String, default: '' },
 })
 
-const storageKey = `collapsible_${props.persistKey || props.title}`
-const workspace = useWorkspaceStore()
-const isOpen = ref(false)
-watch(() => workspace.preferences.progressive, progressive => { if (props.persistKey.startsWith('visit-')) isOpen.value = !progressive || ['visit-basic', 'visit-treat'].includes(props.persistKey) })
-
-onMounted(() => {
-  if (props.persistKey.startsWith('visit-') && workspace.preferences.progressive) { isOpen.value = ['visit-basic', 'visit-treat'].includes(props.persistKey); return }
-  if (props.persistKey) {
-    const stored = sessionStorage.getItem(storageKey)
-    if (stored !== null) { isOpen.value = stored === 'true'; return }
-  }
-  isOpen.value = props.open
-})
-
+const isOpen = ref(props.open)
+const storageKey = () => `collapsible_${props.persistKey}`
+watch(
+  () => props.open,
+  (value) => {
+    isOpen.value = value
+  },
+)
+watch(
+  () => props.persistKey,
+  (key) => {
+    if (!key) return
+    try {
+      const stored = sessionStorage.getItem(storageKey())
+      if (stored !== null) isOpen.value = stored === 'true'
+    } catch {
+      /* Disclosure remains usable. */
+    }
+  },
+  { immediate: true },
+)
 function toggle() {
   isOpen.value = !isOpen.value
-  if (props.persistKey) sessionStorage.setItem(storageKey, String(isOpen.value))
+  emit('update:open', isOpen.value)
+  if (props.persistKey) {
+    try {
+      sessionStorage.setItem(storageKey(), String(isOpen.value))
+    } catch {
+      /* Optional preference. */
+    }
+  }
 }
 </script>

@@ -1,5 +1,6 @@
 <template>
-  <VisitsListLayout :refresh-key="listRefresh"
+  <VisitsListLayout
+    :refresh-key="listRefresh"
     :columns="columns"
     :fetch-fn="fetchFn"
     :table-filters="tableFilters"
@@ -21,7 +22,8 @@ import { computed, ref } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useNotify } from '@/composables/useNotify'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
+import { statusPresentation } from '@/constants/statusPresentation'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import VisitsListLayout from '@/features/visits/components/VisitsListLayout.vue'
 import visitService from '@/features/visits/services/visitService'
@@ -32,33 +34,14 @@ const authStore = useAuthStore()
 const { notify } = useNotify()
 const { confirm } = useConfirmDialog()
 
-const statusFilter = useRouteQuery('status', '')
-const clinicalStatusFilter = useRouteQuery('clinical_status', '')
-const dateFromFilter = useRouteQuery('date_from', '')
-const dateToFilter = useRouteQuery('date_to', '')
-const searchFilter = useRouteQuery('search', '')
-const sortByFilter = useRouteQuery('sort_by', 'date')
-const sortOrderFilter = useRouteQuery('sort_order', 'desc')
-
-const filters = computed({
-  get: () => ({
-    search: searchFilter.value,
-    status: statusFilter.value,
-    clinical_status: clinicalStatusFilter.value,
-    date_from: dateFromFilter.value,
-    date_to: dateToFilter.value,
-    sort_by: sortByFilter.value,
-    sort_order: sortOrderFilter.value,
-  }),
-  set: (value) => {
-    searchFilter.value = value.search || ''
-    statusFilter.value = value.status || ''
-    clinicalStatusFilter.value = value.clinical_status || ''
-    dateFromFilter.value = value.date_from || ''
-    dateToFilter.value = value.date_to || ''
-    sortByFilter.value = value.sort_by || 'date'
-    sortOrderFilter.value = value.sort_order || 'desc'
-  },
+const filters = useRouteFilters({
+  search: '',
+  status: '',
+  clinical_status: '',
+  date_from: '',
+  date_to: '',
+  sort_by: 'date',
+  sort_order: 'desc',
 })
 
 const columns = [
@@ -66,7 +49,11 @@ const columns = [
   { key: 'visit_date', sortKey: 'date', label: 'تاريخ الزيارة' },
   { key: 'main_complaints', label: 'الشكوى' },
   { key: 'status', sortKey: 'status', label: 'الحالة' },
-  { key: 'clinical_status', sortKey: 'clinical_status', label: 'الحالة السريرية' },
+  {
+    key: 'clinical_status',
+    sortKey: 'clinical_status',
+    label: 'الحالة السريرية',
+  },
 ]
 
 const tableFilters = computed(() => [
@@ -81,10 +68,10 @@ const tableFilters = computed(() => [
     placeholder: 'جميع الحالات',
     options: [
       { value: '', label: 'جميع الحالات' },
-      { value: 'draft', label: 'مسودة' },
-      { value: 'final', label: 'نهائية' },
-      { value: 'amended', label: 'معدلة' },
-      { value: 'locked', label: 'مقفلة' },
+      ...['draft', 'final', 'amended', 'locked'].map((value) => ({
+        value,
+        label: statusPresentation('visit', value).label,
+      })),
     ],
   },
   {
@@ -147,7 +134,10 @@ function exportVisitPdf(visitId) {
 }
 
 const listRefresh = ref(0)
-const { execute: doDelete } = useApi((visit) => visitService.delete(visit.id, visit.version), { silent: true })
+const { execute: doDelete } = useApi(
+  (visit) => visitService.delete(visit.id, visit.version),
+  { silent: true },
+)
 
 async function deleteVisit(visit) {
   try {
@@ -164,13 +154,7 @@ async function confirmResetFilters() {
 
   if (!ok) return
 
-  statusFilter.value = ''
-  clinicalStatusFilter.value = ''
-  dateFromFilter.value = ''
-  dateToFilter.value = ''
-  searchFilter.value = ''
-  sortByFilter.value = 'date'
-  sortOrderFilter.value = 'desc'
+  filters.value = {}
 }
 
 function refreshAll() {

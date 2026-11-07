@@ -1,6 +1,8 @@
 <!-- frontend/src/features/clinical/views/TemplateForm.vue -->
 <template>
-  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry"
+  <FormWrapper
+    :ready="resourceReady"
+    :load-error="resourceError"
     :header-title="isEdit ? 'تعديل قالب' : 'قالب جديد'"
     header-icon="file-alt"
     back-label="العودة للقوالب"
@@ -9,9 +11,10 @@
     :cancel-to="{ name: 'Templates' }"
     :validation-errors="errors"
     :submit-error="submitError"
+    @retry="resource.retry"
     @submit="handleSubmit"
   >
-    <template #headerTitle>
+    <template #breadcrumbs>
       <Breadcrumb :items="breadcrumbs" />
     </template>
 
@@ -83,8 +86,7 @@
 </template>
 
 <script setup>
-import { useResourceLoad } from '@/composables/useResourceLoad'
-import { computed,onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
@@ -93,10 +95,10 @@ import FormSelect from '@/components/ui/FormSelect.vue'
 import FormTextarea from '@/components/ui/FormTextarea.vue'
 import FormWrapper from '@/components/ui/FormWrapper.vue'
 import Icon from '@/components/ui/Icon.vue'
-import { useApi } from '@/composables/useApi'
 import { useForm } from '@/composables/useForm'
 import { useFormDirty } from '@/composables/useFormDirty'
 import { useFormSubmission } from '@/composables/useFormSubmission'
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import templateService from '@/features/clinical/services/templateService'
 import { unwrapResponse } from '@/services/apiClient'
 
@@ -137,84 +139,94 @@ const schema = [
   { field: 'category', label: 'التصنيف', required: true },
 ]
 
-const { form, errors, isDirty, validate, markClean } = useForm(initialData, { schema })
+const { form, errors, isDirty, validate, markClean } = useForm(initialData, {
+  schema,
+})
 
 // Single source of truth: the ref returned by useForm.
 useFormDirty(isDirty)
 
-const { execute: execSubmit } = useApi(
-  async () => {
-    const content = {
-      mse: form.mse || '',
-      formulation: {
-        predisposing: form.formulation_predisposing || '',
-        precipitating: form.formulation_precipitating || '',
-        perpetuating: form.formulation_perpetuating || '',
-        protective: form.formulation_protective || '',
-      },
-      risk_notes: form.risk_notes || '',
-      treatment_text: form.treatment_text || '',
-      doctor_notes: form.doctor_notes || '',
-    }
+const execSubmit = async () => {
+  const content = {
+    mse: form.mse || '',
+    formulation: {
+      predisposing: form.formulation_predisposing || '',
+      precipitating: form.formulation_precipitating || '',
+      perpetuating: form.formulation_perpetuating || '',
+      protective: form.formulation_protective || '',
+    },
+    risk_notes: form.risk_notes || '',
+    treatment_text: form.treatment_text || '',
+    doctor_notes: form.doctor_notes || '',
+  }
 
-    const payload = {
-      ...(isEdit ? { version: form.version } : {}),
-      name: form.name,
-      description: form.description,
-      category: form.category,
-      content,
-    }
+  const payload = {
+    ...(isEdit ? { version: form.version } : {}),
+    name: form.name,
+    description: form.description,
+    category: form.category,
+    content,
+  }
 
-    if (isEdit) {
-      await templateService.update(route.params.id, payload)
-    } else {
-      await templateService.create(payload)
-    }
+  if (isEdit) {
+    await templateService.update(route.params.id, payload)
+  } else {
+    await templateService.create(payload)
+  }
 
-    markClean()
-    router.push({ name: 'Templates' })
-  },
-  { silent: true }
-)
+  markClean()
+  router.push({ name: 'Templates' })
+}
 
-const { submit, submitError: submissionError, isSubmitting: saving } = useFormSubmission(validate, execSubmit)
+const {
+  submit,
+  submitError: submissionError,
+  isSubmitting: saving,
+} = useFormSubmission(validate, execSubmit)
 
 const breadcrumbs = computed(() => [
   { label: 'القوالب', to: { name: 'Templates' } },
   { label: isEdit ? 'تعديل قالب' : 'قالب جديد' },
 ])
 
-onMounted(() => resource.load(async (isCurrent) => {
-  if (!isEdit) return
+onMounted(() =>
+  resource.load(async (isCurrent) => {
+    if (!isEdit) return
 
-  try {
-    const result = await templateService.getById(route.params.id)
-    const template = unwrapResponse(result)
-    if (!template?.id || !Number.isInteger(template.version) || template.version < 1) throw new Error('تعذر تحميل إصدار السجل')
-    if (!isCurrent()) return
+    try {
+      const result = await templateService.getById(route.params.id)
+      const template = unwrapResponse(result)
+      if (
+        !template?.id ||
+        !Number.isInteger(template.version) ||
+        template.version < 1
+      )
+        throw new Error('تعذر تحميل إصدار السجل')
+      if (!isCurrent()) return
 
-    const content = template.content || {}
+      const content = template.content || {}
 
-    Object.assign(form, {
-      version: template.version,
-      name: template.name || '',
-      description: template.description || '',
-      category: template.category || 'depression',
-      mse: content.mse || '',
-      formulation_predisposing: content.formulation?.predisposing || '',
-      formulation_precipitating: content.formulation?.precipitating || '',
-      formulation_perpetuating: content.formulation?.perpetuating || '',
-      formulation_protective: content.formulation?.protective || '',
-      risk_notes: content.risk_notes || '',
-      treatment_text: content.treatment_text || '',
-      doctor_notes: content.doctor_notes || '',
-    })
+      Object.assign(form, {
+        version: template.version,
+        name: template.name || '',
+        description: template.description || '',
+        category: template.category || 'depression',
+        mse: content.mse || '',
+        formulation_predisposing: content.formulation?.predisposing || '',
+        formulation_precipitating: content.formulation?.precipitating || '',
+        formulation_perpetuating: content.formulation?.perpetuating || '',
+        formulation_protective: content.formulation?.protective || '',
+        risk_notes: content.risk_notes || '',
+        treatment_text: content.treatment_text || '',
+        doctor_notes: content.doctor_notes || '',
+      })
 
-    markClean()
-  } catch {
-    throw new Error('تعذر تحميل السجل')
-  }
-}))
+      markClean()
+    } catch {
+      throw new Error('تعذر تحميل السجل')
+    }
+  }),
+)
 
 async function handleSubmit() {
   if (!resourceReady.value) return

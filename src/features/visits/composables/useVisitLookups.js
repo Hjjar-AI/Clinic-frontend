@@ -1,7 +1,7 @@
 // frontend/src/features/visits/composables/useVisitLookups.js
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
-import { useLookupStore } from '@/stores/lookups'
+import { useLookupStore } from '@/features/clinical/stores/lookups'
 
 /** Clinical options share the reactive catalog owner and its invalidation. */
 export function useVisitLookups() {
@@ -13,13 +13,20 @@ export function useVisitLookups() {
   const loading = ref(false)
   const error = ref('')
   let disposed = false
-  onBeforeUnmount(() => { disposed = true })
+  onBeforeUnmount(() => {
+    disposed = true
+  })
   async function retry() {
     if (loading.value || disposed) return
-    loading.value = true; error.value = ''
-    try { await lookupStore.fetchAll() }
-    catch { if (!disposed) error.value = 'تعذر تحميل الخيارات الطبية؛ أعد المحاولة' }
-    finally { if (!disposed) loading.value = false }
+    loading.value = true
+    error.value = ''
+    try {
+      await lookupStore.fetchAll()
+    } catch {
+      if (!disposed) error.value = 'تعذر تحميل الخيارات الطبية؛ أعد المحاولة'
+    } finally {
+      if (!disposed) loading.value = false
+    }
   }
   onMounted(retry)
 
@@ -31,7 +38,7 @@ export function useVisitLookups() {
       .filter(
         (d) =>
           (d.arabic_name || d.english_name || '').toLowerCase().includes(q) ||
-          (d.code || '').toLowerCase().includes(q)
+          (d.code || '').toLowerCase().includes(q),
       )
       .slice(0, 20)
   }
@@ -44,7 +51,7 @@ export function useVisitLookups() {
       .filter((m) =>
         (m.generic_arabic || m.generic_english || m.display_name || '')
           .toLowerCase()
-          .includes(q)
+          .includes(q),
       )
       .slice(0, 20)
   }
@@ -54,6 +61,8 @@ export function useVisitLookups() {
     medicationsInitial,
     searchDiagnoses,
     searchMedications,
-    loading, error, retry,
+    loading,
+    error,
+    retry,
   }
 }

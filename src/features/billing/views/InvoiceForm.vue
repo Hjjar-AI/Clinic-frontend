@@ -1,6 +1,8 @@
 <!-- frontend/src/features/billing/views/InvoiceForm.vue -->
 <template>
-  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry"
+  <FormWrapper
+    :ready="resourceReady"
+    :load-error="resourceError"
     :header-title="isEdit ? 'تحديث الفاتورة' : 'فاتورة جديدة'"
     header-icon="file-invoice"
     back-label="العودة للفواتير"
@@ -9,20 +11,66 @@
     :cancel-to="{ name: 'InvoicesList' }"
     :validation-errors="errors"
     :submit-error="submitError"
+    @retry="resource.retry"
     @submit="handleSubmit"
   >
-    <template #headerTitle>
+    <template #breadcrumbs>
       <Breadcrumb :items="breadcrumbs" />
     </template>
 
     <section aria-label="بنود الفاتورة">
-      <div v-for="(line, index) in form.lines" :key="index" class="grid-2 gap-3 mb-3">
-        <FormInput v-model="line.description" label="وصف البند" required maxlength="300" />
-        <FormInput v-model="line.quantity" label="الكمية" type="number" min="0.01" max="999999.99" step="0.01" required />
-        <FormInput v-model="line.unit_price" label="سعر الوحدة" type="number" min="0" max="99999999.99" step="0.01" required />
-        <BaseButton v-if="form.lines.length > 1" variant="secondary" type="button" @click="form.lines.splice(index, 1)">إزالة البند</BaseButton>
+      <div
+        v-for="(line, index) in form.lines"
+        :key="index"
+        class="grid-2 gap-3 mb-3"
+      >
+        <FormInput
+          v-model="line.description"
+          label="وصف البند"
+          required
+          maxlength="300"
+        />
+        <FormInput
+          v-model="line.quantity"
+          label="الكمية"
+          type="number"
+          min="0.01"
+          max="999999.99"
+          step="0.01"
+          required
+        />
+        <FormInput
+          v-model="line.unit_price"
+          label="سعر الوحدة"
+          type="number"
+          min="0"
+          max="99999999.99"
+          step="0.01"
+          required
+        />
+        <BaseButton
+          v-if="form.lines.length > 1"
+          variant="secondary"
+          type="button"
+          @click="form.lines.splice(index, 1)"
+        >
+          إزالة البند
+        </BaseButton>
       </div>
-      <BaseButton v-if="form.lines.length < 200" variant="secondary" type="button" @click="form.lines.push({ description: '', quantity: '1.00', unit_price: '0.00' })">إضافة بند</BaseButton>
+      <BaseButton
+        v-if="form.lines.length < 200"
+        variant="secondary"
+        type="button"
+        @click="
+          form.lines.push({
+            description: '',
+            quantity: '1.00',
+            unit_price: '0.00',
+          })
+        "
+      >
+        إضافة بند
+      </BaseButton>
     </section>
     <div class="grid-2 gap-3">
       <ApiSelect
@@ -104,13 +152,11 @@
 </template>
 
 <script setup>
-import { useResourceLoad } from '@/composables/useResourceLoad'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import BaseButton from '@/components/ui/BaseButton.vue'
-import { invoiceAmounts } from '@/utils/decimalMoney'
 import ApiSelect from '@/components/ui/ApiSelect.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import FormDate from '@/components/ui/FormDate.vue'
 import FormInput from '@/components/ui/FormInput.vue'
@@ -118,14 +164,15 @@ import FormSelect from '@/components/ui/FormSelect.vue'
 import FormTextarea from '@/components/ui/FormTextarea.vue'
 import FormWrapper from '@/components/ui/FormWrapper.vue'
 import KeyValueList from '@/components/ui/KeyValueList.vue'
-import { useApi } from '@/composables/useApi'
 import { useDate } from '@/composables/useDate'
 import { useForm } from '@/composables/useForm'
 import { useFormatters } from '@/composables/useFormatters'
 import { useFormDirty } from '@/composables/useFormDirty'
 import { useFormSubmission } from '@/composables/useFormSubmission'
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import invoiceService from '@/features/billing/services/invoiceService'
 import { unwrapResponse } from '@/services/apiClient'
+import { invoiceAmounts } from '@/utils/decimalMoney'
 
 const route = useRoute()
 const router = useRouter()
@@ -146,7 +193,9 @@ const paymentOptions = [
 const initialData = {
   patient_id: '',
   visit_id: '',
-  lines: [{ description: 'خدمات العيادة', quantity: '1.00', unit_price: '0.00' }],
+  lines: [
+    { description: 'خدمات العيادة', quantity: '1.00', unit_price: '0.00' },
+  ],
   total_amount: '0.00',
   tax: '0.00',
   discount: '0.00',
@@ -169,7 +218,9 @@ const schema = [
   { field: 'issued_date', label: 'تاريخ الإصدار', required: true },
 ]
 
-const { form, errors, isDirty, validate, markClean } = useForm(initialData, { schema })
+const { form, errors, isDirty, validate, markClean } = useForm(initialData, {
+  schema,
+})
 
 // Single source of truth: the ref returned by useForm.
 useFormDirty(isDirty)
@@ -180,40 +231,52 @@ const visitsUrl = computed(() => {
     : ''
 })
 
-const { execute: execSubmit } = useApi(
-  async () => {
-    const payload = normalizeFormDates(form, ['issued_date', 'due_date'])
-    Object.assign(payload, invoiceAmounts(form.lines, form.tax, form.discount))
-    payload.lines = form.lines.map(({ description, quantity, unit_price }) => ({ description, quantity: String(quantity), unit_price: String(unit_price) }))
-    payload.tax = String(form.tax || '0.00')
-    payload.discount = String(form.discount || '0.00')
-    payload.visit_id = form.visit_id || null
+const execSubmit = async () => {
+  const payload = normalizeFormDates(form, ['issued_date', 'due_date'])
+  Object.assign(payload, invoiceAmounts(form.lines, form.tax, form.discount))
+  payload.lines = form.lines.map(({ description, quantity, unit_price }) => ({
+    description,
+    quantity: String(quantity),
+    unit_price: String(unit_price),
+  }))
+  payload.tax = String(form.tax || '0.00')
+  payload.discount = String(form.discount || '0.00')
+  payload.visit_id = form.visit_id || null
 
-    if (isEdit) {
-      await invoiceService.update(route.params.id, payload)
-    } else {
-      await invoiceService.create(payload)
-    }
+  if (isEdit) {
+    await invoiceService.update(route.params.id, payload)
+  } else {
+    await invoiceService.create(payload)
+  }
 
-    markClean()
-    router.push({ name: 'InvoicesList' })
-  },
-  { silent: true }
-)
+  markClean()
+  router.push({ name: 'InvoicesList' })
+}
 
-const { submit, submitError, isSubmitting: saving } = useFormSubmission(validate, execSubmit)
+const {
+  submit,
+  submitError,
+  isSubmitting: saving,
+} = useFormSubmission(validate, execSubmit)
 
 watch(
   () => [form.lines, form.tax, form.discount],
   () => {
-    try { Object.assign(form, invoiceAmounts(form.lines, form.tax, form.discount)) }
-    catch { form.total_amount = ''; form.final_amount = '' }
+    try {
+      Object.assign(form, invoiceAmounts(form.lines, form.tax, form.discount))
+    } catch {
+      form.total_amount = ''
+      form.final_amount = ''
+    }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 )
 
 const summaryLines = computed(() => [
-  { label: 'الإجمالي', value: formatMoney(form.total_amount || 0, form.currency) },
+  {
+    label: 'الإجمالي',
+    value: formatMoney(form.total_amount || 0, form.currency),
+  },
   { label: 'الضريبة', value: formatMoney(form.tax || 0, form.currency) },
   { label: 'الخصم', value: formatMoney(form.discount || 0, form.currency) },
   {
@@ -236,42 +299,55 @@ function visitLabel(option) {
   return `${option.visit_date} – ${option.main_complaints || ''}`
 }
 
-onMounted(() => resource.load(async (isCurrent) => {
-  if (!isEdit) return
+onMounted(() =>
+  resource.load(async (isCurrent) => {
+    if (!isEdit) return
 
-  try {
-    const result = await invoiceService.getById(route.params.id)
-    const invoice = unwrapResponse(result)
-    if (!invoice?.id || !Number.isInteger(invoice.version) || invoice.version < 1) throw new Error('تعذر تحميل إصدار السجل')
-    if (!isCurrent()) return
+    try {
+      const result = await invoiceService.getById(route.params.id)
+      const invoice = unwrapResponse(result)
+      if (
+        !invoice?.id ||
+        !Number.isInteger(invoice.version) ||
+        invoice.version < 1
+      )
+        throw new Error('تعذر تحميل إصدار السجل')
+      if (!isCurrent()) return
 
-    Object.assign(form, invoice)
-    form.lines = (invoice.line_items || []).map(({ description, quantity, unit_price }) => ({ description, quantity: String(quantity), unit_price: String(unit_price) }))
-    if (!form.lines.length) throw new Error('تعذر تحميل بنود الفاتورة')
+      Object.assign(form, invoice)
+      form.lines = (invoice.line_items || []).map(
+        ({ description, quantity, unit_price }) => ({
+          description,
+          quantity: String(quantity),
+          unit_price: String(unit_price),
+        }),
+      )
+      if (!form.lines.length) throw new Error('تعذر تحميل بنود الفاتورة')
 
-    form.version = invoice.version || 1
-    form.patient_id = invoice.patient || ''
-    form.visit_id = invoice.visit || ''
+      form.version = invoice.version || 1
+      form.patient_id = invoice.patient || ''
+      form.visit_id = invoice.visit || ''
 
-    if (form.issued_date) {
-      const parsed = new Date(form.issued_date)
-      if (!Number.isNaN(parsed.getTime())) {
-        form.issued_date = formatDate(parsed)
+      if (form.issued_date) {
+        const parsed = new Date(form.issued_date)
+        if (!Number.isNaN(parsed.getTime())) {
+          form.issued_date = formatDate(parsed)
+        }
       }
-    }
 
-    if (form.due_date) {
-      const parsed = new Date(form.due_date)
-      if (!Number.isNaN(parsed.getTime())) {
-        form.due_date = formatDate(parsed)
+      if (form.due_date) {
+        const parsed = new Date(form.due_date)
+        if (!Number.isNaN(parsed.getTime())) {
+          form.due_date = formatDate(parsed)
+        }
       }
-    }
 
-    markClean()
-  } catch {
-    throw new Error('تعذر تحميل السجل')
-  }
-}))
+      markClean()
+    } catch {
+      throw new Error('تعذر تحميل السجل')
+    }
+  }),
+)
 
 async function handleSubmit() {
   if (!resourceReady.value) return

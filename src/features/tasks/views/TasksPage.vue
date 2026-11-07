@@ -22,11 +22,12 @@
 </template>
 
 <script setup>
-import { computed,ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useNotify } from '@/composables/useNotify'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
+import { statusPresentation } from '@/constants/statusPresentation'
 import TasksLayout from '@/features/tasks/components/TasksLayout.vue'
 import { useTaskStore } from '@/features/tasks/stores/tasks'
 import { CONFIRM } from '@/utils/confirmMessages'
@@ -40,28 +41,16 @@ const showAddForm = ref(false)
 const adding = ref(false)
 const refreshKey = ref(0)
 
-const statusFilter = useRouteQuery('status', '')
-const assignedFilter = useRouteQuery('assigned', '')
-const searchFilter = useRouteQuery('search', '')
-const sortByFilter = useRouteQuery('sort_by', 'order')
-const sortOrderFilter = useRouteQuery('sort_order', 'asc')
-
-const filters = computed({
-  get: () => ({
-    search: searchFilter.value,
-    status: statusFilter.value,
-    assigned_to: assignedFilter.value,
-    sort_by: sortByFilter.value,
-    sort_order: sortOrderFilter.value,
-  }),
-  set: (value) => {
-    searchFilter.value = value.search || ''
-    statusFilter.value = value.status || ''
-    assignedFilter.value = value.assigned_to || ''
-    sortByFilter.value = value.sort_by || 'order'
-    sortOrderFilter.value = value.sort_order || 'asc'
+const filters = useRouteFilters(
+  {
+    search: '',
+    status: '',
+    assigned_to: '',
+    sort_by: 'order',
+    sort_order: 'asc',
   },
-})
+  { assigned_to: 'assigned' },
+)
 
 const columns = [
   { key: 'title', label: 'المهمة' },
@@ -81,10 +70,10 @@ const taskFilters = computed(() => [
     placeholder: 'جميع الحالات',
     options: [
       { value: '', label: 'جميع الحالات' },
-      { value: 'open', label: 'مفتوحة' },
-      { value: 'in_progress', label: 'قيد التنفيذ' },
-      { value: 'completed', label: 'مكتملة' },
-      { value: 'cancelled', label: 'ملغية' },
+      ...['open', 'in_progress', 'completed', 'cancelled'].map((value) => ({
+        value,
+        label: statusPresentation('task', value).label,
+      })),
     ],
   },
   {
@@ -165,11 +154,14 @@ async function handleStart(task) {
 }
 
 async function handleCancel(task) {
-  const reason = await prompt('إلغاء المهمة يوقف تذكيراتها ويحفظ السبب في سجل التدقيق.', {
-    title: 'إلغاء المهمة',
-    confirmText: 'إلغاء المهمة',
-    inputLabel: 'سبب الإلغاء',
-  })
+  const reason = await prompt(
+    'إلغاء المهمة يوقف تذكيراتها ويحفظ السبب في سجل التدقيق.',
+    {
+      title: 'إلغاء المهمة',
+      confirmText: 'إلغاء المهمة',
+      inputLabel: 'سبب الإلغاء',
+    },
+  )
   if (!reason) return
   await taskStore.transitionTask(task.id, 'cancelled', task.version, reason)
   refreshKey.value++
@@ -183,14 +175,11 @@ async function handleReopen(task) {
 }
 
 async function handleDelete(task) {
-  const ok = await confirm(
-    CONFIRM.DELETE_WITH_NAME(task.title),
-    {
-      confirmText: 'نعم، احذف',
-      requireCheckbox: true,
-      cancelText: 'إلغاء',
-    }
-  )
+  const ok = await confirm(CONFIRM.DELETE_WITH_NAME(task.title), {
+    confirmText: 'نعم، احذف',
+    requireCheckbox: true,
+    cancelText: 'إلغاء',
+  })
 
   if (!ok) return
 
@@ -207,11 +196,7 @@ async function confirmResetFilters() {
   const ok = await confirm(CONFIRM.CLEAR_FILTERS)
 
   if (ok) {
-    statusFilter.value = ''
-    assignedFilter.value = ''
-    searchFilter.value = ''
-    sortByFilter.value = 'order'
-    sortOrderFilter.value = 'asc'
+    filters.value = {}
   }
 }
 </script>

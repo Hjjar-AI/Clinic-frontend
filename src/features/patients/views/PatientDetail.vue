@@ -1,9 +1,11 @@
 <template>
-  <ResourceFeedback :error="sectionErrors.join('؛ ')" retryable @retry="loadPatient" />
+  <ResourceFeedback
+    :error="sectionErrors.join('؛ ')"
+    retryable
+    @retry="loadPatient"
+  />
   <PatientDetailLayout
     :status="pageStatus"
-    @retry="loadPatient"
-    @record-changed="handleRecordChanged"
     :patient="patient"
     :full-name="fullName(patient)"
     :latest-visit="latestVisit"
@@ -12,9 +14,13 @@
     :care-team-members="careTeamMembers"
     :visits="visits"
     :formatted-meds="formattedMeds"
+    @retry="loadPatient"
+    @record-changed="handleRecordChanged"
     @export-pdf="exportPdf"
     @export-word="exportWord"
-    @edit-appointment="router.push({ name: 'AppointmentEdit', params: { id: $event } })"
+    @edit-appointment="
+      router.push({ name: 'AppointmentEdit', params: { id: $event } })
+    "
     @remove-care-team-member="handleRemoveCareTeamMember"
     @refresh-care-team="fetchCareTeam"
     @export-visit-pdf="exportVisitPdf"
@@ -22,20 +28,21 @@
 </template>
 
 <script setup>
-import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
-import { computed, onMounted,ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
+import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useDate } from '@/composables/useDate'
 import { useFormatters } from '@/composables/useFormatters'
-import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useNotify } from '@/composables/useNotify'
 import { usePageStatus } from '@/composables/usePageStatus'
-import { fetchCatalog } from '@/utils/catalogFetch'
 import appointmentService from '@/features/appointments/services/appointmentService'
 import PatientDetailLayout from '@/features/patients/components/PatientDetailLayout.vue'
 import patientService from '@/features/patients/services/patientService'
 import { usePatientStore } from '@/features/patients/stores/patients'
+import { fetchCatalog } from '@/utils/catalogFetch'
+import { downloadBlob } from '@/utils/download'
 import { fullName as getFullName } from '@/utils/normalize'
 
 const route = useRoute()
@@ -48,12 +55,7 @@ const { toArabicNumerals: toArabic } = useFormatters()
 const { notify } = useNotify()
 const { prompt } = useConfirmDialog()
 
-const {
-  status: pageStatus,
-  setLoading,
-  setContent,
-  setError,
-} = usePageStatus()
+const { status: pageStatus, setLoading, setContent, setError } = usePageStatus()
 
 const sectionErrors = ref([])
 const patient = ref(null)
@@ -64,18 +66,35 @@ const careTeamMembers = ref([])
 const latestVisit = computed(() => visits.value[0] || null)
 
 const healthSummaryItems = computed(() => {
-  const unavailable = sectionErrors.value.some(message => message.includes('الزيارات'))
+  const unavailable = sectionErrors.value.some((message) =>
+    message.includes('الزيارات'),
+  )
   const latest = latestVisit.value
   const diagnoses = latest?.diagnoses || []
   return [
-    { label: 'إجمالي الزيارات', value: unavailable ? 'غير متاح' : toArabic(visits.value.length), numeric: !unavailable },
-    { label: 'آخر زيارة', value: unavailable ? 'غير متاح' : latest ? formatDate(latest.visit_date) : 'لا توجد' },
-    { label: 'آخر تشخيص', value: diagnoses[0]?.arabic_name || diagnoses[0]?.name || 'غير محدد' },
+    {
+      label: 'إجمالي الزيارات',
+      value: unavailable ? 'غير متاح' : toArabic(visits.value.length),
+      numeric: !unavailable,
+    },
+    {
+      label: 'آخر زيارة',
+      value: unavailable
+        ? 'غير متاح'
+        : latest
+          ? formatDate(latest.visit_date)
+          : 'لا توجد',
+    },
+    {
+      label: 'آخر تشخيص',
+      value: diagnoses[0]?.arabic_name || diagnoses[0]?.name || 'غير محدد',
+    },
     { label: 'مستوى الرعاية', value: latest?.level_of_care || 'غير محدد' },
     {
       label: 'المخاطر',
       value:
-        latest?.suicide_risk_level === 'High' || latest?.violence_risk_level === 'High'
+        latest?.suicide_risk_level === 'High' ||
+        latest?.violence_risk_level === 'High'
           ? 'مرتفع'
           : '—',
     },
@@ -102,9 +121,12 @@ async function loadVisits() {
   const patientId = patient.value?.id
   if (!patientId) return
   try {
-    const list = await fetchCatalog(params => patientService.getVisits(patientId, params), 'visits')
+    const list = await fetchCatalog(
+      (params) => patientService.getVisits(patientId, params),
+      'visits',
+    )
     if (patient.value?.id !== patientId) return
-      visits.value = [...list].sort((a, b) => {
+    visits.value = [...list].sort((a, b) => {
       const da = parseDate(a.visit_date)
       const db = parseDate(b.visit_date)
       if (!da || !db) return 0
@@ -132,14 +154,21 @@ async function loadPatient() {
   if (patient.value) {
     const loadAppointments = async () => {
       try {
-      patientAppointments.value = await fetchCatalog(params => appointmentService.getByPatient(patient.value.id, params), 'appointments')
+        patientAppointments.value = await fetchCatalog(
+          (params) => appointmentService.getByPatient(patient.value.id, params),
+          'appointments',
+        )
       } catch {
         patientAppointments.value = []
         sectionErrors.value.push('تعذر تحميل المواعيد')
       }
     }
 
-    await Promise.allSettled([loadVisits(), loadAppointments(), fetchCareTeam()])
+    await Promise.allSettled([
+      loadVisits(),
+      loadAppointments(),
+      fetchCareTeam(),
+    ])
   }
 
   setContent()
@@ -165,9 +194,14 @@ async function handleRecordChanged(version, refresh = false) {
     const patientId = patient.value.id
     await Promise.allSettled([
       loadVisits(),
-      patientStore.fetchPatient(patientId).then(updated => {
-        if (patient.value?.id === patientId) patient.value = updated
-      }).catch(() => { sectionErrors.value.push('تعذر تحديث بيانات المريض بعد حفظ السجل') }),
+      patientStore
+        .fetchPatient(patientId)
+        .then((updated) => {
+          if (patient.value?.id === patientId) patient.value = updated
+        })
+        .catch(() => {
+          sectionErrors.value.push('تعذر تحديث بيانات المريض بعد حفظ السجل')
+        }),
     ])
   }
 }
@@ -177,7 +211,12 @@ async function handleRemoveCareTeamMember(userId) {
   try {
     const reason = await prompt('سبب إنهاء عضوية فريق الرعاية؟')
     if (!reason) return
-    await patientService.removeCareTeamMember(patient.value.id, userId, patient.value.version, reason)
+    await patientService.removeCareTeamMember(
+      patient.value.id,
+      userId,
+      patient.value.version,
+      reason,
+    )
     notify('تمت إزالة العضو', 'success')
     fetchCareTeam()
   } catch {
@@ -188,12 +227,7 @@ async function handleRemoveCareTeamMember(userId) {
 async function exportPdf(id) {
   try {
     const blob = await patientStore.exportPdf(id)
-    const url = window.URL.createObjectURL(blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = `patient_${id}.pdf`
-    anchor.click()
-    window.URL.revokeObjectURL(url)
+    downloadBlob(blob, `patient_${id}.pdf`)
   } catch {
     notify('فشل تصدير PDF', 'danger')
   }
@@ -202,12 +236,7 @@ async function exportPdf(id) {
 async function exportWord(id) {
   try {
     const blob = await patientStore.exportWord(id)
-    const url = window.URL.createObjectURL(blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = `patient_${id}.docx`
-    anchor.click()
-    window.URL.revokeObjectURL(url)
+    downloadBlob(blob, `patient_${id}.docx`)
   } catch {
     notify('فشل تصدير Word', 'danger')
   }

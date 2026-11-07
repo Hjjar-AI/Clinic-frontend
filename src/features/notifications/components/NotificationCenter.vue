@@ -120,46 +120,66 @@ import Icon from '@/components/ui/Icon.vue'
 import RelativeDate from '@/components/ui/RelativeDate.vue'
 import { useDate } from '@/composables/useDate'
 import { useDropdown } from '@/composables/useDropdown'
-import { useUnreadCount } from '@/composables/useUnreadCount'
 import { useAuthStore } from '@/features/auth/stores/auth'
+import { useUnreadCount } from '@/features/notifications/composables/useUnreadCount'
 import { useNotificationStore } from '@/features/notifications/stores/notifications'
 
 const notificationStore = useNotificationStore()
-const { unreadCount } = useUnreadCount(180000)
+const { unreadCount } = useUnreadCount()
 const authStore = useAuthStore()
 const router = useRouter()
 const hasNew = ref(false)
 let badgeTimer = null
-const { triggerRef, panelRef, open, positionStyle, toggle, close, onTriggerKey } = useDropdown()
+const {
+  triggerRef,
+  panelRef,
+  open,
+  positionStyle,
+  toggle,
+  close,
+  onTriggerKey,
+} = useDropdown()
 watch(() => router.currentRoute.value.fullPath, close)
 const { toISODate } = useDate()
 
-watch(() => authStore.isAuthenticated, (authenticated) => {
-  if (!authenticated) {
-    close()
-    notificationStore.stopPolling()
-  }
-})
+watch(
+  () => authStore.isAuthenticated,
+  (authenticated) => {
+    if (!authenticated) {
+      close()
+      notificationStore.stopPolling()
+    }
+  },
+)
 
-watch(() => unreadCount.value, (newVal, oldVal) => {
-  if (newVal > oldVal) {
-    hasNew.value = true
-    clearTimeout(badgeTimer)
-    badgeTimer = setTimeout(() => { hasNew.value = false }, 600)
-  }
-})
+watch(
+  () => unreadCount.value,
+  (newVal, oldVal) => {
+    if (newVal > oldVal) {
+      hasNew.value = true
+      clearTimeout(badgeTimer)
+      badgeTimer = setTimeout(() => {
+        hasNew.value = false
+      }, 600)
+    }
+  },
+)
 
 onMounted(() => {
   notificationStore.startPolling(180000)
 })
-onBeforeUnmount(() => { clearTimeout(badgeTimer); notificationStore.stopPolling() })
+onBeforeUnmount(() => {
+  clearTimeout(badgeTimer)
+  notificationStore.stopPolling()
+})
 
-const iconForType = (type) => ({
-  info: 'info-circle',
-  success: 'check-circle',
-  danger: 'exclamation-circle',
-  warning: 'exclamation-triangle'
-}[type] || 'bell')
+const iconForType = (type) =>
+  ({
+    info: 'info-circle',
+    success: 'check-circle',
+    danger: 'exclamation-circle',
+    warning: 'exclamation-triangle',
+  })[type] || 'bell'
 
 const groupedNotifications = computed(() => {
   const list = notificationStore.notifications
@@ -171,18 +191,18 @@ const groupedNotifications = computed(() => {
   const yesterdayIso = toISODate(yesterday)
   const startOfWeek = new Date()
   const day = startOfWeek.getDay()
-  const diff = (day === 0 ? 6 : day - 1)
+  const diff = day === 0 ? 6 : day - 1
   startOfWeek.setDate(startOfWeek.getDate() - diff)
-  startOfWeek.setHours(0,0,0,0)
+  startOfWeek.setHours(0, 0, 0, 0)
 
   const groups = {
     today: { label: 'اليوم', notifications: [] },
     yesterday: { label: 'أمس', notifications: [] },
     thisWeek: { label: 'هذا الأسبوع', notifications: [] },
-    older: { label: 'أقدم', notifications: [] }
+    older: { label: 'أقدم', notifications: [] },
   }
 
-  list.forEach(n => {
+  list.forEach((n) => {
     const dateIso = toISODate(new Date(n.created_at))
     if (dateIso === todayIso) {
       groups.today.notifications.push(n)
@@ -198,8 +218,11 @@ const groupedNotifications = computed(() => {
     }
   })
 
-  return Object.values(groups).filter(g => g.notifications.length)
+  return Object.values(groups).filter((g) => g.notifications.length)
 })
 </script>
 
-<style scoped src="../../../styles/features/notifications/components/notification-center.css"></style>
+<style
+  scoped
+  src="../../../styles/features/notifications/components/notification-center.css"
+></style>

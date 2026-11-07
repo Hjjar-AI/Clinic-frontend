@@ -1,21 +1,6 @@
 import { ref, shallowRef, watch } from 'vue'
-import { sessionPrincipal } from '@/services/sessionState'
 
-export const SAFE_DRAFT_FIELDS = [
-  'visit_date',
-  'accompanied_by',
-  'companion_relation',
-  'clinical_status',
-  'pain_level',
-  'anxiety_level',
-  'follow_up_due_date',
-  'level_of_care',
-  'follow_up_method',
-  'date_signed',
-  'diagnosis_discussed',
-  'plan_discussed',
-  'selectedTemplate',
-]
+import { sessionPrincipal } from '@/services/sessionState'
 
 const memoryDrafts = new Map()
 
@@ -33,13 +18,20 @@ export function useFormDraft({ safeDraftFields = null } = {}) {
   const draftKey = `${owner}:${window.location.href}`
 
   function saveDraft() {
-    if (owner == null || owner !== sessionPrincipal() || paused.value || !draft.value || Object.keys(draft.value).length === 0) return
+    if (
+      owner == null ||
+      owner !== sessionPrincipal() ||
+      paused.value ||
+      !draft.value ||
+      Object.keys(draft.value).length === 0
+    )
+      return
 
     const value = Array.isArray(safeDraftFields)
       ? Object.fromEntries(
           safeDraftFields
-            .filter(key => key in draft.value)
-            .map(key => [key, draft.value[key]])
+            .filter((key) => key in draft.value)
+            .map((key) => [key, draft.value[key]]),
         )
       : { ...draft.value }
 

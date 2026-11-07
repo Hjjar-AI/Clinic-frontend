@@ -53,7 +53,10 @@
               size="xs"
               aria-label="إضافة سؤال"
               title="إضافة سؤال (حتى 100 سؤال)"
-              :disabled="item.is_active === false || (item.fields?.length || 0) >= (item.max_active_fields || 100)"
+              :disabled="
+                item.is_active === false ||
+                  (item.fields?.length || 0) >= (item.max_active_fields || 100)
+              "
               @click="openAddFieldModal(item)"
             >
               <Icon icon="plus" />
@@ -171,8 +174,7 @@
 </template>
 
 <script setup>
-import { useScaleLookup } from '@/stores/scaleLookup'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import BaseModal from '@/components/ui/BaseModal.vue'
 import CardHeader from '@/components/ui/CardHeader.vue'
@@ -182,8 +184,9 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import StatusCell from '@/components/ui/StatusCell.vue'
 import TableActions from '@/components/ui/TableActions.vue'
 import { useApi } from '@/composables/useApi'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
 import scaleService from '@/features/clinical/services/scaleService'
+import { useScaleLookup } from '@/features/clinical/stores/scaleLookup'
 import { makeCursorFetchFn } from '@/utils/listFetch'
 
 const showCreateModal = ref(false)
@@ -207,42 +210,45 @@ const newField = ref({
 })
 
 const refreshKey = ref(0)
-const searchQuery = useRouteQuery('search', '')
-const activityQuery = useRouteQuery('activity', '')
-const sortByQuery = useRouteQuery('sort_by', 'name')
-const sortOrderQuery = useRouteQuery('sort_order', 'asc')
 
-const filters = computed({
-  get: () => ({
-    search: searchQuery.value,
-    activity: activityQuery.value,
-    sort_by: sortByQuery.value,
-    sort_order: sortOrderQuery.value,
-  }),
-  set: (value) => {
-    searchQuery.value = value.search || ''
-    activityQuery.value = value.activity || ''
-    sortByQuery.value = value.sort_by || 'name'
-    sortOrderQuery.value = value.sort_order || 'asc'
-  },
+const filters = useRouteFilters({
+  search: '',
+  activity: '',
+  sort_by: 'name',
+  sort_order: 'asc',
 })
 
 const tableFilters = [
   { key: 'search', type: 'text', placeholder: 'ابحث بالاسم أو الوصف' },
-  { key: 'activity', type: 'select', placeholder: 'جميع الحالات', options: [
-    { value: '', label: 'جميع الحالات' },
-    { value: 'active', label: 'النشطة' },
-    { value: 'inactive', label: 'المتقاعدة' },
-  ] },
-  { key: 'sort_by', type: 'select', placeholder: 'الفرز حسب', options: [
-    { value: 'name', label: 'الاسم' },
-    { value: 'usage_count', label: 'عدد الاستخدامات' },
-    { value: 'updated_at', label: 'آخر تعديل' },
-  ] },
-  { key: 'sort_order', type: 'select', placeholder: 'اتجاه الفرز', options: [
-    { value: 'asc', label: 'تصاعدي' },
-    { value: 'desc', label: 'تنازلي' },
-  ] },
+  {
+    key: 'activity',
+    type: 'select',
+    placeholder: 'جميع الحالات',
+    options: [
+      { value: '', label: 'جميع الحالات' },
+      { value: 'active', label: 'النشطة' },
+      { value: 'inactive', label: 'المتقاعدة' },
+    ],
+  },
+  {
+    key: 'sort_by',
+    type: 'select',
+    placeholder: 'الفرز حسب',
+    options: [
+      { value: 'name', label: 'الاسم' },
+      { value: 'usage_count', label: 'عدد الاستخدامات' },
+      { value: 'updated_at', label: 'آخر تعديل' },
+    ],
+  },
+  {
+    key: 'sort_order',
+    type: 'select',
+    placeholder: 'اتجاه الفرز',
+    options: [
+      { value: 'asc', label: 'تصاعدي' },
+      { value: 'desc', label: 'تنازلي' },
+    ],
+  },
 ]
 
 const scaleColumns = [

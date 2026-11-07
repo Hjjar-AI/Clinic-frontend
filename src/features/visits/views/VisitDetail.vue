@@ -10,7 +10,10 @@
     >
       <div class="flex gap-2 flex--wrap">
         <BaseButton
-          v-if="authStore.can('edit_visit') && ['draft', 'amended'].includes(visit?.status)"
+          v-if="
+            authStore.can('edit_visit') &&
+              ['draft', 'amended'].includes(visit?.status)
+          "
           variant="secondary"
           :to="{ name: 'VisitEdit', params: { id: visitId } }"
         >
@@ -31,7 +34,10 @@
           خطاب تحويل
         </BaseButton>
         <BaseButton
-          v-if="authStore.can('edit_visit') && ['draft', 'amended'].includes(visit?.status)"
+          v-if="
+            authStore.can('edit_visit') &&
+              ['draft', 'amended'].includes(visit?.status)
+          "
           variant="success"
           confirm-message="سيتم اعتماد السجل السريري ومنع تعديله مباشرة. هل تريد المتابعة؟"
           @confirmed="transitionVisit('final')"
@@ -46,7 +52,10 @@
           فتح تعديل موثق
         </BaseButton>
         <BaseButton
-          v-if="authStore.can('edit_visit') && ['final', 'amended'].includes(visit?.status)"
+          v-if="
+            authStore.can('edit_visit') &&
+              ['final', 'amended'].includes(visit?.status)
+          "
           variant="danger"
           confirm-message="سيتم قفل الزيارة نهائياً. هل تريد المتابعة؟"
           :confirm-checkbox="true"
@@ -56,7 +65,11 @@
         </BaseButton>
       </div>
     </PageHeader>
-    <PatientWorkspaceHeader v-if="visit?.patient" :patient="visit.patient" :status="visit.status" />
+    <PatientWorkspaceHeader
+      v-if="visit?.patient"
+      :patient="visit.patient"
+      :status="visit.status"
+    />
 
     <div
       v-if="visit"
@@ -93,7 +106,8 @@
                 v-for="field in scale.responses_json?.__definition || []"
                 :key="field.id"
               >
-                {{ field.label }}: {{ scale.responses_json?.[String(field.id)] ?? '-' }}
+                {{ field.label }}:
+                {{ scale.responses_json?.[String(field.id)] ?? '-' }}
               </li>
             </ul>
           </div>
@@ -110,9 +124,9 @@
             :key="`${lab.name}-${lab.date}-${index}`"
             class="mb-2"
           >
-            <strong>{{ lab.name }}</strong>:
-            {{ lab.value }} {{ lab.unit || '' }}
-            <span class="text-muted">— {{ lab.reference_range || 'دون مجال مرجعي' }} — {{ labStatusLabel(lab.status) }} — {{ lab.date }}</span>
+            <strong>{{ lab.name }}</strong>: {{ lab.value }} {{ lab.unit || '' }}
+            <span class="text-muted">— {{ lab.reference_range || 'دون مجال مرجعي' }} —
+              {{ labStatusLabel(lab.status) }} — {{ lab.date }}</span>
           </div>
         </div>
       </BaseCard>
@@ -122,9 +136,25 @@
           icon="shield"
         />
         <div class="card__body">
-          <p><strong>خطر الانتحار:</strong> {{ riskLabel(visit.suicide_risk_level) }}</p>
-          <p><strong>خطر العنف:</strong> {{ riskLabel(visit.violence_risk_level) }}</p>
-          <p><strong>الوصول إلى سلاح:</strong> {{ visit.firearm_access === null || visit.firearm_access === undefined ? 'غير مقيم' : visit.firearm_access ? 'نعم' : 'لا' }}</p>
+          <p>
+            <strong>خطر الانتحار:</strong>
+            {{ riskLabel(visit.suicide_risk_level) }}
+          </p>
+          <p>
+            <strong>خطر العنف:</strong>
+            {{ riskLabel(visit.violence_risk_level) }}
+          </p>
+          <p>
+            <strong>الوصول إلى سلاح:</strong>
+            {{
+              visit.firearm_access === null ||
+                visit.firearm_access === undefined
+                ? 'غير مقيم'
+                : visit.firearm_access
+                  ? 'نعم'
+                  : 'لا'
+            }}
+          </p>
           <p v-if="visit.clinical_data?.risk_notes">
             <strong>ملاحظات:</strong> {{ visit.clinical_data.risk_notes }}
           </p>
@@ -158,21 +188,72 @@
           icon="notes"
         />
         <div class="card__body">
-          <p><strong>الخطة العلاجية:</strong> {{ visit.treatment_text || '-' }}</p>
-          <p><strong>ملاحظات الطبيب:</strong> {{ visit.doctor_notes || '-' }}</p>
-          <p><strong>تاريخ المتابعة:</strong> {{ visit.follow_up?.due_date || '-' }}</p>
+          <p>
+            <strong>الخطة العلاجية:</strong> {{ visit.treatment_text || '-' }}
+          </p>
+          <p>
+            <strong>ملاحظات الطبيب:</strong> {{ visit.doctor_notes || '-' }}
+          </p>
+          <p>
+            <strong>تاريخ المتابعة:</strong>
+            {{ visit.follow_up?.due_date || '-' }}
+          </p>
         </div>
       </BaseCard>
-      <BaseCard v-if="visit.clinical_data?.instruction_acknowledgement?.explained_at">
-        <CardHeader title="شرح التعليمات في السجل الحالي" icon="comments" />
-        <p>وقت الشرح: <DateCell :date="visit.clinical_data.instruction_acknowledgement.explained_at" :relative="false" show-time /></p>
-        <p>المتلقي: {{ ({ patient: 'المريض', representative: 'المرافق / الممثل', both: 'كلاهما' })[visit.clinical_data.instruction_acknowledgement.recipient] }} {{ visit.clinical_data.instruction_acknowledgement.recipient_name }}</p>
-        <p>احتاج توضيحاً: {{ visit.clinical_data.instruction_acknowledgement.clarification_needed === null ? 'غير مسجل' : visit.clinical_data.instruction_acknowledgement.clarification_needed ? 'نعم' : 'لا' }}</p>
-        <p class="clinical-prose">{{ visit.clinical_data.instruction_acknowledgement.notes }}</p>
+      <BaseCard
+        v-if="visit.clinical_data?.instruction_acknowledgement?.explained_at"
+      >
+        <CardHeader
+          title="شرح التعليمات في السجل الحالي"
+          icon="comments"
+        />
+        <p>
+          وقت الشرح:
+          <DateCell
+            :date="visit.clinical_data.instruction_acknowledgement.explained_at"
+            :relative="false"
+            show-time
+          />
+        </p>
+        <p>
+          المتلقي:
+          {{
+            {
+              patient: 'المريض',
+              representative: 'المرافق / الممثل',
+              both: 'كلاهما',
+            }[visit.clinical_data.instruction_acknowledgement.recipient]
+          }}
+          {{ visit.clinical_data.instruction_acknowledgement.recipient_name }}
+        </p>
+        <p>
+          احتاج توضيحاً:
+          {{
+            visit.clinical_data.instruction_acknowledgement
+              .clarification_needed === null
+              ? 'غير مسجل'
+              : visit.clinical_data.instruction_acknowledgement
+                .clarification_needed
+                ? 'نعم'
+                : 'لا'
+          }}
+        </p>
+        <p class="clinical-prose">
+          {{ visit.clinical_data.instruction_acknowledgement.notes }}
+        </p>
       </BaseCard>
     </div>
-    <ClinicalHandover v-if="visit && visit.status !== 'draft' && authStore.can('export_pdf')" :visit-id="visitId" />
-    <PrescriptionHistory v-if="patientId && authStore.can('view_visits') && authStore.can('export_pdf')" :patient-id="patientId" :visit-id="visitId" />
+    <ClinicalHandover
+      v-if="visit && visit.status !== 'draft' && authStore.can('export_pdf')"
+      :visit-id="visitId"
+    />
+    <PrescriptionHistory
+      v-if="
+        patientId && authStore.can('view_visits') && authStore.can('export_pdf')
+      "
+      :patient-id="patientId"
+      :visit-id="visitId"
+    />
   </PageContainer>
 </template>
 
@@ -196,9 +277,9 @@ import { VISIT_STATUS_LABELS } from '@/constants/statusConstants'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'
 import MedicationList from '@/features/clinical/components/MedicationList.vue'
-import PatientWorkspaceHeader from '@/features/visits/components/PatientWorkspaceHeader.vue'
-import ClinicalHandover from '@/features/visits/components/ClinicalHandover.vue'
+import PatientWorkspaceHeader from '@/features/patients/components/PatientWorkspaceHeader.vue'
 import PrescriptionHistory from '@/features/prescription/components/PrescriptionHistory.vue'
+import ClinicalHandover from '@/features/visits/components/ClinicalHandover.vue'
 import visitService from '@/features/visits/services/visitService'
 import { getRiskInfo } from '@/utils/riskLevels'
 
@@ -208,25 +289,37 @@ const { notify } = useNotify()
 const { prompt } = useConfirmDialog()
 const visitId = route.params.id
 const visit = ref(null)
-const {
-  status: pageStatus,
-  setLoading,
-  setContent,
-  setError,
-} = usePageStatus()
+const { status: pageStatus, setLoading, setContent, setError } = usePageStatus()
 
-const patientId = computed(() => visit.value?.patient_id || visit.value?.patient?.id)
-const patientName = computed(() => visit.value?.patient?.full_name || visit.value?.patient_name || '')
+const patientId = computed(
+  () => visit.value?.patient_id || visit.value?.patient?.id,
+)
+const patientName = computed(
+  () => visit.value?.patient?.full_name || visit.value?.patient_name || '',
+)
 const breadcrumbs = computed(() => [
   { label: 'المرضى', to: { name: 'PatientsList' } },
-  ...(patientId.value ? [{ label: patientName.value || 'المريض', to: { name: 'PatientDetail', params: { id: patientId.value } } }] : []),
+  ...(patientId.value
+    ? [
+        {
+          label: patientName.value || 'المريض',
+          to: { name: 'PatientDetail', params: { id: patientId.value } },
+        },
+      ]
+    : []),
   { label: 'تفاصيل الزيارة' },
 ])
 const summary = computed(() => [
   { label: 'التاريخ', value: visit.value?.visit_date || '-' },
   { label: 'الشكوى الرئيسية', value: visit.value?.main_complaints || '-' },
-  { label: 'تاريخ الشكوى', value: visit.value?.history_presenting_complaint || '-' },
-  { label: 'حالة التوثيق', value: VISIT_STATUS_LABELS[visit.value?.status] || '-' },
+  {
+    label: 'تاريخ الشكوى',
+    value: visit.value?.history_presenting_complaint || '-',
+  },
+  {
+    label: 'حالة التوثيق',
+    value: VISIT_STATUS_LABELS[visit.value?.status] || '-',
+  },
   { label: 'الحالة السريرية', value: visit.value?.clinical_status || '-' },
   { label: 'مستوى الألم', value: visit.value?.pain_level ?? '-' },
   { label: 'مستوى القلق', value: visit.value?.anxiety_level ?? '-' },
@@ -237,17 +330,26 @@ function riskLabel(level) {
 }
 
 function labStatusLabel(status) {
-  return {
-    pending: 'قيد الانتظار',
-    normal: 'طبيعي',
-    abnormal: 'غير طبيعي',
-    critical: 'حرج',
-  }[status] || status || 'غير محدد'
+  return (
+    {
+      pending: 'قيد الانتظار',
+      normal: 'طبيعي',
+      abnormal: 'غير طبيعي',
+      critical: 'حرج',
+    }[status] ||
+    status ||
+    'غير محدد'
+  )
 }
 
 async function transitionVisit(status, reason = '') {
   try {
-    visit.value = await visitService.transition(visitId, status, visit.value.version, reason)
+    visit.value = await visitService.transition(
+      visitId,
+      status,
+      visit.value.version,
+      reason,
+    )
     notify('تم تحديث حالة الزيارة', 'success')
   } catch {
     // The shared API layer displays the actionable backend error.

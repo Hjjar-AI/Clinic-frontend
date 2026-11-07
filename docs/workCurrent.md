@@ -1,7 +1,7 @@
 # Remaining work
 
-1. Review follow-ups, not implemented: [structure review](structureReview.md), [457-file ledger](structureReviewFiles.md). Correct scale-picker/store interface (S01), duplicate patient column/export ownership (S02), unrendered form breadcrumb slot (S03) and shared mutable visit defaults (S09). Optional staged refactors/removal candidates are detailed there; the review itself did not authorize implementation or test-suite work.
-2. Broader width/zoom/overflow/long-text, accessibility and browser-engine checks: [matrix](verification.md#rendered-matrix).
+1. Runtime verification of the [implemented structure review](structureReview.md): scale loading/error/retry and saved answers; fresh visit isolation across create/edit/duplicate/session transitions; rendered form breadcrumbs; one column chooser/table/export agreement and account preference isolation; clinical custom/historical entries and disclosure navigation; catalog editor/import preview/consent flows; preview disposal and route-filter history. Affected tests were updated with permission but not run. Generated component declarations await an authorized regeneration workflow; no manual generated-file edits.
+2. Broader width/zoom/overflow/long-text, accessibility and browser-engine checks: [matrix](verification.md#rendered-matrix), including moved CSS/default palette in RTL/LTR and light/dark modes.
 3. Actual prescription printer/stock calibration at 100%; native PDF viewers/dialogs.
 4. Native Windows downloads/printing if targeted.
 

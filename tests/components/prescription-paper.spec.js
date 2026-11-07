@@ -4,7 +4,7 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { defineComponent, ref } from 'vue'
 import PrescriptionPaperOptions from '@/features/prescription/components/PrescriptionPaperOptions.vue'
 import PrescriptionPreview from '@/features/prescription/views/PrescriptionPreview.vue'
-import PrescriptionPdfPreview from '@/features/prescription/components/PrescriptionPdfPreview.vue'
+import PdfPreview from '@/components/documents/PdfPreview.vue'
 import prescriptionService from '@/features/prescription/services/prescriptionService'
 import { defaultPaperOptions, normalizePaperOptions, loadPaperOptions, rememberPaperOptions } from '@/features/prescription/services/prescriptionPaper'
 import { changeSession } from '@/services/sessionState'
@@ -32,7 +32,7 @@ describe('prescription physical paper controls', () => {
   })
 
   it('prints the loaded PDF directly and provides a fallback when the viewer denies printing', async () => {
-    const wrapper = mount(PrescriptionPdfPreview, { props: { url: 'about:blank', filename: 'synthetic.pdf' }, attachTo: document.body })
+    const wrapper = mount(PdfPreview, { props: { url: 'about:blank', filename: 'synthetic.pdf', documentTitle: 'Synthetic PDF', documentLabel: 'Synthetic document' }, attachTo: document.body })
     const frame = wrapper.get('iframe')
     await frame.trigger('load')
     const print = vi.spyOn(frame.element.contentWindow, 'print').mockImplementation(() => {})

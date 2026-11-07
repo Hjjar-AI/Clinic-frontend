@@ -1,4 +1,3 @@
-import { reportError } from '@/utils/reportError'
 // frontend/src/main.js
 // Application CSS entry point owns the shared cascade order.
 import '../public/static/css/app.css'
@@ -7,7 +6,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'flatpickr/dist/flatpickr.min.css'
 
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
-import { onSessionChange, sessionStorePlugin } from '@/services/sessionState'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
@@ -18,13 +16,14 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useSystemConfig } from '@/composables/useSystemConfig'
 import { APP_CONFIG } from '@/config/app'
-import { useConstantsStore } from '@/stores/constants'
+import { useConstantsStore } from '@/features/clinical/stores/constants'
+import { onSessionChange, sessionStorePlugin } from '@/services/sessionState'
 import { persistPlugin } from '@/stores/plugins/persist'
+import { reportError } from '@/utils/reportError'
 
 import App from './App.vue'
 import autofocus from './directives/autofocus'
 import autoTitle from './directives/autoTitle'
-import clipboard from './directives/clipboard'
 import debounce from './directives/debounce'
 import router from './router'
 
@@ -44,21 +43,23 @@ async function mount() {
 
   // Vue Query
   const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: 1,
-          refetchOnWindowFocus: false,
-          staleTime: 1000 * 60 * 5, // 5 minutes
-        },
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        refetchOnWindowFocus: false,
+        staleTime: 1000 * 60 * 5, // 5 minutes
       },
+    },
   })
   app.use(VueQueryPlugin, { queryClient })
-  onSessionChange(() => { queryClient.cancelQueries(); queryClient.clear() })
+  onSessionChange(() => {
+    queryClient.cancelQueries()
+    queryClient.clear()
+  })
 
   app.directive('autofocus', autofocus)
   app.directive('auto-title', autoTitle)
   app.directive('debounce', debounce)
-  app.directive('clipboard', clipboard)
 
   // Register global components
   app.component('Icon', Icon)

@@ -24,7 +24,9 @@
         :filter-values="filters"
         empty-title="لا توجد فواتير"
         empty-action-text="فاتورة جديدة"
-        :empty-action-url="authStore.can('manage_billing') ? '/invoices/new' : null"
+        :empty-action-url="
+          authStore.can('manage_billing') ? '/invoices/new' : null
+        "
         :date-fields="['date_from', 'date_to']"
         :refresh-key="refreshKey"
         @update:filter-values="filters = $event"
@@ -59,7 +61,9 @@
 
         <template #actions="{ item }">
           <TableActions
-            :show-edit="authStore.can('manage_billing') && item.status === 'draft'"
+            :show-edit="
+              authStore.can('manage_billing') && item.status === 'draft'
+            "
             :show-delete="false"
             :edit-to="{ name: 'InvoiceEdit', params: { id: item.id } }"
             :show-view="false"
@@ -83,7 +87,10 @@
               دفع
             </BaseButton>
             <BaseButton
-              v-if="authStore.can('manage_billing') && ['draft', 'issued'].includes(item.status)"
+              v-if="
+                authStore.can('manage_billing') &&
+                  ['draft', 'issued'].includes(item.status)
+              "
               size="xs"
               variant="danger"
               @click="cancelInvoice(item)"
@@ -116,10 +123,12 @@ import StatusCell from '@/components/ui/StatusCell.vue'
 import TableActions from '@/components/ui/TableActions.vue'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useFormatters } from '@/composables/useFormatters'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
+import { statusPresentation } from '@/constants/statusPresentation'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import invoiceService from '@/features/billing/services/invoiceService'
 import { CONFIRM } from '@/utils/confirmMessages'
+import { downloadBlob } from '@/utils/download'
 import { makeCursorFetchFn } from '@/utils/listFetch'
 
 const { formatMoney } = useFormatters()
@@ -127,30 +136,13 @@ const authStore = useAuthStore()
 const { confirm, prompt } = useConfirmDialog()
 const refreshKey = ref(0)
 
-const statusFilter = useRouteQuery('status', '')
-const dateFromFilter = useRouteQuery('date_from', '')
-const dateToFilter = useRouteQuery('date_to', '')
-const searchFilter = useRouteQuery('search', '')
-const sortByFilter = useRouteQuery('sort_by', 'issued_date')
-const sortOrderFilter = useRouteQuery('sort_order', 'desc')
-
-const filters = computed({
-  get: () => ({
-    search: searchFilter.value,
-    status: statusFilter.value,
-    date_from: dateFromFilter.value,
-    date_to: dateToFilter.value,
-    sort_by: sortByFilter.value,
-    sort_order: sortOrderFilter.value,
-  }),
-  set: (value) => {
-    searchFilter.value = value.search || ''
-    statusFilter.value = value.status || ''
-    dateFromFilter.value = value.date_from || ''
-    dateToFilter.value = value.date_to || ''
-    sortByFilter.value = value.sort_by || 'issued_date'
-    sortOrderFilter.value = value.sort_order || 'desc'
-  },
+const filters = useRouteFilters({
+  search: '',
+  status: '',
+  date_from: '',
+  date_to: '',
+  sort_by: 'issued_date',
+  sort_order: 'desc',
 })
 
 const columns = [
@@ -173,11 +165,10 @@ const tableFilters = computed(() => [
     placeholder: 'جميع الحالات',
     options: [
       { value: '', label: 'جميع الحالات' },
-      { value: 'draft', label: 'مسودة' },
-      { value: 'issued', label: 'صادرة' },
-      { value: 'paid', label: 'مدفوعة' },
-      { value: 'cancelled', label: 'ملغية' },
-      { value: 'overdue', label: 'متأخرة' },
+      ...['draft', 'issued', 'paid', 'cancelled', 'overdue'].map((value) => ({
+        value,
+        label: statusPresentation('invoice', value).label,
+      })),
     ],
   },
   {
@@ -229,35 +220,28 @@ async function transitionInvoice(invoice, status, reason = '') {
 }
 
 async function cancelInvoice(invoice) {
-  const reason = await prompt('ستبقى الفاتورة في السجل بحالة ملغية ولن تدخل في الإجماليات.', {
-    title: 'إلغاء الفاتورة',
-    confirmText: 'إلغاء الفاتورة',
-    inputLabel: 'سبب الإلغاء',
-  })
+  const reason = await prompt(
+    'ستبقى الفاتورة في السجل بحالة ملغية ولن تدخل في الإجماليات.',
+    {
+      title: 'إلغاء الفاتورة',
+      confirmText: 'إلغاء الفاتورة',
+      inputLabel: 'سبب الإلغاء',
+    },
+  )
   if (!reason) return
   await transitionInvoice(invoice, 'cancelled', reason)
 }
 
 async function downloadInvoice(invoice) {
   const response = await invoiceService.exportPdf(invoice.id)
-  const url = window.URL.createObjectURL(response.data)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = `invoice_${invoice.invoice_number}.pdf`
-  anchor.click()
-  window.URL.revokeObjectURL(url)
+  downloadBlob(response.data, `invoice_${invoice.invoice_number}.pdf`)
 }
 
 async function confirmResetFilters() {
   const ok = await confirm(CONFIRM.CLEAR_FILTERS)
 
   if (ok) {
-    statusFilter.value = ''
-    searchFilter.value = ''
-    dateFromFilter.value = ''
-    dateToFilter.value = ''
-    sortByFilter.value = 'issued_date'
-    sortOrderFilter.value = 'desc'
+    filters.value = {}
   }
 }
 </script>

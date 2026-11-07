@@ -136,7 +136,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import {} from 'vue'
 
 import BaseModal from '@/components/ui/BaseModal.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
@@ -148,9 +148,10 @@ import TableActions from '@/components/ui/TableActions.vue'
 import { useApi } from '@/composables/useApi'
 import { useCopy } from '@/composables/useCopy'
 import { useNotify } from '@/composables/useNotify'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
+import { useCatalogEditor } from '@/features/clinical/composables/useCatalogEditor'
 import diagnosisService from '@/features/clinical/services/diagnosisService'
-import { useLookupStore } from '@/stores/lookups'
+import { useLookupStore } from '@/features/clinical/stores/lookups'
 import { downloadBlob } from '@/utils/download'
 import { makeCursorFetchFn } from '@/utils/listFetch'
 
@@ -158,56 +159,67 @@ const { copy } = useCopy()
 const { notify } = useNotify()
 const lookupStore = useLookupStore()
 
-const searchQuery = useRouteQuery('search', '')
-const activityQuery = useRouteQuery('activity', '')
-const sortByQuery = useRouteQuery('sort_by', 'order')
-const sortOrderQuery = useRouteQuery('sort_order', 'asc')
-
-const modalOpen = ref(false)
-const isEditing = ref(false)
-const currentId = ref(null)
-
-const form = ref({
-  code: '',
-  english_name: '',
-  arabic_name: '',
+const {
+  modalOpen,
+  isEditing,
+  form,
+  refreshKey,
+  refreshList,
+  openFormModal,
+  saving,
+  save: handleSaveDiagnosis,
+} = useCatalogEditor({
+  defaults: () => ({ code: '', english_name: '', arabic_name: '' }),
+  hydrate: (item) => ({
+    code: item.code || '',
+    english_name: item.english_name || '',
+    arabic_name: item.arabic_name || '',
+  }),
+  create: (payload) => diagnosisService.create(payload),
+  update: (id, payload) => diagnosisService.update(id, payload),
+  invalidate: () => lookupStore.invalidateDiagnoses(),
 })
 
-const refreshKey = ref(0)
-
-const filters = computed({
-  get: () => ({
-    search: searchQuery.value,
-    activity: activityQuery.value,
-    sort_by: sortByQuery.value,
-    sort_order: sortOrderQuery.value,
-  }),
-  set: (value) => {
-    searchQuery.value = value.search || ''
-    activityQuery.value = value.activity || ''
-    sortByQuery.value = value.sort_by || 'order'
-    sortOrderQuery.value = value.sort_order || 'asc'
-  },
+const filters = useRouteFilters({
+  search: '',
+  activity: '',
+  sort_by: 'order',
+  sort_order: 'asc',
 })
 
 const tableFilters = [
   { key: 'search', type: 'text', placeholder: 'ابحث بالكود أو الاسم' },
-  { key: 'activity', type: 'select', placeholder: 'جميع الحالات', options: [
-    { value: '', label: 'جميع الحالات' },
-    { value: 'active', label: 'النشطة' },
-    { value: 'inactive', label: 'المتقاعدة' },
-  ] },
-  { key: 'sort_by', type: 'select', placeholder: 'الفرز حسب', options: [
-    { value: 'order', label: 'الترتيب المعتمد' },
-    { value: 'code', label: 'الكود' },
-    { value: 'english_name', label: 'الاسم الإنجليزي' },
-    { value: 'arabic_name', label: 'الاسم العربي' },
-    { value: 'usage_count', label: 'عدد الاستخدامات' },
-  ] },
-  { key: 'sort_order', type: 'select', placeholder: 'اتجاه الفرز', options: [
-    { value: 'asc', label: 'تصاعدي' },
-    { value: 'desc', label: 'تنازلي' },
-  ] },
+  {
+    key: 'activity',
+    type: 'select',
+    placeholder: 'جميع الحالات',
+    options: [
+      { value: '', label: 'جميع الحالات' },
+      { value: 'active', label: 'النشطة' },
+      { value: 'inactive', label: 'المتقاعدة' },
+    ],
+  },
+  {
+    key: 'sort_by',
+    type: 'select',
+    placeholder: 'الفرز حسب',
+    options: [
+      { value: 'order', label: 'الترتيب المعتمد' },
+      { value: 'code', label: 'الكود' },
+      { value: 'english_name', label: 'الاسم الإنجليزي' },
+      { value: 'arabic_name', label: 'الاسم العربي' },
+      { value: 'usage_count', label: 'عدد الاستخدامات' },
+    ],
+  },
+  {
+    key: 'sort_order',
+    type: 'select',
+    placeholder: 'اتجاه الفرز',
+    options: [
+      { value: 'asc', label: 'تصاعدي' },
+      { value: 'desc', label: 'تنازلي' },
+    ],
+  },
 ]
 
 const columns = [
@@ -221,57 +233,14 @@ const fetchFn = makeCursorFetchFn(diagnosisService, {
   getParams: (values) => ({ ...values, include_inactive: true }),
 })
 
-function refreshList() {
-  lookupStore.invalidateDiagnoses()
-  refreshKey.value++
-}
-
 function copyItem(text) {
   if (text) copy(text)
 }
 
-function openFormModal(diagnosis) {
-  if (diagnosis) {
-    isEditing.value = true
-    currentId.value = diagnosis.id
-
-    form.value = {
-      version: diagnosis.version,
-      code: diagnosis.code || '',
-      english_name: diagnosis.english_name || '',
-      arabic_name: diagnosis.arabic_name || '',
-    }
-  } else {
-    isEditing.value = false
-    currentId.value = null
-
-    form.value = {
-      code: '',
-      english_name: '',
-      arabic_name: '',
-    }
-  }
-
-  modalOpen.value = true
-}
-
-const { loading: saving, execute: execSave } = useApi(async () => {
-  if (isEditing.value) {
-    await diagnosisService.update(currentId.value, form.value)
-  } else {
-    await diagnosisService.create(form.value)
-  }
-
-  modalOpen.value = false
-  refreshList()
-})
-
-const handleSaveDiagnosis = () => execSave().catch(() => {}) // Shared API handling reports the error; retain the modal draft.
-
 const handleDeleteDiagnosis = async (id) => {
   try {
     await diagnosisService.delete(id)
-  refreshList()
+    refreshList()
   } catch {
     notify('لا يمكن حذف هذا التشخيص', 'danger')
   }
@@ -292,5 +261,4 @@ const { execute: handleExportExcel } = useApi(async () => {
   downloadBlob(response, 'diagnoses.xlsx')
   notify('تم تنزيل التشخيصات الظاهرة حسب المرشحات', 'success')
 })
-
 </script>

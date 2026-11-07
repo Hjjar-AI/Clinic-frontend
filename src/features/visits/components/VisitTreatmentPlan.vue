@@ -1,15 +1,18 @@
 <template>
-  <CollapsibleSection id="visit-plan" tabindex="-1"
+  <CollapsibleSection
+    id="visit-plan"
+    tabindex="-1"
     title="خطة العلاج"
     icon="pills"
-    :open="true"
-    persist-key="visit-treat"
+    :open="sectionOpen"
   >
-    <MultiSelect
+    <CatalogEntrySelect
       v-model="form.medications"
-      mode="inline"
+      :create-custom="createCustomMedication"
       :search-fn="searchMedicationsFn"
-      :option-label="(m) => m.display_name || m.generic_arabic || m.generic_english"
+      :option-label="
+        (m) => m.display_name || m.generic_arabic || m.generic_english || m.name
+      "
       :option-key="(m) => m.id || m.name"
       :initial-options="medicationsInitial"
       placeholder="ابحث عن دواء..."
@@ -33,7 +36,11 @@
     />
 
     <FormTextarea
-      v-if="form.follow_up_id && (form.follow_up_due_date !== form.follow_up_original_due_date || form.follow_up_method !== form.follow_up_original_method)"
+      v-if="
+        form.follow_up_id &&
+          (form.follow_up_due_date !== form.follow_up_original_due_date ||
+            form.follow_up_method !== form.follow_up_original_method)
+      "
       v-model="form.follow_up_reason"
       label="سبب تغيير أو إزالة المتابعة (تبقى النتائج السابقة محفوظة)"
       :required="true"
@@ -44,7 +51,7 @@
       أهداف العلاج
     </h5>
     <div
-      v-for="(goal, idx) in (form.goals || [])"
+      v-for="(goal, idx) in form.goals || []"
       :key="idx"
       class="flex gap-2 mb-2"
     >
@@ -98,7 +105,20 @@
       </FormField>
     </div>
     <FormField label="الوصول إلى سلاح ناري">
-      <select v-model="form.firearm_access" class="form-control"><option :value="null">لم يُقيّم / غير معروف</option><option :value="true">نعم</option><option :value="false">لا</option></select>
+      <select
+        v-model="form.firearm_access"
+        class="form-control"
+      >
+        <option :value="null">
+          لم يُقيّم / غير معروف
+        </option>
+        <option :value="true">
+          نعم
+        </option>
+        <option :value="false">
+          لا
+        </option>
+      </select>
     </FormField>
     <div class="grid-2 mt-3">
       <FormField label="مستوى الرعاية">
@@ -109,13 +129,28 @@
           <option value="">
             غير محدد
           </option>
-          <option>Outpatient</option><option>IOP</option><option>PHP</option>
-          <option>Inpatient</option><option>Residential</option>
-
+          <option>Outpatient</option>
+          <option>IOP</option>
+          <option>PHP</option>
+          <option>Inpatient</option>
+          <option>Residential</option>
         </select>
       </FormField>
       <FormField label="أساس المشاركة في الرعاية">
-        <select v-model="form.care_basis" class="form-control"><option value="unknown">غير معروف</option><option value="voluntary">طوعي</option><option value="involuntary">غير طوعي</option></select>
+        <select
+          v-model="form.care_basis"
+          class="form-control"
+        >
+          <option value="unknown">
+            غير معروف
+          </option>
+          <option value="voluntary">
+            طوعي
+          </option>
+          <option value="involuntary">
+            غير طوعي
+          </option>
+        </select>
       </FormField>
       <FormField label="نوع المتابعة">
         <select
@@ -125,7 +160,9 @@
           <option value="">
             غير محدد
           </option>
-          <option>In-person</option><option>Telehealth</option><option>Phone</option>
+          <option>In-person</option>
+          <option>Telehealth</option>
+          <option>Phone</option>
         </select>
       </FormField>
     </div>
@@ -160,15 +197,18 @@
 </template>
 
 <script setup>
+import { createCustomMedication } from '@/features/clinical/model/catalogEntries'
+import { useVisitSection } from '@/features/visits/composables/useVisitSections'
+const sectionOpen = useVisitSection('visit-treat')
 import { ref } from 'vue'
 
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
 import FormDate from '@/components/ui/FormDate.vue'
 import FormField from '@/components/ui/FormField.vue'
 import FormTextarea from '@/components/ui/FormTextarea.vue'
-import MultiSelect from '@/components/ui/MultiSelect.vue'
 import ScoreInput from '@/components/ui/ScoreInput.vue'
 import SegmentedControl from '@/components/ui/SegmentedControl.vue'
+import CatalogEntrySelect from '@/features/clinical/components/CatalogEntrySelect.vue'
 
 defineProps({
   form: Object,

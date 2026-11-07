@@ -1,85 +1,53 @@
 // frontend/src/features/visits/composables/useVisitForm.js
-import { computed, onBeforeUnmount,ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useApi } from '@/composables/useApi'
-import { useNotify } from '@/composables/useNotify'
 import { useDate } from '@/composables/useDate'
 import { useForm } from '@/composables/useForm'
 import { useFormDirty } from '@/composables/useFormDirty'
-import { SAFE_DRAFT_FIELDS,useFormDraft } from '@/composables/useFormDraft'
+import { useFormDraft } from '@/composables/useFormDraft'
 import { useFormSubmission } from '@/composables/useFormSubmission'
+import { useNotify } from '@/composables/useNotify'
+import {
+  buildVisitCommand,
+  createVisitDefaults,
+  duplicateVisit,
+  hydrateVisit,
+  SAFE_DRAFT_FIELDS,
+} from '@/features/visits/model/visitForm'
 import { useVisitStore } from '@/features/visits/stores/visits'
 import { RISK_LEVELS } from '@/utils/riskLevels'
 import { visitDateRule } from '@/utils/validationRules'
 
-const initialFormData = {
-  visit_date: '',
-  main_complaints: '',
-  history_presenting_complaint: '',
-  pain_level: null,
-  anxiety_level: null,
-  accompanied_by: 'alone',
-  companion_relation: '',
-  status: 'draft',
-  clinical_status: '',
-  mse: '',
-  formulation_predisposing: '',
-  formulation_precipitating: '',
-  formulation_perpetuating: '',
-  formulation_protective: '',
-  risk_notes: '',
-  diagnoses: [],
-  lab_values: [],
-  medications: [],
-  goals: [],
-  treatment_text: '',
-  doctor_notes: '',
-  follow_up_due_date: '',
-  follow_up_id: null,
-  follow_up_original_due_date: '',
-  follow_up_original_method: '',
-  follow_up_reason: '',
-  suicide_risk_level: null,
-  violence_risk_level: null,
-  firearm_access: null,
-  level_of_care: '', care_basis: 'unknown',
-  follow_up_method: '',
-  date_signed: '',
-  supervisor_id: '',
-  signed_by_id: '',
-  diagnosis_discussed: null,
-  plan_discussed: null,
-  version: 1,
-  clinical_data: {},
-}
-
 const schema = [visitDateRule()]
 
-export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = null }) {
+export function useVisitForm({
+  getPatientId,
+  visitId,
+  isEdit,
+  getScalePayload = null,
+}) {
   const { notify } = useNotify()
   const router = useRouter()
   const visitStore = useVisitStore()
-  const { formatDate, normalizeFormDates, calculateAge, parseDate } = useDate()
+  const { formatDate, calculateAge, parseDate } = useDate()
 
   // Pass the visit-specific allow-list into useSession. Previously this
   // list was duplicated inside both files and applied unconditionally as
   // a default, which silently stripped drafts for other forms.
-  const {
-    draft,
-    restoreDraftToForm,
-    pauseDraft,
-    resumeDraft,
-    clearDraft,
-  } = useFormDraft({ safeDraftFields: SAFE_DRAFT_FIELDS })
+  const { draft, restoreDraftToForm, pauseDraft, resumeDraft, clearDraft } =
+    useFormDraft({ safeDraftFields: SAFE_DRAFT_FIELDS })
 
   const patient = ref(null)
 
-  const initial = { ...initialFormData, visit_date: formatDate(new Date()) }
-  const { form, errors, fieldStates, isDirty, validate, markClean } = useForm(initial, {
-    formId: 'visitForm',
-    schema,
-  })
+  const initial = createVisitDefaults(formatDate(new Date()))
+  const { form, errors, fieldStates, isDirty, validate, markClean } = useForm(
+    initial,
+    {
+      formId: 'visitForm',
+      schema,
+    },
+  )
 
   // Single source of truth for dirty state: the ref returned by useForm.
   useFormDirty(isDirty)
@@ -91,203 +59,43 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
   })
 
   function hydrateFromData(data) {
-    Object.assign(form, {
-      visit_date: data.visit_date || '',
-      main_complaints: data.main_complaints || '',
-      history_presenting_complaint: data.history_presenting_complaint || '',
-      pain_level: data.pain_level ?? null,
-      anxiety_level: data.anxiety_level ?? null,
-      accompanied_by: data.accompanied_by || 'alone',
-      companion_relation: data.companion_relation || '',
-      status: data.status || 'draft',
-      clinical_status: data.clinical_status || '',
-      treatment_text: data.treatment_text || '',
-      doctor_notes: data.doctor_notes || '',
-      follow_up_due_date: data.follow_up?.due_date || '',
-      follow_up_id: data.follow_up?.id || null,
-      follow_up_original_due_date: data.follow_up?.due_date || '',
-      follow_up_original_method: data.follow_up?.method || '',
-      follow_up_reason: '',
-      suicide_risk_level: data.suicide_risk_level || null,
-      violence_risk_level: data.violence_risk_level || null,
-      firearm_access: data.firearm_access ?? null,
-      level_of_care: data.level_of_care || '', care_basis: data.care_basis || 'unknown',
-      follow_up_method: data.follow_up?.method || '',
-      date_signed: data.date_signed || '',
-      supervisor_id: data.supervisor || '',
-      signed_by_id: data.signed_by || '',
-      diagnosis_discussed: data.diagnosis_discussed ?? null,
-      plan_discussed: data.plan_discussed ?? null,
-      version: data.version || 1,
-      clinical_data: data.clinical_data || {},
-    })
-
-    const clinical = data.clinical_data || {}
-    form.mse = clinical.mse || ''
-    form.formulation_predisposing = clinical.formulation?.predisposing || ''
-    form.formulation_precipitating = clinical.formulation?.precipitating || ''
-    form.formulation_perpetuating = clinical.formulation?.perpetuating || ''
-    form.formulation_protective = clinical.formulation?.protective || ''
-    form.risk_notes = clinical.risk_notes || ''
-    form.goals = Array.isArray(clinical.goals)
-      ? clinical.goals.map(goal => ({ ...goal }))
-      : []
-
-    if (Array.isArray(data.diagnoses)) {
-      form.diagnoses = data.diagnoses.map((d) => ({
-        id: d.id ?? null,
-        code: d.code || '',
-        name: d.name || d.english_name || d.custom_name || '',
-        arabic_name: d.arabic_name || '',
-      }))
-    } else {
-      form.diagnoses = []
-    }
-
-    if (Array.isArray(data.medications)) {
-      form.medications = data.medications.map((m) => ({
-        id: m.id ?? null,
-        name: m.name || m.generic_arabic || m.generic_english || '',
-        dosage: m.dosage || '',
-        brand: m.brand || '',
-        is_custom: !!m.is_custom,
-        schedule: m.schedule || '',
-      }))
-    } else {
-      form.medications = []
-    }
-
-    form.lab_values = Array.isArray(data.lab_values) ? data.lab_values : []
-
-    // Loaded values are the new dirty baseline.
+    Object.assign(form, hydrateVisit(data))
     markClean()
   }
 
   function hydrateDuplicateFromData(data) {
     hydrateFromData(data)
-    Object.assign(form, {
-      visit_date: formatDate(new Date()),
-      main_complaints: '',
-      history_presenting_complaint: '',
-      status: 'draft',
-      clinical_status: '',
-      mse: '',
-      formulation_predisposing: '',
-      formulation_precipitating: '',
-      formulation_perpetuating: '',
-      formulation_protective: '',
-      risk_notes: '',
-      doctor_notes: '',
-      follow_up_method: '',
-      follow_up_due_date: '',
-      follow_up_id: null,
-      follow_up_original_due_date: '',
-      follow_up_original_method: '',
-      follow_up_reason: '',
-      suicide_risk_level: null,
-      violence_risk_level: null,
-      firearm_access: null,
-      date_signed: '',
-      supervisor_id: '',
-      signed_by_id: '',
-      diagnosis_discussed: null,
-      plan_discussed: null,
-      goals: [],
-      version: 1,
-      clinical_data: {},
-    })
+    Object.assign(form, duplicateVisit(data, formatDate(new Date())))
   }
 
-  const riskOptions = computed(() =>
-    [{ value: '', label: 'غير مقيم' }, ...Object.entries(RISK_LEVELS)
+  const riskOptions = computed(() => [
+    { value: '', label: 'غير مقيم' },
+    ...Object.entries(RISK_LEVELS)
       .filter(([key]) => key !== 'null')
-      .map(([key, val]) => ({ value: key, label: val.label }))]
-  )
+      .map(([key, val]) => ({ value: key, label: val.label })),
+  ])
 
   function buildPayload() {
-    let payload = { ...form }
-    payload = normalizeFormDates(payload, ['visit_date', 'follow_up_due_date', 'date_signed'])
-    payload.follow_up_input = { due_date: payload.follow_up_due_date || null, method: payload.follow_up_due_date ? (payload.follow_up_method || '') : '', reason: form.follow_up_reason || '' }
-    for (const key of ['follow_up_due_date', 'follow_up_method', 'follow_up_id', 'follow_up_original_due_date', 'follow_up_original_method', 'follow_up_reason']) delete payload[key]
-    // The API stores an unassessed risk as the blank choice, while the form
-    // uses null for an untouched select. Do not fabricate a negative finding.
-    for (const field of ['suicide_risk_level', 'violence_risk_level']) {
-      payload[field] = payload[field] ?? ''
-    }
-
-    const clinical = {
-      ...(typeof form.clinical_data === 'object' && form.clinical_data !== null
-        ? form.clinical_data
-        : {}),
-      schema_version: 1,
-      mse: form.mse,
-      formulation: {
-        predisposing: form.formulation_predisposing,
-        precipitating: form.formulation_precipitating,
-        perpetuating: form.formulation_perpetuating,
-        protective: form.formulation_protective,
-      },
-      risk_notes: form.risk_notes,
-    }
-    clinical.goals = (form.goals || []).map(goal => ({ title: goal.title, percentage: goal.percentage === '' ? null : goal.percentage }))
-    payload.clinical_data = clinical
-
-    payload.diagnoses_input = (payload.diagnoses || []).map((d) => ({
-      id: d.id ?? null,
-      code: d.code || '',
-      name: d.name || d.english_name || d.custom_name || '',
-      arabic_name: d.arabic_name || '',
-    }))
-    payload.medications_input = (payload.medications || []).map((m) => ({
-      id: m.id ?? null,
-      name: m.name || m.generic_arabic || m.generic_english || '',
-      dosage: m.dosage || '',
-      brand: m.brand || m.brand_arabic || m.brand_english || '',
-      is_custom: !!m.is_custom,
-      schedule: m.schedule || '',
-    }))
-    payload.lab_values_input = payload.lab_values || []
-
-    delete payload.diagnoses
-    delete payload.medications
-    delete payload.lab_values
-    delete payload.mse
-    delete payload.formulation_predisposing
-    delete payload.formulation_precipitating
-    delete payload.formulation_perpetuating
-    delete payload.formulation_protective
-    delete payload.risk_notes
-
-    payload.supervisor_id = form.supervisor_id || null
-    delete payload.signed_by_id
-    delete payload.date_signed
-    delete payload.supervisor
-    delete payload.signed_by
-
-    if (getScalePayload) {
-      payload.scale_responses_input = getScalePayload()
-    }
-
-    return payload
+    return buildVisitCommand(form, getScalePayload)
   }
 
-  const { execute } = useApi(
-    async () => {
-      const payload = buildPayload()
-      if (isEdit) {
-        payload.version = form.version
-        await visitStore.updateVisit(visitId, payload)
-      } else {
-        await visitStore.createVisit(getPatientId(), payload)
-      }
-      markClean()
-      notify('تم حفظ الزيارة', 'success')
-      router.push({ name: 'PatientDetail', params: { id: getPatientId() } })
-    },
-    { silent: true }
-  )
+  const execute = async () => {
+    const payload = buildPayload()
+    if (isEdit) {
+      payload.version = form.version
+      await visitStore.updateVisit(visitId, payload)
+    } else {
+      await visitStore.createVisit(getPatientId(), payload)
+    }
+    markClean()
+    notify('تم حفظ الزيارة', 'success')
+    router.push({ name: 'PatientDetail', params: { id: getPatientId() } })
+  }
 
-  const { submit, submitError, isSubmitting } = useFormSubmission(validate, execute)
+  const { submit, submitError, isSubmitting } = useFormSubmission(
+    validate,
+    execute,
+  )
 
   async function handleSubmit() {
     pauseDraft()
@@ -309,7 +117,7 @@ export function useVisitForm({ getPatientId, visitId, isEdit, getScalePayload = 
     (val) => {
       draft.value = val
     },
-    { deep: true, immediate: true }
+    { deep: true, immediate: true },
   )
   onBeforeUnmount(() => {
     stopDraftWatcher()

@@ -162,7 +162,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import {} from 'vue'
 
 import BadgeCell from '@/components/ui/BadgeCell.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
@@ -174,9 +174,10 @@ import TableActions from '@/components/ui/TableActions.vue'
 import { useApi } from '@/composables/useApi'
 import { useCopy } from '@/composables/useCopy'
 import { useNotify } from '@/composables/useNotify'
-import { useRouteQuery } from '@/composables/useRouteQuery'
+import { useRouteFilters } from '@/composables/useRouteFilters'
+import { useCatalogEditor } from '@/features/clinical/composables/useCatalogEditor'
 import medicationService from '@/features/clinical/services/medicationService'
-import { useLookupStore } from '@/stores/lookups'
+import { useLookupStore } from '@/features/clinical/stores/lookups'
 import { downloadBlob } from '@/utils/download'
 import { makeCursorFetchFn } from '@/utils/listFetch'
 
@@ -184,58 +185,75 @@ const { copy } = useCopy()
 const { notify } = useNotify()
 const lookupStore = useLookupStore()
 
-const searchQuery = useRouteQuery('search', '')
-const activityQuery = useRouteQuery('activity', '')
-const sortByQuery = useRouteQuery('sort_by', 'order')
-const sortOrderQuery = useRouteQuery('sort_order', 'asc')
-
-const modalOpen = ref(false)
-const isEditing = ref(false)
-const currentId = ref(null)
-
-const form = ref({
-  generic_english: '',
-  generic_arabic: '',
-  dosage: '',
-  brand_english: '',
-  brand_arabic: '',
+const {
+  modalOpen,
+  isEditing,
+  form,
+  refreshKey,
+  refreshList,
+  openFormModal,
+  saving,
+  save: handleSaveMedication,
+} = useCatalogEditor({
+  defaults: () => ({
+    generic_english: '',
+    generic_arabic: '',
+    dosage: '',
+    brand_english: '',
+    brand_arabic: '',
+  }),
+  hydrate: (item) => ({
+    generic_english: item.generic_english || '',
+    generic_arabic: item.generic_arabic || '',
+    dosage: item.dosage || '',
+    brand_english: item.brand_english || '',
+    brand_arabic: item.brand_arabic || '',
+  }),
+  create: (payload) => medicationService.create(payload),
+  update: (id, payload) => medicationService.update(id, payload),
+  invalidate: () => lookupStore.invalidateMedications(),
 })
 
-const refreshKey = ref(0)
-
-const filters = computed({
-  get: () => ({
-    search: searchQuery.value,
-    activity: activityQuery.value,
-    sort_by: sortByQuery.value,
-    sort_order: sortOrderQuery.value,
-  }),
-  set: (value) => {
-    searchQuery.value = value.search || ''
-    activityQuery.value = value.activity || ''
-    sortByQuery.value = value.sort_by || 'order'
-    sortOrderQuery.value = value.sort_order || 'asc'
-  },
+const filters = useRouteFilters({
+  search: '',
+  activity: '',
+  sort_by: 'order',
+  sort_order: 'asc',
 })
 
 const tableFilters = [
   { key: 'search', type: 'text', placeholder: 'ابحث بالاسم أو الجرعة' },
-  { key: 'activity', type: 'select', placeholder: 'جميع الحالات', options: [
-    { value: '', label: 'جميع الحالات' },
-    { value: 'active', label: 'النشطة' },
-    { value: 'inactive', label: 'المتقاعدة' },
-  ] },
-  { key: 'sort_by', type: 'select', placeholder: 'الفرز حسب', options: [
-    { value: 'order', label: 'الترتيب المعتمد' },
-    { value: 'generic_english', label: 'الاسم الإنجليزي' },
-    { value: 'generic_arabic', label: 'الاسم العربي' },
-    { value: 'dosage', label: 'الجرعة' },
-    { value: 'usage_count', label: 'عدد الاستخدامات' },
-  ] },
-  { key: 'sort_order', type: 'select', placeholder: 'اتجاه الفرز', options: [
-    { value: 'asc', label: 'تصاعدي' },
-    { value: 'desc', label: 'تنازلي' },
-  ] },
+  {
+    key: 'activity',
+    type: 'select',
+    placeholder: 'جميع الحالات',
+    options: [
+      { value: '', label: 'جميع الحالات' },
+      { value: 'active', label: 'النشطة' },
+      { value: 'inactive', label: 'المتقاعدة' },
+    ],
+  },
+  {
+    key: 'sort_by',
+    type: 'select',
+    placeholder: 'الفرز حسب',
+    options: [
+      { value: 'order', label: 'الترتيب المعتمد' },
+      { value: 'generic_english', label: 'الاسم الإنجليزي' },
+      { value: 'generic_arabic', label: 'الاسم العربي' },
+      { value: 'dosage', label: 'الجرعة' },
+      { value: 'usage_count', label: 'عدد الاستخدامات' },
+    ],
+  },
+  {
+    key: 'sort_order',
+    type: 'select',
+    placeholder: 'اتجاه الفرز',
+    options: [
+      { value: 'asc', label: 'تصاعدي' },
+      { value: 'desc', label: 'تنازلي' },
+    ],
+  },
 ]
 
 const columns = [
@@ -251,61 +269,14 @@ const fetchFn = makeCursorFetchFn(medicationService, {
   getParams: (values) => ({ ...values, include_inactive: true }),
 })
 
-function refreshList() {
-  lookupStore.invalidateMedications()
-  refreshKey.value++
-}
-
 function copyItem(text) {
   if (text) copy(text)
 }
 
-function openFormModal(medication) {
-  if (medication) {
-    isEditing.value = true
-    currentId.value = medication.id
-
-    form.value = {
-      version: medication.version,
-      generic_english: medication.generic_english || '',
-      generic_arabic: medication.generic_arabic || '',
-      dosage: medication.dosage || '',
-      brand_english: medication.brand_english || '',
-      brand_arabic: medication.brand_arabic || '',
-    }
-  } else {
-    isEditing.value = false
-    currentId.value = null
-
-    form.value = {
-      generic_english: '',
-      generic_arabic: '',
-      dosage: '',
-      brand_english: '',
-      brand_arabic: '',
-    }
-  }
-
-  modalOpen.value = true
-}
-
-const { loading: saving, execute: execSave } = useApi(async () => {
-  if (isEditing.value) {
-    await medicationService.update(currentId.value, form.value)
-  } else {
-    await medicationService.create(form.value)
-  }
-
-  modalOpen.value = false
-  refreshList()
-})
-
-const handleSaveMedication = () => execSave().catch(() => {}) // Shared API handling reports the error; retain the modal draft.
-
 const handleDeleteMedication = async (id) => {
   try {
     await medicationService.delete(id)
-  refreshList()
+    refreshList()
   } catch {
     notify('لا يمكن حذف هذا الدواء', 'danger')
   }

@@ -54,7 +54,10 @@
       :cols="4"
     />
 
-    <KpiGrid :items="secondKpiItems" :cols="4" />
+    <KpiGrid
+      :items="secondKpiItems"
+      :cols="4"
+    />
 
     <div class="grid-2 mb-4">
       <StatisticsChart
@@ -99,7 +102,6 @@
 <script setup>
 import { computed } from 'vue'
 
-import StatisticsChart from '@/components/charts/StatisticsChart.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import DateRangePicker from '@/components/ui/DateRangePicker.vue'
 import KpiGrid from '@/components/ui/KpiGrid.vue'
@@ -107,6 +109,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import { useFormatters } from '@/composables/useFormatters'
 import { useAuthStore } from '@/features/auth/stores/auth'
+import StatisticsChart from '@/features/reports/components/StatisticsChart.vue'
 
 const { toArabicNumerals: toArabic } = useFormatters()
 const authStore = useAuthStore()
@@ -124,8 +127,12 @@ const props = defineProps({
 })
 
 defineEmits([
-  'download-monthly', 'download-doctor-performance',
-  'update:dateFrom', 'update:dateTo', 'apply-date-filter', 'clear-date-filter'
+  'download-monthly',
+  'download-doctor-performance',
+  'update:dateFrom',
+  'update:dateTo',
+  'apply-date-filter',
+  'clear-date-filter',
 ])
 
 const excelExportUrl = computed(() => {
@@ -138,4 +145,7 @@ const excelExportUrl = computed(() => {
 })
 </script>
 
-<style scoped src="../../../styles/features/reports/components/statistics-layout.css"></style>
+<style
+  scoped
+  src="../../../styles/features/reports/components/statistics-layout.css"
+></style>

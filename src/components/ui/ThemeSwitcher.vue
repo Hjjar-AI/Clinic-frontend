@@ -24,6 +24,7 @@
 </template>
 
 <script setup>
+import { THEMES as themes } from '@/constants/theme'
 defineProps({
   // Current theme id, e.g. 'default' or 'ocean-cerulean'.
   // This component is now a controlled input; the parent (Settings.vue)
@@ -32,17 +33,6 @@ defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
-
-const themes = [
-  { value: 'default', label: 'افتراضي' },
-  { value: 'prussian-orange', label: 'بروسي برتقالي' },
-  { value: 'vanilla-tangerine', label: 'فانيليا تانجيرين' },
-  { value: 'ink-wheat-burnt', label: 'حبر قمح محروق' },
-  { value: 'deep-space-strawberry', label: 'فضاء عميق فراولة' },
-  { value: 'ocean-cerulean', label: 'محيط سيريولين' },
-  { value: 'rosewood-crimson', label: 'روزوود قرمزي' },
-  { value: 'dusk-dusty-rosewood', label: 'غسق وردي مغبر' },
-]
 
 function applyTheme(theme) {
   emit('update:modelValue', theme)

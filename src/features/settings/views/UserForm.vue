@@ -1,7 +1,10 @@
 <!-- frontend/src/features/settings/views/UserForm.vue -->
 <template>
   <ResourceFeedback :error="stampError" />
-  <FormWrapper :ready="resourceReady" :load-error="resourceError" @retry="resource.retry" width="sm"
+  <FormWrapper
+    :ready="resourceReady"
+    :load-error="resourceError"
+    width="sm"
     :header-title="isEdit ? 'تعديل مستخدم' : 'مستخدم جديد'"
     header-icon="user-plus"
     back-label="العودة للمستخدمين"
@@ -10,9 +13,10 @@
     :cancel-to="{ name: 'Users' }"
     :validation-errors="errors"
     :submit-error="submitError"
+    @retry="resource.retry"
     @submit="handleSubmit"
   >
-    <template #headerTitle>
+    <template #breadcrumbs>
       <Breadcrumb :items="breadcrumbs" />
     </template>
 
@@ -38,7 +42,11 @@
       type="password"
       :required="!isEdit"
       :error="errors.password"
-      :help="isEdit ? 'اتركها فارغة للإبقاء على كلمة المرور الحالية (8 خانات كحد أدنى إن أدخلت قيمة)' : '8 خانات كحد أدنى'"
+      :help="
+        isEdit
+          ? 'اتركها فارغة للإبقاء على كلمة المرور الحالية (8 خانات كحد أدنى إن أدخلت قيمة)'
+          : '8 خانات كحد أدنى'
+      "
     />
     <FormInput
       v-if="!isEdit"
@@ -62,9 +70,7 @@
 </template>
 
 <script setup>
-import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
-import { useResourceLoad } from '@/composables/useResourceLoad'
-import { computed,onBeforeUnmount,onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
@@ -72,10 +78,11 @@ import FormField from '@/components/ui/FormField.vue'
 import FormInput from '@/components/ui/FormInput.vue'
 import FormSelect from '@/components/ui/FormSelect.vue'
 import FormWrapper from '@/components/ui/FormWrapper.vue'
-import { useApi } from '@/composables/useApi'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
 import { useForm } from '@/composables/useForm'
 import { useFormDirty } from '@/composables/useFormDirty'
 import { useFormSubmission } from '@/composables/useFormSubmission'
+import { useResourceLoad } from '@/composables/useResourceLoad'
 import userService from '@/features/settings/services/userService'
 import { unwrapResponse } from '@/services/apiClient'
 
@@ -87,7 +94,9 @@ const resource = useResourceLoad(!isEdit)
 const { ready: resourceReady, error: resourceError } = resource
 const stampError = ref('')
 let stampGeneration = 0
-onBeforeUnmount(() => { stampGeneration += 1 })
+onBeforeUnmount(() => {
+  stampGeneration += 1
+})
 const stampData = ref('')
 
 const roleOptions = [
@@ -123,72 +132,79 @@ const schema = [
     field: 'confirm_password',
     label: 'تأكيد كلمة المرور',
     required: !isEdit,
-    custom: (v) => (!v || v === form.password ? '' : 'كلمتا المرور غير متطابقتين'),
+    custom: (v) =>
+      !v || v === form.password ? '' : 'كلمتا المرور غير متطابقتين',
   },
 ]
 
-const { form, errors, isDirty, validate, markClean } = useForm(initialData, { schema })
+const { form, errors, isDirty, validate, markClean } = useForm(initialData, {
+  schema,
+})
 
 // Single source of truth: the ref returned by useForm.
 useFormDirty(isDirty)
 
-const { execute: execSubmit } = useApi(
-  async () => {
-    const payload = {
-      username: form.username,
-      full_name: form.full_name,
-      role: form.role,
-      version: form.version,
-    }
+const execSubmit = async () => {
+  const payload = {
+    username: form.username,
+    full_name: form.full_name,
+    role: form.role,
+    version: form.version,
+  }
 
-    if (form.password) {
-      payload.password = form.password
-    }
+  if (form.password) {
+    payload.password = form.password
+  }
 
-    if (stampData.value) payload.stamp_data = stampData.value
+  if (stampData.value) payload.stamp_data = stampData.value
 
-    if (isEdit) {
-      await userService.update(route.params.id, payload)
-    } else {
-      await userService.create(payload)
-    }
+  if (isEdit) {
+    await userService.update(route.params.id, payload)
+  } else {
+    await userService.create(payload)
+  }
 
-    markClean()
-    router.push({ name: 'Users' })
-  },
-  { silent: true }
-)
+  markClean()
+  router.push({ name: 'Users' })
+}
 
-const { submit, submitError, isSubmitting: saving } = useFormSubmission(validate, execSubmit)
+const {
+  submit,
+  submitError,
+  isSubmitting: saving,
+} = useFormSubmission(validate, execSubmit)
 
 const breadcrumbs = computed(() => [
   { label: 'المستخدمين', to: { name: 'Users' } },
   { label: isEdit ? 'تعديل مستخدم' : 'مستخدم جديد' },
 ])
 
-onMounted(() => resource.load(async (isCurrent) => {
-  if (!isEdit) return
+onMounted(() =>
+  resource.load(async (isCurrent) => {
+    if (!isEdit) return
 
-  try {
-    const result = await userService.getById(route.params.id)
-    const user = unwrapResponse(result)
-    if (!user?.id || !Number.isInteger(user.version) || user.version < 1) throw new Error('تعذر تحميل إصدار السجل')
-    if (!isCurrent()) return
+    try {
+      const result = await userService.getById(route.params.id)
+      const user = unwrapResponse(result)
+      if (!user?.id || !Number.isInteger(user.version) || user.version < 1)
+        throw new Error('تعذر تحميل إصدار السجل')
+      if (!isCurrent()) return
 
-    Object.assign(form, {
-      username: user.username || '',
-      full_name: user.full_name || '',
-      role: user.role || 'doctor',
-      password: '',
-      confirm_password: '',
-      version: user.version || 1,
-    })
-    // Loaded values become the new baseline.
-    markClean()
-  } catch {
-    throw new Error('تعذر تحميل السجل')
-  }
-}))
+      Object.assign(form, {
+        username: user.username || '',
+        full_name: user.full_name || '',
+        role: user.role || 'doctor',
+        password: '',
+        confirm_password: '',
+        version: user.version || 1,
+      })
+      // Loaded values become the new baseline.
+      markClean()
+    } catch {
+      throw new Error('تعذر تحميل السجل')
+    }
+  }),
+)
 
 function handleStamp(event) {
   const request = ++stampGeneration
@@ -196,14 +212,22 @@ function handleStamp(event) {
   stampError.value = ''
   const file = event.target.files?.[0]
   if (!file) return
-  if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+  if (
+    !['image/png', 'image/jpeg'].includes(file.type) ||
+    file.size > 2 * 1024 * 1024
+  ) {
     event.target.value = ''
     stampError.value = 'يلزم PNG أو JPEG بحجم حتى 2 ميغابايت'
     return
   }
   const reader = new FileReader()
-  reader.onload = () => { if (request === stampGeneration) stampData.value = String(reader.result || '') }
-  reader.onerror = reader.onabort = () => { if (request === stampGeneration) stampError.value = 'تعذر قراءة الختم' }
+  reader.onload = () => {
+    if (request === stampGeneration)
+      stampData.value = String(reader.result || '')
+  }
+  reader.onerror = reader.onabort = () => {
+    if (request === stampGeneration) stampError.value = 'تعذر قراءة الختم'
+  }
   reader.readAsDataURL(file)
 }
 

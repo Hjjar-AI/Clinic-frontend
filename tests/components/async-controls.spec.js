@@ -3,6 +3,8 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import ApiSelect from '@/components/ui/ApiSelect.vue'
 import MultiSelect from '@/components/ui/MultiSelect.vue'
+import CatalogEntrySelect from '@/features/clinical/components/CatalogEntrySelect.vue'
+import { createCustomDiagnosis } from '@/features/clinical/model/catalogEntries'
 import UserForm from '@/features/settings/views/UserForm.vue'
 import TemplateForm from '@/features/clinical/views/TemplateForm.vue'
 import InvoiceForm from '@/features/billing/views/InvoiceForm.vue'
@@ -17,7 +19,7 @@ import invoiceService from '@/features/billing/services/invoiceService'
 import { usePatientStore } from '@/features/patients/stores/patients'
 import { useAppointmentStore } from '@/features/appointments/stores/appointments'
 import { useVisitStore } from '@/features/visits/stores/visits'
-import { useConstantsStore } from '@/stores/constants'
+import { useConstantsStore } from '@/features/clinical/stores/constants'
 
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r }); return { promise, resolve } }
 it('ApiSelect late cancellation cannot hide the newer request spinner or replace its rows', async () => {
@@ -36,21 +38,27 @@ it('ApiSelect shows durable retry rather than silently empty options', async () 
   apiClient.defaults.adapter = async config => ({ config, data: { data: [{ id: 1, name: 'Retried' }] }, headers: {}, status: 200 })
   await wrapper.get('[role=alert] button').trigger('click'); await flushPromises(); expect(wrapper.text()).toContain('Retried'); expect(wrapper.find('[role=alert]').exists()).toBe(false)
 })
-it('MultiSelect ignores old inline searches after newer text and short-query invalidation', async () => {
+it('CatalogEntrySelect ignores old searches after newer text and short-query invalidation', async () => {
   const old = deferred(), current = deferred()
-  const wrapper = mount(MultiSelect, { props: { mode: 'inline', minLength: 2, searchFn: query => query === 'old' ? old.promise : current.promise, optionLabel: option => option.name, optionKey: option => option.id } })
-  await wrapper.get('input').setValue('old'); await wrapper.get('input').setValue('new')
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  const wrapper = mount(CatalogEntrySelect, { props: { createCustom: createCustomDiagnosis, minLength: 2, searchFn: query => query === 'old' ? old.promise : current.promise, optionLabel: option => option.name, optionKey: option => option.id } })
+  await wrapper.get('input').setValue('old'); await vi.advanceTimersByTimeAsync(300)
+  await wrapper.get('input').setValue('new'); await vi.advanceTimersByTimeAsync(300)
   current.resolve([{ id: 2, name: 'new current' }]); await flushPromises(); old.resolve([{ id: 1, name: 'old stale' }]); await flushPromises()
   expect(wrapper.text()).toContain('new current'); expect(wrapper.text()).not.toContain('old stale')
   await wrapper.get('input').setValue('x'); await flushPromises(); expect(wrapper.find('.spinner').exists()).toBe(false); expect(wrapper.text()).not.toContain('new current')
+  vi.useRealTimers()
 })
 it('MultiSelect native trigger/removal controls are separate and duplicate marking never mutates input rows', async () => {
   const wrapper = mount(MultiSelect, { props: { options: [{ value: 0, label: 'Zero option' }], modelValue: [0] } })
   expect(wrapper.find('button button').exists()).toBe(false); expect(wrapper.text()).toContain('Zero option')
   const selected = Object.freeze({ id: 1, name: 'Synthetic selected', duplicate: false })
-  const inline = mount(MultiSelect, { props: { mode: 'inline', modelValue: [selected], initialOptions: [{ id: 2, name: 'Synthetic next' }], optionKey: row => row.id, optionLabel: row => row.name } })
-  await inline.get('input').trigger('focus'); await inline.get('.autocomplete-item').trigger('click')
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  const inline = mount(CatalogEntrySelect, { props: { createCustom: createCustomDiagnosis, searchFn: async () => [], modelValue: [selected], initialOptions: [{ id: 2, name: 'Synthetic next' }], optionKey: row => row.id, optionLabel: row => row.name } })
+  await inline.get('input').trigger('focus'); await vi.advanceTimersByTimeAsync(300); await flushPromises()
+  await inline.get('.search-result-item').trigger('click'); await flushPromises()
   const emitted = inline.emitted('update:modelValue')[0][0]; expect(emitted).toHaveLength(2); expect(emitted[0]).not.toBe(selected); expect(selected.duplicate).toBe(false)
+  vi.useRealTimers()
 })
 
 const edits = [
