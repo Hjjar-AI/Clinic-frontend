@@ -10,7 +10,7 @@ Windows: double-click `start.cmd`. First-time prerequisites/dependency installat
 
 For frontend-only development, use `pnpm dev` after `pnpm install --frozen-lockfile`.
 
-The frontend VS Code build task (`Terminal → Run Build Task`) runs `pnpm run build`. On Linux it uses interactive Bash so Node/pnpm installed through nvm in `~/.bashrc` are available even when VS Code's inherited PATH omits them. No installation is performed by the task.
+The frontend VS Code default build task is **Clinic: build frontend** (`Terminal → Run Build Task`). On Linux it directly launches `/usr/bin/bash -i -c 'pnpm run build'`, loading Node/pnpm installed through nvm in `~/.bashrc` even when VS Code's inherited PATH omits them. Automatic npm tasks use the same environment through the automation profile. In a single-folder window, `.vscode/settings.json` supplies this setting; in a multi-root window, put `"terminal.integrated.automationProfile.linux": { "path": "/usr/bin/bash", "args": ["-i"] }` in the `.code-workspace` file's `settings` object. Reload the window after changing it so old task terminals are replaced. Both build tasks can then be used. No installation is performed by either task.
 
 `VITE_BACKEND_URL` defaults `http://localhost:5019`; `VITE_API_BASE_URL` defaults `/api/v1`. Match session/CORS/CSRF hostname; never store secrets in `VITE_*`/committed `.env.local`.
 
