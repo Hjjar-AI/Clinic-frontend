@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "linux": {
+        "options": {
+          "shell": {
+            "executable": "/usr/bin/bash",
+            "args": ["-i", "-c"]
+          }
+        }
+      }
+    }
+  ]
+}

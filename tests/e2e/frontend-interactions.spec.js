@@ -117,9 +117,11 @@ test('real charts paint, expose hover/legend interactions, update themes and sur
   expect(visit.status()).toBe(201)
   let moduleUrl
   page.on('response', response => { if (response.url().includes('chart__js_auto.js')) moduleUrl = response.url() })
+  const statisticsReady = page.waitForResponse(response => response.url().includes('/reports/statistics/') && response.request().method() === 'GET')
   await page.goto('/reports/statistics')
+  expect((await statisticsReady).ok()).toBe(true)
   const canvas = page.locator('.chart-card canvas').first()
-  await expect(canvas).toBeVisible()
+  await expect(canvas).toBeVisible({ timeout: 20000 })
   await expect.poll(() => canvas.evaluate(element => {
     const pixels = element.getContext('2d').getImageData(0, 0, element.width, element.height).data
     return pixels.some((value, index) => index % 4 === 3 && value > 0)

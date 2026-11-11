@@ -1,6 +1,8 @@
 # Remaining work
 
-1. Runtime verification of the [implemented structure review](structureReview.md): scale loading/error/retry and saved answers; fresh visit isolation across create/edit/duplicate/session transitions; rendered form breadcrumbs; one column chooser/table/export agreement and account preference isolation; clinical custom/historical entries and disclosure navigation; catalog editor/import preview/consent flows; preview disposal and route-filter history. Affected tests were updated with permission but not run. Generated component declarations await an authorized regeneration workflow; no manual generated-file edits.
+Stopped at the user’s request on **2026-11-07**; active browser runners were terminated. Resume only on request.
+
+1. Finish browser verification for the [implemented structure review](structureReview.md): rerun the corrected chart readiness and scale-picker locator cases, complete the interrupted tablet workflow and remaining tablet/mobile cases, then run the focused width/direction/theme checks. The broad run stopped with **27 passed, 2 failed, 1 interrupted, 36 not run**; the focused rerun stopped with **1 interrupted, 3 not run**. No implementation/removal candidate remains open from S01–S15. Passing checks and limits: [completed](doneCurrent.md).
 2. Broader width/zoom/overflow/long-text, accessibility and browser-engine checks: [matrix](verification.md#rendered-matrix), including moved CSS/default palette in RTL/LTR and light/dark modes.
 3. Actual prescription printer/stock calibration at 100%; native PDF viewers/dialogs.
 4. Native Windows downloads/printing if targeted.

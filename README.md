@@ -10,6 +10,8 @@ Windows: double-click `start.cmd`. First-time prerequisites/dependency installat
 
 For frontend-only development, use `pnpm dev` after `pnpm install --frozen-lockfile`.
 
+The frontend VS Code build task (`Terminal → Run Build Task`) runs `pnpm run build`. On Linux it uses interactive Bash so Node/pnpm installed through nvm in `~/.bashrc` are available even when VS Code's inherited PATH omits them. No installation is performed by the task.
+
 `VITE_BACKEND_URL` defaults `http://localhost:5019`; `VITE_API_BASE_URL` defaults `/api/v1`. Match session/CORS/CSRF hostname; never store secrets in `VITE_*`/committed `.env.local`.
 
 [Rules](AGENTS.md) · [Remaining](docs/workCurrent.md) · [Evidence](docs/doneCurrent.md) · [UI](docs/ui.md) · [Verification](docs/verification.md) · [API](../backend/docs/contracts.md) · [Hosting](../backend/docs/setup.md)

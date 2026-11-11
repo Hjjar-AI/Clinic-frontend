@@ -57,7 +57,7 @@ test('scale picker retries a failed catalog and saves the selected scale with a 
     ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { message: 'Synthetic catalog outage' } }) })
     : route.continue())
   await openVisit(page, patient.id)
-  await page.getByRole('button', { name: 'إضافة مقياس', exact: true }).click()
+  await page.getByRole('button', { name: /إضافة مقياس/ }).click()
   const dialog = page.getByRole('dialog', { name: 'اختر مقياساً', exact: true })
   await expect(dialog.getByRole('alert')).toContainText('تعذر تحميل المقاييس')
   rejectCatalog = false
