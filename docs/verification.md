@@ -1,6 +1,6 @@
 # Verification
 
-[Results/limits](doneCurrent.md) · [Remaining](workCurrent.md) · [Backend/PDF](../../backend/docs/verification.md). Explicit test authorization required; builds separate.
+[Results/limits](doneCurrent.md) · [Remaining](workCurrent.md) · [Backend/PDF](../../backend/docs/verification.md). Explicit suite authorization required; builds and schema work need their own scope. Record runtime/dependency profile, viewport/browser and storage isolation with each result. Historical passes are not evidence for newer dependencies.
 
 ```bash
 pnpm test                 # Node + mounted Vue
@@ -12,7 +12,7 @@ CLINIC_PDF_ARTIFACT_DIR=/tmp/clinic-browser-pdfs pnpm test:e2e
 
 Playwright needs installed Chromium/backend Python dependencies; `CLINIC_TEST_PYTHON` overrides `python3`. Owned ports **5174/5018**, temporary SQLite/media/synthetic fixtures; refuses existing servers. Real API responses; fixture rates are not production capacity. Node isolation must remain `--test-isolation=none`; Vitest uses separate temp cache (`CLINIC_VITEST_CACHE`), HTTP/Chart doubles and jsdom, which has no layout.
 
-Ignored `tests/tools/` retains helpers/logs/browser/artifacts. Local interpreter `../backend/tests/tools/runtime/python/bin/python3.12`; set absolute `CLINIC_TEST_PYTHON` and `PLAYWRIGHT_BROWSERS_PATH` (frontend `tests/tools/browsers`). Standalone probe: `node --experimental-vm-modules tests/tools/standalone_frontend_probe.mjs`; supplements real suites. Read-only `apiGet` retries only ECONNRESET (max two), never HTTP status failures/writes; await enabled forms before assertions.
+Ignored `tests/tools/` retains historical helpers/logs/browsers/artifacts. Set absolute `CLINIC_TEST_PYTHON` to an environment matching the intended backend requirements and `PLAYWRIGHT_BROWSERS_PATH` to the installed browser location. The retained backend Python 3.12.16 runtime belongs to the old dependency profile. `node --experimental-vm-modules tests/tools/standalone_frontend_probe.mjs` supplements real suites. Read-only `apiGet` retries only ECONNRESET (max two), never HTTP status failures/writes; await enabled forms before assertions.
 
 Read-only dependency-directory fallback:
 

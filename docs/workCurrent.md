@@ -1,10 +1,10 @@
 # Remaining work
 
-Stopped at the user’s request on **2026-11-07**; active browser runners were terminated. Resume only on request.
+[Evidence and limits](doneCurrent.md) · [Structure decisions](structureReview.md) · [Backend work](../../backend/docs/workCurrent.md).
 
-1. Finish browser verification for the [implemented structure review](structureReview.md): rerun the corrected chart readiness and scale-picker locator cases, complete the interrupted tablet workflow and remaining tablet/mobile cases, then run the focused width/direction/theme checks. The broad run stopped with **27 passed, 2 failed, 1 interrupted, 36 not run**; the focused rerun stopped with **1 interrupted, 3 not run**. No implementation/removal candidate remains open from S01–S15. Passing checks and limits: [completed](doneCurrent.md).
-2. Broader width/zoom/overflow/long-text, accessibility and browser-engine checks: [matrix](verification.md#rendered-matrix), including moved CSS/default palette in RTL/LTR and light/dark modes.
-3. Actual prescription printer/stock calibration at 100%; native PDF viewers/dialogs.
-4. Native Windows downloads/printing if targeted.
+1. Browser verification was stopped at the user's request on **2026-11-07**; resume only when requested. Rerun corrected chart-readiness/scale-picker cases, complete the interrupted tablet workflow and remaining mobile/tablet cases, then run focused width/direction/theme checks. Prior counts belong in evidence; no S01–S15 implementation/removal candidate remains open.
+2. Broaden widths/zoom/overflow/long text, accessibility and browser engines: [rendered matrix](verification.md#rendered-matrix), including moved CSS/default palette in RTL/LTR and light/dark modes.
+3. Calibrate actual prescription printer/stock at 100%; check native PDF viewers/dialogs.
+4. Verify native Windows downloads/printing if targeted.
 
-Currency policy and conditional model extensions: [backend current](../../backend/docs/workCurrent.md). Schema preparation/deployment validation were removed by request, not certified. Completed source fixes and exercised cases: [evidence](doneCurrent.md).
+The local build/task issue is resolved. Backend owns currency policy, conditional model extensions and fresh local setup; broader storage upgrades/deployment validation remain outside scope.
