@@ -2,6 +2,8 @@
 
 [Entry point](../README.md) · [Shared launcher/backend setup](../../backend/docs/setup.md) · [Verification](verification.md) · [Evidence](doneCurrent.md).
 
+[GitHub automation](automation.md) covers automatic checks, manual browser runs and the backend-owned Windows/Linux executable workflow.
+
 ## Runtime and commands
 
 Node `^22.18.0 || >=24.12.0`, pnpm and prepared backend schema/accounts are required. Use the intended environment; dependency installation, builds and schema work need their own authorization.
