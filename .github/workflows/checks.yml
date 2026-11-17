@@ -32,7 +32,11 @@ jobs:
         with:
           version: '12.10.1'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+      - run: pnpm test:unit
+      - name: Component tests with isolated Vite cache
+        env:
+          CLINIC_VITEST_CACHE: ${{ runner.temp }}/clinic-vitest-cache
+        run: node node_modules/vitest/vitest.mjs run --configLoader runner --cache=false --fsModuleCachePath "${{ runner.temp }}/clinic-vitest-modules"
       - run: pnpm run build
       - name: Retain frontend build
         uses: actions/upload-artifact@v4

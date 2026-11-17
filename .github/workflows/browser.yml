@@ -16,6 +16,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
+      - name: Require an immutable backend revision
+        shell: python
+        env:
+          BACKEND_REF: ${{ inputs.backend_ref }}
+        run: |
+          import os, re
+          if not re.fullmatch(r'[0-9a-fA-F]{40}', os.environ['BACKEND_REF']):
+              raise SystemExit('backend_ref must be an exact 40-character commit SHA')
       - uses: actions/checkout@v6
         with:
           path: frontend
@@ -25,7 +33,6 @@ jobs:
           repository: Hjjar-AI/Clinic-backend
           ref: ${{ inputs.backend_ref }}
           path: backend
-          token: ${{ secrets.CLINIC_REPOSITORY_TOKEN || github.token }}
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
