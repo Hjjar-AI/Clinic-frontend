@@ -7,8 +7,12 @@ const base = createCrudService('/patients', 'patient')
 
 export default {
   ...base,
-  async search(params) {
-    const res = await apiClient.get('/patients/search', { params })
+  restore(id, version) { return apiClient.post(`/patients/${id}/restore/`, { version }).then(unwrapResponse) },
+  anonymize(id, version) { return apiClient.post(`/patients/${id}/anonymize/`, { version }).then(unwrapResponse) },
+  riskHistory(id, offset = 0) { return apiClient.get(`/patients/${id}/risk_history/`, { params: { offset, per_page: 20 } }).then(unwrapResponse) },
+  timeline(id, offset = 0) { return apiClient.get(`/patients/${id}/timeline/`, { params: { offset, per_page: 20 } }).then(unwrapResponse) },
+  async search(params, signal) {
+    const res = await apiClient.get('/patients/search', { params, signal })
     return unwrapResponse(res)
   },
   async findDuplicates(data) {
@@ -75,10 +79,10 @@ export default {
     const res = await apiClient.delete(`/patients/${patientId}/care-team/${userId}/`, { data: { version, reason } })
     return unwrapResponse(res)
   },
-  async getTeamCandidates() { return unwrapResponse(await apiClient.get('/patients/team_candidates/')) },
-  async getRecords(id, kind, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/records/`, { params: { kind, offset } })) },
+  async getTeamCandidates() { return unwrapResponse(await apiClient.get('/patients/team_candidates/')).items.items },
+  async getRecords(id, kind, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/records/`, { params: { kind, offset, per_page: 100 } })) },
   async saveRecord(id, payload) { return unwrapResponse(await apiClient.post(`/patients/${id}/records/`, payload)) },
-  async getCorrections(id, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/corrections/`, { params: { offset } })) },
+  async getCorrections(id, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/corrections/`, { params: { offset, per_page: 100 } })) },
   async reviewDuplicate(id, payload) { return unwrapResponse(await apiClient.post(`/patients/${id}/duplicate_review/`, payload)) },
   async previewMerge(id, targetId) { return unwrapResponse(await apiClient.post(`/patients/${id}/merge_preview/`, { target_id: targetId })) },
   async mergePatient(id, payload) { return unwrapResponse(await apiClient.post(`/patients/${id}/merge/`, payload)) },

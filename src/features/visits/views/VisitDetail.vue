@@ -247,6 +247,8 @@
       v-if="visit && visit.status !== 'draft' && authStore.can('export_pdf')"
       :visit-id="visitId"
     />
+    <VisitAttachments v-if="visit" :visit="visit" @changed="visit.version = $event" />
+    <VisitHistory v-if="visit && authStore.can('view_visits')" :visit-id="visitId" />
     <PrescriptionHistory
       v-if="
         patientId && authStore.can('view_visits') && authStore.can('export_pdf')
@@ -280,6 +282,8 @@ import MedicationList from '@/features/clinical/components/MedicationList.vue'
 import PatientWorkspaceHeader from '@/features/patients/components/PatientWorkspaceHeader.vue'
 import PrescriptionHistory from '@/features/prescription/components/PrescriptionHistory.vue'
 import ClinicalHandover from '@/features/visits/components/ClinicalHandover.vue'
+import VisitAttachments from '@/features/visits/components/VisitAttachments.vue'
+import VisitHistory from '@/features/visits/components/VisitHistory.vue'
 import visitService from '@/features/visits/services/visitService'
 import { getRiskInfo } from '@/utils/riskLevels'
 

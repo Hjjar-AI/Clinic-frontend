@@ -375,8 +375,8 @@ async function load(more = false) {
     )
     if (current !== generation) return
     items.value = more ? [...items.value, ...data.items] : data.items
-    total.value = data.total
-    emit('changed', data.version)
+    total.value = data.meta.total
+    emit('changed', data.meta.version)
   } catch {
     if (current === generation) error.value = 'تعذر تحميل السجلات. حاول مجدداً.'
   } finally {

@@ -17,12 +17,14 @@
     </div>
     <div class="footer__info">
       <span>{{ clinicName }} © 2026</span>
-      <span class="footer__version">v2.0.0</span>
+      <span v-if="version" class="footer__version">v{{ version }}</span>
     </div>
   </footer>
 </template>
 
 <script setup>
+import { useAppVersion } from '@/composables/useAppVersion'
+const { version } = useAppVersion()
 import { computed } from 'vue';
 
 import { useSettingsStore } from '@/features/settings/stores/settings';

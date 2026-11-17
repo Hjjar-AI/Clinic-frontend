@@ -26,6 +26,7 @@ export function useNavigationItems() {
   ];
 
   const adminItems = [
+    { to: { name: 'AuditLog' }, icon: 'history', label: 'سجل التدقيق', permission: 'manage_users', role: 'admin' },
     { to: { name: 'Users' }, icon: 'user-cog', label: 'المستخدمين', permission: 'manage_users' },
     { to: { name: 'DiagnosesManage' }, icon: 'diagnoses', label: 'التشخيصات', permission: 'manage_options' },
     { to: { name: 'MedicationsManage' }, icon: 'pills', label: 'الأدوية', permission: 'manage_options' },
@@ -42,12 +43,12 @@ export function useNavigationItems() {
     );
 
     return [...itemsWithBadges, ...adminItems].filter(
-      item => !item.permission || authStore.can(item.permission)
+      item => (!item.permission || authStore.can(item.permission)) && (!item.role || authStore.user?.role === item.role)
     );
   });
 
   async function refreshBadges() {
-    if (!authStore.isAuthenticated) return;
+    if (!authStore.isAuthenticated || document.hidden) return;
     await analyticsStore.fetchDashboard(undefined, undefined, { background: true }).catch(() => {});
   }
 

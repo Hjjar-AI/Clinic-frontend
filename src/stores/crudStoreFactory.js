@@ -107,13 +107,13 @@ export function createCrudStore(storeId, config) {
       }
     }
 
-    async function remove(id) {
+    async function remove(id, version) {
       const epoch = sessionGeneration()
       loading.value = true
       error.value = null
 
       try {
-        await config.remove(id)
+        await config.remove(id, version)
 
         items.value = items.value.filter((item) => item.id !== id)
 

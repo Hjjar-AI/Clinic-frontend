@@ -9,7 +9,7 @@ export default {
   export(params = {}) {
     return apiClient.get('/exports/medications/excel/', { params, responseType: 'blob' })
   },
-  reactivate(id) {
-    return apiClient.post(`/options/medications/${id}/reactivate/`)
+  reactivate(id, version) {
+    return apiClient.post(`/options/medications/${id}/reactivate/`, { version })
   },
 }

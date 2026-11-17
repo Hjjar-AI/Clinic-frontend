@@ -1,3 +1,4 @@
+import systemService from '@/services/systemService'
 // frontend/src/features/settings/services/settingsService.js
 import apiClient, { unwrapResponse } from '@/services/apiClient'
 
@@ -12,8 +13,8 @@ export default {
     return unwrapResponse(res)
   },
 
-  async setTheme(theme) {
-    const res = await apiClient.put('/settings/theme/', { theme })
+  async setTheme(theme, version) {
+    const res = await apiClient.put('/settings/theme/', { theme, version })
     return unwrapResponse(res)
   },
 
@@ -25,7 +26,6 @@ export default {
   // Used by Settings.vue to decide whether to show the "generate demo data"
   // section. Kept in this service so the view does not import apiClient.
   async getSystemConfig() {
-    const res = await apiClient.get('/system/config')
-    return unwrapResponse(res)
+    return systemService.config()
   },
 }

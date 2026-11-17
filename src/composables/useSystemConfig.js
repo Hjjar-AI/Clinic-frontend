@@ -2,7 +2,7 @@ import { reportError } from '@/utils/reportError'
 // frontend/src/composables/useSystemConfig.js
 import { ref } from 'vue'
 
-import apiClient from '@/services/apiClient'
+import systemService from '@/services/systemService'
 
 const config = ref({
   working_hours: { start: '08:00', end: '23:30' },
@@ -25,8 +25,7 @@ export function useSystemConfig() {
 
     loadingPromise = (async () => {
       try {
-        const { data } = await apiClient.get('/system/config/')
-        const inner = data?.data || data
+        const inner = await systemService.config()
         Object.assign(config.value, inner)
         loaded = true
       } catch (e) {

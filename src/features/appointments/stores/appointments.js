@@ -7,13 +7,13 @@ export const useAppointmentStore = createCrudStore('appointments', {
   fetchOne: (id) => appointmentService.getById(id),
   create: (payload) => appointmentService.create(payload),
   update: (id, payload) => appointmentService.update(id, payload),
-  remove: (id) => appointmentService.delete(id),
+  remove: (id, version) => appointmentService.delete(id, version),
   listKey: 'appointments',
   extensions: {
     actions: {
       async fetchCalendar(view, date) {
         const data = await appointmentService.getCalendar(view, date)
-        this.items = data?.appointments || []
+        this.items = data?.items || []
         return data
       },
       // F6: `version` is now required for the backend to accept a reschedule.
@@ -45,7 +45,7 @@ export const useAppointmentStore = createCrudStore('appointments', {
       },
       async getAvailability(doctorId, date, duration) {
         const data = await appointmentService.getAvailability(doctorId, date, duration)
-        return data?.slots || []
+        return data?.items || []
       },
       async createAppointment(payload) {
         return this.create(payload)

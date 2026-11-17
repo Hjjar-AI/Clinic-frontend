@@ -9,13 +9,13 @@ export default {
   getById(id) {
     return base.getById(id)
   },
-  delete(id) {
-    return base.delete(id)
+  delete(id, version) {
+    return base.delete(id, version)
   },
   addField(scaleId, data) {
     return apiClient.post(`/scales/${scaleId}/add-field/`, data)
   },
-  reactivate(id) {
-    return apiClient.post(`/scales/${id}/reactivate/`)
+  reactivate(id, version) {
+    return apiClient.post(`/scales/${id}/reactivate/`, { version })
   }
 }

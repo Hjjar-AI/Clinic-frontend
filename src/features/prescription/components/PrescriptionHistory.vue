@@ -209,8 +209,8 @@ async function loadPage(nextOffset) {
     if (disposed || request !== generation || epoch !== sessionGeneration())
       return
     items.value = result.items
-    total.value = result.total
-    offset.value = result.offset
+    total.value = result.meta.total
+    offset.value = result.meta.offset
   } catch {
     if (!disposed && request === generation && epoch === sessionGeneration())
       loadError.value = 'تعذر تحميل تاريخ الوصفات'

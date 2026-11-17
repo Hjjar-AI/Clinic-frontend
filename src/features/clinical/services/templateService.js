@@ -6,7 +6,7 @@ const base = createCrudService('/templates')
 
 export default {
   ...base,
-  reactivate(id) {
-    return apiClient.post(`/templates/${id}/reactivate/`)
+  reactivate(id, version) {
+    return apiClient.post(`/templates/${id}/reactivate/`, { version })
   },
 }

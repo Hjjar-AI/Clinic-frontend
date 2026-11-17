@@ -137,15 +137,17 @@
           <template #actions="{ item }">
             <TableActions
               :show-view="true"
-              :show-edit="authStore.can('edit_patient')"
+              :show-edit="item.is_active && authStore.can('edit_patient')"
               :view-to="{ name: 'PatientDetail', params: { id: item.id } }"
               :edit-to="{ name: 'PatientEdit', params: { id: item.id } }"
-              :show-delete="authStore.can('delete_patient')"
+              :show-delete="item.is_active && authStore.can('delete_patient')"
               :confirm-message="CONFIRM.DELETE_WITH_NAME(fullName(item))"
               @delete="deletePatient(item)"
             >
+              <BaseButton v-if="!item.is_active && !item.merged_into && authStore.user?.role === 'admin' && authStore.can('delete_patient')" :disabled="patientActionPending" @click.stop="restorePatient(item)">استعادة الملف</BaseButton>
+              <BaseButton v-if="item.is_active && authStore.user?.role === 'admin' && authStore.can('delete_patient')" :disabled="patientActionPending" @click.stop="restrictIdentity(item)">تقييد الهوية</BaseButton>
               <BaseButton
-                v-if="authStore.can('add_visit')"
+                v-if="item.is_active && authStore.can('add_visit')"
                 variant="ghost"
                 size="xs"
                 icon="file-medical"
@@ -218,6 +220,21 @@ const { copy } = useCopy()
 const { notify } = useNotify()
 
 const listRefresh = ref(0)
+const patientActionPending = ref(false)
+async function restorePatient(item) {
+  if (patientActionPending.value || !await confirm('استعادة ملف المريض المؤرشف مع الاحتفاظ بتاريخه؟')) return
+  patientActionPending.value = true
+  try { await patientService.restore(item.id, item.version); listRefresh.value++ }
+  catch { /* Shared API handling retains the original row after failure. */ }
+  finally { patientActionPending.value = false }
+}
+async function restrictIdentity(item) {
+  if (patientActionPending.value || !await confirm('ستُمسح بيانات الهوية الحالية. ستبقى الهوية الأصلية في النسخ الموقعة والتصحيحات وسجل الدمج والتدقيق. هذه العملية لا تحذف التاريخ ولا تحقق محواً كاملاً للهوية. هل تريد المتابعة؟', { requireCheckbox: true, checkboxLabel: 'أفهم أن المستندات والتاريخ سيحتفظان بالهوية الأصلية' })) return
+  patientActionPending.value = true
+  try { await patientService.anonymize(item.id, item.version); listRefresh.value++ }
+  catch { /* Do not remove or mutate the displayed row after failure. */ }
+  finally { patientActionPending.value = false }
+}
 const refreshStore = useRefreshStore()
 const { status: pageStatus, setContent, setError } = usePageStatus()
 
@@ -392,7 +409,7 @@ function missingFieldsLabel(fields = []) {
 
 async function deletePatient(patient) {
   try {
-    await patientStore.deletePatient(patient.id)
+    await patientStore.deletePatient(patient.id, patient.version)
     listRefresh.value += 1
     selectionStore.clearAll()
     notify('تم حذف المريض', 'success')

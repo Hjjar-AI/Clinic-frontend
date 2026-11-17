@@ -1,3 +1,4 @@
+import { acceptSessionActivity } from '@/services/sessionActivity'
 // frontend/src/features/auth/stores/auth.js
 import { defineStore } from 'pinia'
 import { computed,ref } from 'vue'
@@ -29,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (authenticatedUser && (authenticatedUser.id || authenticatedUser.username)) {
         if (previousUserId && authenticatedUser.id !== previousUserId) clearAllFormDrafts()
         changeSession(authenticatedUser.id)
+        acceptSessionActivity(payload.session)
         user.value = authenticatedUser
         previousUserId = authenticatedUser.id
         sessionChecked.value = true
@@ -50,6 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (epoch !== sessionGeneration()) return user.value
       if (data?.user && (data.user.id || data.user.username)) {
         if (sessionPrincipal() !== data.user.id) { changeSession(data.user.id); epoch = sessionGeneration() }
+        acceptSessionActivity(data.session)
         user.value = data.user
         previousUserId = data.user.id
       } else {

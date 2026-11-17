@@ -30,7 +30,7 @@ export const useUserStore = defineStore('users', () => {
     error.value = null
     try {
       const data = await userService.getAll(params)
-      items.value = Array.isArray(data) ? data : (data?.users || [])
+      items.value = Array.isArray(data) ? data : (data?.items || [])
     } catch (e) {
       if (epoch !== sessionGeneration()) throw e
       error.value = e.message || 'خطأ في تحميل المستخدمين'
@@ -92,12 +92,12 @@ export const useUserStore = defineStore('users', () => {
     }
   }
 
-  async function remove(id) {
+  async function remove(id, version) {
     const epoch = sessionGeneration()
     loading.value = true
     error.value = null
     try {
-      await userService.delete(id)
+      await userService.delete(id, version)
       items.value = items.value.filter(u => u.id !== id)
       if (current.value?.id === id) current.value = null
     } catch (e) {
@@ -116,7 +116,7 @@ export const useUserStore = defineStore('users', () => {
       const data = await userService.getDoctors()
       doctors.value = Array.isArray(data)
         ? data
-        : (data?.doctors || data?.users || [])
+        : (data?.items || [])
       doctorsLoaded = true
     } catch {
       if (epoch !== sessionGeneration()) return []

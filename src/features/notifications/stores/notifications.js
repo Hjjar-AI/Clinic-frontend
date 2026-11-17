@@ -2,7 +2,7 @@ import { onSessionChange, sessionGeneration } from '@/services/sessionState'
 import { reportError } from '@/utils/reportError'
 // frontend/src/features/notifications/stores/notifications.js
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref, watch, onScopeDispose } from 'vue'
 
 import { useAuthStore } from '@/features/auth/stores/auth'
 import notificationService from '@/features/notifications/services/notificationService'
@@ -14,6 +14,9 @@ export const useNotificationStore = defineStore('notifications', () => {
   const error = ref(null)
 
   let pollingTimer = null
+  let polling = false
+  let pollPending = false
+  let retryAt = 0
   const authStore = useAuthStore()
 
   function reset() {
@@ -34,7 +37,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     loading.value = true
     error.value = null
     try {
-      const data = await notificationService.getAll({ limit: 100 })
+      const data = await notificationService.getAll({ per_page: 100 })
       notifications.value = data?.items || []
       unreadCount.value = data?.meta?.unread_count ?? 0
     } catch (e) {
@@ -52,13 +55,16 @@ export const useNotificationStore = defineStore('notifications', () => {
       return
     }
     try {
-      const data = await notificationService.getNotificationsPersistent({ limit: 100 })
+      const data = await notificationService.getNotificationsPersistent({ per_page: 100 })
       notifications.value = data?.items || []
       unreadCount.value = data?.meta?.unread_count ?? 0
     } catch (e) {
       if (epoch !== sessionGeneration()) return
       if (import.meta.env.DEV) reportError('notifications', e)
-      await fetchAll()
+      if (e.response?.status === 429) {
+        const value = e.response.headers?.['retry-after']
+        retryAt = Date.now() + (Number.isFinite(Number(value)) ? Math.max(1, Number(value)) * 1000 : Math.max(30000, Date.parse(value) - Date.now() || 30000))
+      }
     }
   }
 
@@ -66,17 +72,27 @@ export const useNotificationStore = defineStore('notifications', () => {
     return fetchAll()
   }
 
-  function startPolling(intervalMs = 30000) {
-    if (pollingTimer !== null) return
-    if (!authStore.isAuthenticated) return
-    fetchAllPersistent()
-    pollingTimer = setInterval(fetchAllPersistent, intervalMs)
+  async function poll() {
+    if (!polling || document.hidden || !authStore.isAuthenticated || pollPending) return
+    if (retryAt > Date.now()) { schedule(); return }
+    pollPending = true
+    try { await fetchAllPersistent() }
+    finally { pollPending = false; schedule() }
   }
-
-  function stopPolling() {
-    clearInterval(pollingTimer)
+  function schedule() {
+    clearTimeout(pollingTimer)
     pollingTimer = null
+    if (polling && !document.hidden && authStore.isAuthenticated) pollingTimer = setTimeout(poll, Math.max(30000, retryAt - Date.now()))
   }
+  function startPolling() { if (polling) return; polling = true; poll() }
+  function stopPolling() { polling = false; clearTimeout(pollingTimer); pollingTimer = null; retryAt = 0 }
+  function visibility() {
+    clearTimeout(pollingTimer)
+    pollingTimer = null
+    if (!document.hidden) poll()
+  }
+  document.addEventListener('visibilitychange', visibility)
+  onScopeDispose(() => { stopPolling(); document.removeEventListener('visibilitychange', visibility) })
 
   // This store owns the reaction to auth changes. Previously `auth.js`
   // reached into this store on logout; now the direction is one-way:
@@ -89,6 +105,11 @@ export const useNotificationStore = defineStore('notifications', () => {
       reset()
     }
   }, { flush: 'sync' })
+
+  async function deleteAllRead() {
+    await notificationService.deleteAllRead()
+    notifications.value = notifications.value.filter(row => !row.is_read)
+  }
 
   async function markRead(id) {
     await notificationService.markRead(id)
@@ -128,5 +149,6 @@ export const useNotificationStore = defineStore('notifications', () => {
     markRead,
     markAllRead,
     deleteNotification,
+    deleteAllRead,
   }
 })

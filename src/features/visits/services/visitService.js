@@ -7,6 +7,7 @@ import { createCrudService } from '@/services/baseCrudService'
 const base = createCrudService('/visits', 'visit')
 
 export default {
+  markAllOverdue() { return apiClient.post('/visits/mark-all-overdue/').then(unwrapResponse) },
   async approvedReference(patientId, excludeVisit) {
     return unwrapResponse(await apiClient.get(`/prescription/patient/${patientId}/handover/`, { params: { exclude_visit: excludeVisit || undefined } }))
   },
@@ -30,14 +31,28 @@ export default {
     const res = await apiClient.put(`/visits/${id}/transition/`, { status, version, reason })
     return unwrapResponse(res)
   },
-  async uploadAttachment(visitId, formData) {
-    const res = await apiClient.post(`/visits/${visitId}/attachments/`, formData)
-    return unwrapResponse(res)
+  revisions(id, offset = 0) { return apiClient.get(`/visits/${id}/revisions/`, { params: { offset, per_page: 20 } }).then(unwrapResponse) },
+  issuedDocuments(id, offset = 0) { return apiClient.get(`/visits/${id}/issued-documents/`, { params: { offset, per_page: 20 } }).then(unwrapResponse) },
+  attachments(id, offset = 0) { return apiClient.get(`/visits/${id}/list_attachments/`, { params: { offset, per_page: 20 } }).then(unwrapResponse) },
+  attachmentPdf(id, attachmentId) { return apiClient.get(`/visits/${id}/attachments/${attachmentId}/`, { responseType: 'blob' }) },
+  async removeAttachment(id, attachmentId, version) {
+    const response = await apiClient.delete(`/visits/${id}/attachments/${attachmentId}/`, { data: { version } })
+    return Number(response.headers['x-resource-version'])
   },
-  async uploadAttachments(visitId, files) {
+  async uploadAttachment(id, file, version) {
     const fd = new FormData()
-    files.forEach(f => fd.append('files', f))
-    const res = await apiClient.post(`/visits/${visitId}/attachments/`, fd)
-    return unwrapResponse(res)
-  }
+    fd.append('file', file)
+    fd.append('version', String(version))
+    const response = await apiClient.post(`/visits/${id}/attachments/`, fd)
+    return { attachment: unwrapResponse(response), version: Number(response.headers['x-resource-version']) }
+  },
+  async uploadAttachments(id, files, version) {
+    const attachments = []
+    for (const file of files) {
+      const result = await this.uploadAttachment(id, file, version)
+      version = result.version
+      attachments.push(result.attachment)
+    }
+    return { attachments, version }
+  },
 }

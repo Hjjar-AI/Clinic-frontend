@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 import { reactive,ref } from 'vue'
 
 import dashboardService from '@/features/dashboard/services/dashboardService'
-import apiClient from '@/services/apiClient'
+import visitService from '@/features/visits/services/visitService'
 
 export const useAnalyticsStore = defineStore('analytics', () => {
   const dashboard = ref({
@@ -102,8 +102,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await apiClient.post('/visits/mark-all-overdue/')
-      return res.data
+      return await visitService.markAllOverdue()
     } catch (e) {
       if (epoch === sessionGeneration()) error.value = e.message || 'فشل العملية'
       throw e

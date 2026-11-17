@@ -11,58 +11,16 @@ import { generateIdempotencyKey } from '@/utils/idempotency'
 const pendingRequests = new Map()
 const persistentRequests = new Set()
 const uncertainOperations = new Map()
-// Versions are those actually observed by this client. Explicit form versions
-// always take precedence, so stale edits continue to produce a conflict.
-const observedVersions = new Map()
-function resourcePath(url = '') {
-  const path = url.split('?')[0]
-  const nestedDocuments = path.match(/^(\/patients\/\d+\/documents)\/(\d+)?/)
-  if (nestedDocuments) return `${nestedDocuments[1]}/${nestedDocuments[2] ? nestedDocuments[2] + '/' : ''}`
-  const nestedVisits = path.match(/^\/patients\/\d+\/visits\/?$/)
-  if (nestedVisits) return '/visits/'
-  const match = path.match(/^(\/(?:options\/(?:diagnoses|medications)|auth\/users|patients|visits|appointments|tasks|templates|scales|billing(?:\/invoices)?))\/(\d+)?/)
-  return match ? `${match[1]}/${match[2] ? match[2] + '/' : ''}` : path === '/settings/' || path === '/settings/theme/' ? '/settings/' : null
-}
-function observeVersions(response) {
-  const path = resourcePath(response.config.url)
-  if (!path) return
-  const base = path.replace(/\d+\/$/, '')
-  const collect = value => {
-    if (Array.isArray(value)) { value.forEach(collect); return }
-    if (!value || typeof value !== 'object' || value instanceof Blob) return
-    if (Number.isInteger(value.version)) {
-      observedVersions.set(value.id ? `${base}${value.id}/` : path, value.version)
-      return
-    }
-    for (const key of ['data', 'results', 'items', 'patients', 'visits', 'appointments', 'tasks', 'invoices', 'diagnoses', 'medications', 'scales', 'templates', 'users']) {
-      if (value[key]) collect(value[key])
-    }
+// The caller owns the opening version; later reads must never replace it.
+function requiresOpeningVersion(config) {
+  const path = (config.url || '').split('?')[0]
+  if (['put', 'patch', 'delete'].includes(config.method)) {
+    return /^\/(?:patients|visits|appointments|billing|tasks|templates|scales|options\/(?:diagnoses|medications)|auth\/users)\/\d+(?:\/|$)/.test(path) ||
+      /^\/auth\/users\/permissions\/\d+\//.test(path) || /^\/settings\/(?:theme\/)?$/.test(path)
   }
-  collect(response.data)
-  const parentVersion = Number(response.headers['x-resource-version'])
-  if (Number.isInteger(parentVersion) && parentVersion > 0) observedVersions.set(path, parentVersion)
-}
-
-// Endpoints that require idempotency enforcement (paths starting with these)
-const IDEMPOTENT_URL_PREFIXES = [
-  '/appointments/',
-  '/billing/',
-  '/patients/',
-  '/visits/',
-  '/tasks/',
-  '/prescription/',
-  '/backup/',
-  '/bulk-import/',
-  '/settings/',
-  '/auth/users/',
-  '/options/',
-  '/scales/',
-  '/templates/',
-  '/referrals/',
-]
-
-function isIdempotentUrl(url) {
-  return IDEMPOTENT_URL_PREFIXES.some(prefix => url.startsWith(prefix))
+  return config.method === 'post' && (
+    /^\/patients\/\d+\/(?:records|archive|restore|anonymize|care_team_add|duplicate_review|merge)\/$/.test(path) ||
+    /^\/(?:visits\/\d+\/attachments|(?:templates|scales|options\/(?:diagnoses|medications))\/\d+\/(?:reactivate|add-field))\/$/.test(path) || /^\/referrals\/visit\/\d+\/$/.test(path))
 }
 
 function getRequestKey(config) {
@@ -110,9 +68,9 @@ const apiClient = axios.create({
 apiClient.CancelToken = axios.CancelToken
 apiClient.isCancel = axios.isCancel
 
-// Interceptor to ensure trailing slash, convert limit→per_page,
-// and optionally add idempotency key if provided by caller.
+// Normalize URLs and enforce explicit mutation contracts.
 apiClient.interceptors.request.use(config => {
+  config._sessionGeneration = sessionGeneration()
   // Keep multipart bodies intact; Axios supplies the browser boundary.
   if (config.data instanceof FormData) config.headers.delete('Content-Type')
 
@@ -124,23 +82,23 @@ apiClient.interceptors.request.use(config => {
     }
   }
 
-  // Convert 'limit' query param to 'per_page' if not already present
-  if (config.method === 'get' && config.params) {
-    if (config.params.limit !== undefined && config.params.per_page === undefined) {
-      config.params.per_page = config.params.limit
-      delete config.params.limit
-    }
-  }
-
-  if (['post', 'put', 'patch', 'delete'].includes(config.method)) {
-    const path = resourcePath(config.url)
+  if (requiresOpeningVersion(config)) {
     const explicit = config.data instanceof FormData ? config.data.get('version') : config.data?.version
-    const version = explicit ?? observedVersions.get(path)
-    if (version != null && !config.headers['If-Match']) config.headers['If-Match'] = String(version)
+    const header = config.headers.get('If-Match')
+    const value = explicit ?? header?.replace(/^"|"$/g, '')
+    if (!/^[1-9]\d*$/.test(String(value ?? '')) || typeof value === 'boolean') {
+      throw new axios.AxiosError('يلزم إصدار السجل الذي فتحته؛ أعد تحميله قبل الحفظ', 'OPENING_VERSION_REQUIRED', config)
+    }
+    if (!header) config.headers.set('If-Match', `"${value}"`)
   }
-  config._sessionGeneration = sessionGeneration()
+  const url = config.url || ''
+  if (config.timeout === 15000) {
+    if (/^\/(backup|bulk-import)(?:\/|$)/.test(url)) config.timeout = 30 * 60 * 1000
+    else if (config.responseType === 'blob' || /^\/(prescription|referrals)(?:\/|$)/.test(url)) config.timeout = 5 * 60 * 1000
+  }
   config._foreground = config.background !== true && config.method !== 'get'
-  if (config._foreground) useLoadingStore().start()
+  config._longOperation = config.timeout > 15000
+  if (config._foreground) useLoadingStore().start(config._longOperation)
 
   // Only create our own cancel source when the caller did not provide one.
   // Overwriting a caller-supplied cancelToken silently breaks their
@@ -175,7 +133,7 @@ apiClient.interceptors.request.use(config => {
     config.idempotencyKey = previousRequest.idempotencyKey
   }
 
-  if (['post', 'put', 'patch', 'delete'].includes(config.method) && isIdempotentUrl(config.url)) {
+  if (['post', 'put', 'patch', 'delete'].includes(config.method)) {
     if (!config.idempotencyKey) config.idempotencyKey = generateIdempotencyKey()
     config.headers['X-Idempotency-Key'] = config.idempotencyKey
   }
@@ -213,9 +171,8 @@ apiClient.interceptors.request.use(config => {
 
 apiClient.interceptors.response.use(
   response => {
-    if (response.config._foreground && response.config._sessionGeneration === sessionGeneration()) useLoadingStore().stop()
+    if (response.config._foreground && response.config._sessionGeneration === sessionGeneration()) useLoadingStore().stop(response.config._longOperation)
     if (response.config._sessionGeneration !== sessionGeneration()) throw new axios.CanceledError('Session changed', response.config)
-    observeVersions(response)
 
     const cfg = response.config
     uncertainOperations.delete(cfg._requestKey)
@@ -234,7 +191,7 @@ apiClient.interceptors.response.use(
     return response
   },
   async error => {
-    if (error.config?._foreground && error.config._sessionGeneration === sessionGeneration()) useLoadingStore().stop()
+    if (error.config?._foreground && error.config._sessionGeneration === sessionGeneration()) useLoadingStore().stop(error.config._longOperation)
 
     // Download endpoints use responseType=blob. Axios therefore also exposes
     // structured JSON failures as Blob objects; normalize those before the
@@ -252,8 +209,8 @@ apiClient.interceptors.response.use(
 
     const config = error.config
     const stale = config && config._sessionGeneration !== sessionGeneration()
-    if (!stale && !config?._duplicateRequest && config?.idempotencyKey && config._requestKey && (!error.response || error.response?.data?.error?.code === 'request_in_progress')) {
-      uncertainOperations.set(config._requestKey, { key: config.idempotencyKey, expiresAt: Date.now() + 30 * 60 * 1000 })
+    if (!stale && !config?._duplicateRequest && config?.idempotencyKey && config._requestKey && (!error.response || ['operation_interrupted', 'recovery_interrupted', 'operation_expired', 'operation_result_unavailable'].includes(error.response?.data?.error?.code))) {
+      uncertainOperations.set(config._requestKey, { key: config.idempotencyKey, expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 })
     }
     if (config?._isPersistent) {
       if (config._requestSource) persistentRequests.delete(config._requestSource)
@@ -268,7 +225,7 @@ apiClient.interceptors.response.use(
       // Optimistic-lock conflict. Emit an event; the app layer shows the
       // refresh dialog and re-navigates. Keeps apiClient free of the
       // confirm dialog and the router.
-      if (!['duplicate_request', 'request_in_progress'].includes(error.response?.data?.error?.code)) {
+      if (['version_conflict', 409].includes(error.response?.data?.error?.code)) {
         emit(API_EVENTS.CONFLICT, error)
         return Promise.reject(error)
       }
@@ -288,7 +245,6 @@ onSessionChange(() => {
   for (const source of persistentRequests) source.cancel('Session changed')
   pendingRequests.clear()
   persistentRequests.clear()
-  observedVersions.clear()
   uncertainOperations.clear()
 })
 

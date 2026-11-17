@@ -30,7 +30,8 @@
     >
       <div class="notification-center__header">
         <h3>الإشعارات</h3>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex--wrap">
+          <BaseButton size="xs" :loading="clearing" @click="clearRead">حذف المقروءة</BaseButton>
           <BaseButton
             variant="ghost"
             size="xs"
@@ -118,6 +119,7 @@ import Badge from '@/components/ui/Badge.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import Icon from '@/components/ui/Icon.vue'
 import RelativeDate from '@/components/ui/RelativeDate.vue'
+import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useDate } from '@/composables/useDate'
 import { useDropdown } from '@/composables/useDropdown'
 import { useAuthStore } from '@/features/auth/stores/auth'
@@ -125,6 +127,14 @@ import { useUnreadCount } from '@/features/notifications/composables/useUnreadCo
 import { useNotificationStore } from '@/features/notifications/stores/notifications'
 
 const notificationStore = useNotificationStore()
+const clearing = ref(false)
+const { confirm } = useConfirmDialog()
+async function clearRead() {
+  if (clearing.value || !await confirm('حذف جميع إشعاراتك المقروءة؟')) return
+  clearing.value = true
+  try { await notificationStore.deleteAllRead() } catch { /* Shared API feedback. */ }
+  finally { clearing.value = false }
+}
 const { unreadCount } = useUnreadCount()
 const authStore = useAuthStore()
 const router = useRouter()

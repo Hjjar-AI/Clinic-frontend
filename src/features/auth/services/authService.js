@@ -1,10 +1,12 @@
+import systemService from '@/services/systemService'
 import apiClient from '@/services/apiClient'
 import { unwrapResponse } from '@/services/apiClient'
 
 export default {
+  async activity() { return unwrapResponse(await apiClient.post('/auth/activity/', {}, { background: true })) },
   async login(credentials) {
     // Bootstrap the CSRF cookie before anonymous session login.
-    await apiClient.get('/system/config/')
+    await systemService.config({ fresh: true })
     const res = await apiClient.post('/auth/login/', credentials)
     return unwrapResponse(res)
   },

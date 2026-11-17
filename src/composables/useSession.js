@@ -1,144 +1,80 @@
-// frontend/src/composables/useSession.js
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-
 import { useAutoCleanup } from '@/composables/useAutoCleanup'
-import { useSystemConfig } from '@/composables/useSystemConfig'
 import { useAuthStore } from '@/features/auth/stores/auth'
+import authService from '@/features/auth/services/authService'
+import { acceptSessionActivity, sessionExpiresAt } from '@/services/sessionActivity'
+import { sessionGeneration } from '@/services/sessionState'
 
-/**
- * Field allow-list for the visit form's draft. Only these keys survive a
- * session-crash save / restore cycle. The list is deliberately narrow:
- * clinical narrative fields (`mse`, `treatment_text`, `doctor_notes`, the
- * formulation block, etc.) are *not* included, so a crash never leaves
- * partially-typed PHI sitting in memory beyond the current page session.
- *
- * This constant is exported so callers (see `useVisitForm`) can pass it back
- * in via the `safeDraftFields` option. It is *not* applied as a default,
- * because forms like AppointmentForm and PatientForm have different field
- * shapes and previously lost their entire draft to this filter.
- */
-/**
- * @param {number} timeoutMinutesFallback – Session lifetime in minutes
- *   when `/system/config` hasn't loaded yet.
- * @param {object} [options]
- * @param {string[]|null} [options.safeDraftFields=null]
- *   When provided, `saveDraft` keeps only the keys in this list. When
- *   `null`/`undefined`, the whole form value is persisted as-is.
- *   Default is `null` (no filter) so forms without a curated allow-list
- *   still get working drafts.
- */
-export function useSession(timeoutMinutesFallback = 30) {
+export function useSession() {
   const isBlurred = ref(false)
   const showTimeoutWarning = ref(false)
   const secondsRemaining = ref(60)
+  const auth = useAuthStore()
   const router = useRouter()
-  const authStore = useAuthStore()
-  const { config } = useSystemConfig()
-
   const { add } = useAutoCleanup()
+  const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('clinic-session-activity') : null
+  let lastSent = 0
+  let lastHuman = 0
+  let pending = false
+  let expiring = false
+  let debounceTimer
 
-  let warningTimer = null
-  let logoutTimer = null
-  let countdownTimer = null
-
-  function getTimeoutSeconds() {
-    return Math.max(1, Number(config.value?.session_lifetime) || timeoutMinutesFallback * 60)
+  async function renew() {
+    if (!auth.isAuthenticated || pending || document.hidden || !lastHuman || Date.now() - lastSent < 60000) return
+    const epoch = sessionGeneration()
+    pending = true
+    lastSent = Date.now()
+    try {
+      const payload = await authService.activity()
+      if (epoch !== sessionGeneration()) return
+      acceptSessionActivity(payload)
+      channel?.postMessage({ owner: auth.user.id, expires_at: sessionExpiresAt.value / 1000, sent: lastSent })
+    } catch { /* API errors distinguish expired authentication from unavailable network. */ }
+    finally { pending = false }
   }
-
-  function clearTimers() {
-    clearTimeout(warningTimer)
-    clearTimeout(logoutTimer)
-    clearInterval(countdownTimer)
+  function humanActivity(event) {
+    if (event && !event.isTrusted) return
+    lastHuman = Date.now()
+    if (Date.now() - lastSent >= 60000) renew()
+    else {
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        if (Date.now() - lastHuman < 60000) renew()
+      }, Math.max(1, 60000 - (Date.now() - lastSent)))
+    }
   }
-  add(clearTimers)
-
-  function startTimers() {
-    if (!authStore.isAuthenticated) return
-    const timeoutSeconds = getTimeoutSeconds()
-    const warningSeconds = Math.min(60, timeoutSeconds)
-    const warningMs = (timeoutSeconds - warningSeconds) * 1000
-    const logoutMs = timeoutSeconds * 1000
-
-    warningTimer = setTimeout(() => {
-      showTimeoutWarning.value = true
-      secondsRemaining.value = warningSeconds
-      countdownTimer = setInterval(() => {
-        if (secondsRemaining.value > 0) secondsRemaining.value--
-        else clearInterval(countdownTimer)
-      }, 1000)
-    }, warningMs)
-
-    logoutTimer = setTimeout(() => {
+  if (channel) channel.onmessage = ({ data }) => {
+    if (auth.isAuthenticated && data?.owner === auth.user.id && Number.isFinite(data.expires_at)) {
+      if (data.expires_at * 1000 > sessionExpiresAt.value) acceptSessionActivity(data)
+      lastSent = Math.max(lastSent, Number(data.sent) || 0)
+    }
+  }
+  const events = ['pointerdown', 'keydown', 'touchstart', 'scroll']
+  for (const event of events) window.addEventListener(event, humanActivity, { passive: true })
+  function visibility() { if (document.hidden) isBlurred.value = true }
+  document.addEventListener('visibilitychange', visibility)
+  const timer = setInterval(() => {
+    if (!auth.isAuthenticated || !sessionExpiresAt.value) { showTimeoutWarning.value = false; return }
+    const remaining = Math.ceil((sessionExpiresAt.value - Date.now()) / 1000)
+    secondsRemaining.value = Math.max(0, remaining)
+    showTimeoutWarning.value = remaining <= 60
+    if (remaining <= 0 && !expiring) {
+      expiring = true
       const returnTo = router.currentRoute.value.fullPath
-      authStore.logout({ preserveDrafts: true })
-      router.push({ name: 'Login', query: { session: 'expired', returnTo } })
-    }, logoutMs)
-  }
-
-  function resetTimers() {
-    clearTimers()
-    showTimeoutWarning.value = false
-    startTimers()
-  }
-
-  let lastReset = 0
-  function throttledReset() {
-    const now = Date.now()
-    if (now - lastReset >= 10000) {
-      lastReset = now
-      resetTimers()
+      auth.logout({ preserveDrafts: true }).finally(() => {
+        router.push({ name: 'Login', query: { session: 'expired', returnTo } })
+        expiring = false
+      })
     }
-  }
-
-  function handleVisibilityChange() {
-    if (document.hidden) {
-      isBlurred.value = true
-    }
-  }
-
-  document.addEventListener('visibilitychange', handleVisibilityChange)
-  add(() => document.removeEventListener('visibilitychange', handleVisibilityChange))
-
-  const events = ['mousedown', 'keydown', 'touchstart', 'scroll']
-  events.forEach((e) => window.addEventListener(e, throttledReset, { passive: true }))
-  add(() => events.forEach((e) => window.removeEventListener(e, throttledReset)))
-
-  function dismissWarning() {
-    showTimeoutWarning.value = false
-    clearInterval(countdownTimer)
-    resetTimers()
-  }
-
-  // Draft ownership/cleanup is handled by the auth store. Safe in-memory
-  // drafts survive an expired session for the same user, but are cleared on
-  // explicit logout or when another user signs in.
-  watch(
-    () => authStore.isAuthenticated,
-    (val) => {
-      if (val) {
-        startTimers()
-      } else {
-        clearTimers()
-      }
-    }
-  )
-
-  watch(
-    () => config.value?.session_lifetime,
-    (value, previous) => {
-      if (value && value !== previous && authStore.isAuthenticated) resetTimers()
-    }
-  )
-
-  if (authStore.isAuthenticated) {
-    startTimers()
-  }
-
-  return {
-    isBlurred,
-    showTimeoutWarning,
-    secondsRemaining,
-    dismissWarning,
-  }
+  }, 1000)
+  watch(() => auth.user?.id, () => { lastHuman = 0; lastSent = Date.now(); clearTimeout(debounceTimer) })
+  add(() => {
+    clearInterval(timer)
+    clearTimeout(debounceTimer)
+    for (const event of events) window.removeEventListener(event, humanActivity)
+    document.removeEventListener('visibilitychange', visibility)
+    channel?.close()
+  })
+  return { isBlurred, showTimeoutWarning, secondsRemaining, dismissWarning: () => humanActivity() }
 }

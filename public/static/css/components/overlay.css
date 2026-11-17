@@ -15,10 +15,20 @@
 }
 .loading-overlay.active {
     display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 .loading-overlay .spinner {
     border-color: rgba(255,255,255,0.2);
     border-top-color: var(--color-text-inverse);
+}
+
+.loading-overlay__message {
+    max-inline-size: 36rem;
+    padding-inline: 1rem;
+    text-align: center;
+    color: var(--color-text-inverse);
+    overflow-wrap: anywhere;
 }
 
 .critical-overlay {

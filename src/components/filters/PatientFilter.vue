@@ -46,12 +46,12 @@ function patientLabel(patient) {
 async function searchPatients(query) {
   const result = await patientService.search({
     search: query,
-    limit: 5,
+    per_page: 5,
   })
 
   const payload = unwrapResponse(result)
 
-  return payload?.patients || []
+  return payload?.items || []
 }
 
 function onSelect(patient) {

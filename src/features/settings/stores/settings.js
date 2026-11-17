@@ -59,7 +59,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   async function setTheme(theme) {
-    const updated = await settingsService.setTheme(theme)
+    const updated = await settingsService.setTheme(theme, settings.value.version)
 
     useUiStore().setTheme(updated.theme || theme)
 

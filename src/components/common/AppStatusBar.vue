@@ -30,7 +30,7 @@ import { onBeforeUnmount,onMounted, ref } from 'vue'
 
 import Icon from '@/components/ui/Icon.vue'
 import { useAutoCleanup } from '@/composables/useAutoCleanup'
-import apiClient from '@/services/apiClient'
+import systemService from '@/services/systemService'
 
 const { add } = useAutoCleanup()
 const online = ref(navigator.onLine)
@@ -48,7 +48,7 @@ async function checkNow() {
     // NOTE: no `cache: 'no-store'` — that option is a browser fetch option,
     // not an axios one, and would be silently ignored. A stale health 200
     // is not harmful anyway.
-    await apiClient.get('/system/health')
+    await systemService.health()
     online.value = true
   } catch {
     online.value = false

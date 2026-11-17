@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
 import { useDate } from '@/composables/useDate'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import apiClient from '@/services/apiClient'
+import appointmentService from '@/features/appointments/services/appointmentService'
 
 export function useCalendar() {
   const view = ref('day')
@@ -33,16 +34,15 @@ export function useCalendar() {
       const rows = []
       let offset = 0, total = Infinity
       while (offset < total) {
-        const params = { start_date: toISODate(startDate), end_date: toISODate(endDate), limit: 200, offset }
+        const params = { start_date: toISODate(startDate), end_date: toISODate(endDate), per_page: 200, offset }
         if (doctorId) params.doctor_id = doctorId
-        const response = await apiClient.get('/appointments/raw', { params, signal: controller.signal })
+        const inner = await appointmentService.raw(params, controller.signal)
         if (disposed || controller !== fetchController) return false
-        const inner = response.data?.data ?? response.data
-        if (!Array.isArray(inner?.appointments)) throw new Error('استجابة مواعيد غير صالحة')
-        rows.push(...inner.appointments)
+        if (!Array.isArray(inner?.items)) throw new Error('استجابة مواعيد غير صالحة')
+        rows.push(...inner.items)
         total = inner.meta?.total ?? rows.length
-        if (!inner.appointments.length && rows.length < total) throw new Error('قائمة المواعيد غير مكتملة')
-        offset += inner.appointments.length
+        if (!inner.items.length && rows.length < total) throw new Error('قائمة المواعيد غير مكتملة')
+        offset += inner.items.length
       }
       appointments.value = rows
       return true

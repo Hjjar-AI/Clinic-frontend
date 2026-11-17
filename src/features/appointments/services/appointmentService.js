@@ -7,6 +7,8 @@ const base = createCrudService('/appointments', 'appointment')
 
 export default {
   ...base,
+  async raw(params, signal) { return unwrapResponse(await apiClient.get('/appointments/raw/', { params, signal })) },
+  async next(patientId) { return unwrapResponse(await apiClient.get(`/appointments/next/${patientId}/`)) },
   async getCalendar(view, date, doctorId) {
     const res = await apiClient.get('/appointments/calendar', { params: { view, date, doctor_id: doctorId } })
     return unwrapResponse(res)
@@ -31,8 +33,8 @@ export default {
     const res = await apiClient.put(`/appointments/${id}/reschedule/`, body)
     return unwrapResponse(res)
   },
-  async getAvailability(doctorId, date, duration) {
-    const res = await apiClient.get('/appointments/availability', { params: { doctor_id: doctorId, date, duration } })
+  async getAvailability(doctorId, date, duration, config = {}) {
+    const res = await apiClient.get('/appointments/availability', { ...config, params: { doctor_id: doctorId, date, duration } })
     return unwrapResponse(res)
   },
   async getByPatient(patientId, params = {}) {

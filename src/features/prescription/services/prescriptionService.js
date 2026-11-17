@@ -4,6 +4,7 @@ import apiClient from '@/services/apiClient'
 // Prescription generation – no CRUD factory needed.
 
 export default {
+  issuedPdf(documentId) { return apiClient.get(`/prescription/issued-documents/${documentId}/pdf/`, { responseType: 'blob' }) },
   history(patientId, params = {}) {
     return apiClient.get(`/prescription/patient/${patientId}/history/`, { params })
   },

@@ -8,7 +8,7 @@ export const useTaskStore = createCrudStore('tasks', {
   fetchOne: undefined,
   create: (payload) => taskService.create(payload),
   update: undefined,
-  remove: (id) => taskService.delete(id),
+  remove: (id, version) => taskService.delete(id, version),
   listKey: 'tasks',
 
   extensions: {
@@ -78,8 +78,8 @@ export const useTaskStore = createCrudStore('tasks', {
         return updated
       },
 
-      async deleteTask(id) {
-        await this.remove(id)
+      async deleteTask(id, version) {
+        await this.remove(id, version)
       },
 
       async reorderTasks(orderList) {

@@ -68,7 +68,7 @@
               :show-delete="item.is_active !== false"
               :confirm-message="`سيتم إيقاف هذا التشخيص مع الاحتفاظ به في ${item.usage_count || 0} زيارة سابقة. هل تريد المتابعة؟`"
               @edit="openFormModal(item)"
-              @delete="handleDeleteDiagnosis(item.id)"
+              @delete="handleDeleteDiagnosis(item)"
             >
               <BaseButton
                 v-if="item.is_active === false"
@@ -76,7 +76,7 @@
                 size="xs"
                 icon="rotate-left"
                 title="إعادة التفعيل"
-                @click.stop="handleReactivateDiagnosis(item.id)"
+                @click.stop="handleReactivateDiagnosis(item)"
               />
             </TableActions>
           </template>
@@ -237,17 +237,17 @@ function copyItem(text) {
   if (text) copy(text)
 }
 
-const handleDeleteDiagnosis = async (id) => {
+const handleDeleteDiagnosis = async (item) => {
   try {
-    await diagnosisService.delete(id)
+    await diagnosisService.delete(item.id, item.version)
     refreshList()
   } catch {
     notify('لا يمكن حذف هذا التشخيص', 'danger')
   }
 }
 
-const handleReactivateDiagnosis = async (id) => {
-  await diagnosisService.reactivate(id)
+const handleReactivateDiagnosis = async (item) => {
+  await diagnosisService.reactivate(item.id, item.version)
   notify('تمت إعادة تفعيل التشخيص', 'success')
   refreshList()
 }

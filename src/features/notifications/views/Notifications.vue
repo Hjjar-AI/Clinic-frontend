@@ -5,6 +5,7 @@
   />
   <BaseCard>
     <div class="card__body">
+      <BaseButton :loading="clearing" @click="clearRead">حذف الإشعارات المقروءة</BaseButton>
       <div v-if="notificationStore.notifications.length">
         <div
           v-for="n in notificationStore.notifications"
@@ -56,7 +57,8 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useRouter } from 'vue-router'
 
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -66,6 +68,14 @@ import { useNotificationStore } from '@/features/notifications/stores/notificati
 
 const notificationStore = useNotificationStore()
 const router = useRouter()
+const clearing = ref(false)
+const { confirm } = useConfirmDialog()
+async function clearRead() {
+  if (clearing.value || !await confirm('حذف جميع إشعاراتك المقروءة؟')) return
+  clearing.value = true
+  try { await notificationStore.deleteAllRead() } catch { /* Shared API feedback. */ }
+  finally { clearing.value = false }
+}
 
 function safeLink(link) {
   return typeof link === 'string' && link.startsWith('/') && !link.startsWith('//')

@@ -3,10 +3,12 @@ import { computed,ref } from 'vue'
 
 export const useLoadingStore = defineStore('loading', () => {
   const requestCount = ref(0)
+  const longRequests = ref(0)
   const visible = ref(false)
   let pendingTimer = null
 
-  function start() {
+  function start(long = false) {
+    if (long) longRequests.value += 1
     requestCount.value += 1
     // Only show spinner after 200ms of continuous loading
     if (!pendingTimer) {
@@ -17,7 +19,8 @@ export const useLoadingStore = defineStore('loading', () => {
     }
   }
 
-  function stop() {
+  function stop(long = false) {
+    if (long) longRequests.value = Math.max(0, longRequests.value - 1)
     requestCount.value = Math.max(0, requestCount.value - 1)
     if (requestCount.value === 0) {
       if (pendingTimer) {
@@ -28,9 +31,9 @@ export const useLoadingStore = defineStore('loading', () => {
     }
   }
 
-  function reset() { clearTimeout(pendingTimer); pendingTimer = null; requestCount.value = 0; visible.value = false }
+  function reset() { clearTimeout(pendingTimer); pendingTimer = null; requestCount.value = 0; longRequests.value = 0; visible.value = false }
 
   const isLoading = computed(() => visible.value)
 
-  return { isLoading, start, stop, reset }
+  return { isLoading, longRequests, start, stop, reset }
 })

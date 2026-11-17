@@ -3,7 +3,8 @@
   <ErrorBoundary>
     <MainLayout v-if="authStore.isAuthenticated">
       <template #banners><AppStatusBar /><MaintenanceBanner /></template>
-      <router-view v-slot="{ Component, route }">
+      <ResourceFeedback v-if="!constantsStore.ready && !authStore.user?.force_password_change" :loading="constantsStore.loading" :error="constantsStore.error" retryable @retry="loadMetadata" />
+      <router-view v-if="constantsStore.ready || authStore.user?.force_password_change" v-slot="{ Component, route }">
         <transition
           name="page-fade"
           mode="out-in"
@@ -66,7 +67,7 @@
     @logout="handleTimeoutLogout"
   />
 
-  <LoadingOverlay :model-value="loadingStore.isLoading" />
+  <LoadingOverlay :model-value="loadingStore.isLoading" :message="loadingStore.longRequests ? 'العملية قد تستغرق عدة دقائق. يرجى الانتظار وعدم إرسالها مجدداً.' : ''" />
   <RouteProgressBar />
   <BaseToast />
   <ShortcutsModal v-model="showShortcuts" />
@@ -81,6 +82,8 @@ import CriticalOverlay from '@/components/common/CriticalOverlay.vue'
 import ErrorBoundary from '@/components/common/ErrorBoundary.vue'
 import MaintenanceBanner from '@/components/common/MaintenanceBanner.vue'
 import RouteProgressBar from '@/components/common/RouteProgressBar.vue'
+import ResourceFeedback from '@/components/ui/ResourceFeedback.vue'
+import { useConstantsStore } from '@/features/clinical/stores/constants'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import BaseToast from '@/components/ui/BaseToast.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
@@ -99,6 +102,9 @@ const loadingStore = useLoadingStore()
 const confirmStore = useConfirmStore()
 const { isBlurred, showTimeoutWarning, secondsRemaining, dismissWarning } = useSession(30)
 const authStore = useAuthStore()
+const constantsStore = useConstantsStore()
+function loadMetadata() { constantsStore.fetch().catch(() => {}) }
+watch(() => [authStore.isAuthenticated, authStore.user?.force_password_change], ([authenticated, forced]) => { if (authenticated && !forced) loadMetadata() }, { immediate: true })
 const userStore = useUserStore()
 const router = useRouter()
 

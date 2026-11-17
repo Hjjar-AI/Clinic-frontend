@@ -74,6 +74,8 @@
             label="تاريخ التصحيح"
             icon="history"
           />
+          <AppTabPanel v-if="authStore.can('view_visits')" id="risk" external label="تاريخ المخاطر" icon="heartbeat" />
+          <AppTabPanel v-if="authStore.can('view_visits')" id="timeline" external label="التسلسل الزمني" icon="history" />
           <AppTabPanel
             id="health"
             external
@@ -140,6 +142,9 @@
               "
               :patient-id="patient.id"
             />
+            <PatientClinicalHistory v-if="activeTab === 'risk' && authStore.can('view_visits')" :patient-id="patient.id" kind="risk" />
+            <PatientClinicalHistory v-if="activeTab === 'timeline' && authStore.can('view_visits')" :patient-id="patient.id" kind="timeline" />
+            <NextAppointment v-if="authStore.can('view_appointments')" :patient-id="patient.id" />
             <!-- Health tab content -->
             <div v-if="activeTab === 'health'">
               <DetailItem
@@ -250,6 +255,8 @@ import PatientRecordsPanel from '@/features/patients/components/PatientRecordsPa
 import PatientSidebar from '@/features/patients/components/PatientSidebar.vue'
 import PatientVisitsList from '@/features/patients/components/PatientVisitsList.vue'
 import PatientWorkspaceHeader from '@/features/patients/components/PatientWorkspaceHeader.vue'
+import PatientClinicalHistory from '@/features/patients/components/PatientClinicalHistory.vue'
+import NextAppointment from '@/features/patients/components/NextAppointment.vue'
 import PrescriptionHistory from '@/features/prescription/components/PrescriptionHistory.vue'
 
 defineProps({
@@ -287,7 +294,7 @@ const activeTab = ref(
     'documents',
     'duplicates',
     'history',
-    'prescriptions',
+    'prescriptions', 'risk', 'timeline',
   ].includes(route.query.tab)
     ? route.query.tab
     : 'health',
@@ -302,7 +309,7 @@ watch(tabQuery, (value) => {
       'documents',
       'duplicates',
       'history',
-      'prescriptions',
+      'prescriptions', 'risk', 'timeline',
     ].includes(value)
   )
     activeTab.value = value

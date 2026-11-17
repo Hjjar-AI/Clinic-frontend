@@ -52,6 +52,7 @@ import { onBeforeUnmount,ref, watch } from 'vue'
 import FormField from '@/components/ui/FormField.vue'
 import { useDate } from '@/composables/useDate'
 import apiClient from '@/services/apiClient'
+import appointmentService from '@/features/appointments/services/appointmentService'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -93,12 +94,9 @@ async function fetchSlots() {
     const parsedDate = parseDate(props.date)
     const isoDate = parsedDate ? toISODate(parsedDate) : props.date
 
-    const { data } = await apiClient.get('/appointments/availability', {
-      params: { doctor_id: props.doctorId, date: isoDate, duration: props.duration },
-      cancelToken: source.token
-    })
-    const inner = data?.data || data
-    slots.value = inner?.slots || []
+    const inner = await appointmentService.getAvailability(props.doctorId, isoDate, props.duration, { cancelToken: source.token })
+    if (cancelTokenSource !== source) return
+    slots.value = inner.items
     const selected = slots.value.find(slot => slot.time === props.modelValue)
     if (props.modelValue && props.modelValue !== props.currentValue && (!selected || !selected.available)) {
       emit('update:modelValue', '')

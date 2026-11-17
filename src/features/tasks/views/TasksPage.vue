@@ -184,7 +184,7 @@ async function handleDelete(task) {
   if (!ok) return
 
   try {
-    await taskStore.deleteTask(task.id)
+    await taskStore.deleteTask(task.id, task.version)
     refreshKey.value++
     notify('تم حذف المهمة', 'success')
   } catch {

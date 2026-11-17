@@ -133,12 +133,12 @@ const fetchFn = makeCursorFetchFn(templateService, {
 })
 
 async function deleteTemplateItem(template) {
-  await templateService.delete(template.id)
+  await templateService.delete(template.id, template.version)
   refreshKey.value++
 }
 
 async function reactivateTemplate(template) {
-  await templateService.reactivate(template.id)
+  await templateService.reactivate(template.id, template.version)
   refreshKey.value++
 }
 

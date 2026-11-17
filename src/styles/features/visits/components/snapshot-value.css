@@ -1,0 +1,3 @@
+.snapshot-fields { overflow-wrap: anywhere; }
+.snapshot-fields dt { font-weight: 600; margin-block-start: 0.5rem; }
+.snapshot-fields dd { margin-inline-start: 1rem; white-space: pre-wrap; }

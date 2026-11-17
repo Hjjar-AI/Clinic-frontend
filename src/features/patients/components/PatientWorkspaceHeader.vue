@@ -148,7 +148,7 @@ async function load() {
       const rows = result.items || []
       active.push(...rows.filter((item) => item.is_active !== false))
       offset += rows.length
-      if (offset >= result.total || !rows.length) break
+      if (offset >= result.meta.total || !rows.length) break
     }
     allergies.value = active.slice(0, 3)
   } catch {

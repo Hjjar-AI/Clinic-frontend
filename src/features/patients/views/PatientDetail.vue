@@ -178,8 +178,8 @@ async function fetchCareTeam() {
   if (!patient.value) return
   try {
     const data = await patientService.getCareTeam(patient.value.id)
-    careTeamMembers.value = data?.care_team || []
-    if (data?.version) patient.value.version = data.version
+    careTeamMembers.value = data?.items || []
+    if (data?.meta?.version) patient.value.version = data.meta.version
     patient.value = await patientStore.fetchPatient(patient.value.id)
   } catch {
     careTeamMembers.value = []

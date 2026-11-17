@@ -80,7 +80,7 @@
               :show-delete="item.is_active !== false"
               :confirm-message="`سيتم إيقاف هذا الدواء مع الاحتفاظ به في ${item.usage_count || 0} زيارة سابقة. هل تريد المتابعة؟`"
               @edit="openFormModal(item)"
-              @delete="handleDeleteMedication(item.id)"
+              @delete="handleDeleteMedication(item)"
             >
               <BaseButton
                 v-if="item.is_active === false"
@@ -88,7 +88,7 @@
                 size="xs"
                 icon="rotate-left"
                 title="إعادة التفعيل"
-                @click.stop="handleReactivateMedication(item.id)"
+                @click.stop="handleReactivateMedication(item)"
               />
             </TableActions>
           </template>
@@ -273,17 +273,17 @@ function copyItem(text) {
   if (text) copy(text)
 }
 
-const handleDeleteMedication = async (id) => {
+const handleDeleteMedication = async (item) => {
   try {
-    await medicationService.delete(id)
+    await medicationService.delete(item.id, item.version)
     refreshList()
   } catch {
     notify('لا يمكن حذف هذا الدواء', 'danger')
   }
 }
 
-const handleReactivateMedication = async (id) => {
-  await medicationService.reactivate(id)
+const handleReactivateMedication = async (item) => {
+  await medicationService.reactivate(item.id, item.version)
   notify('تمت إعادة تفعيل الدواء', 'success')
   refreshList()
 }

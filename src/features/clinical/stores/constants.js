@@ -1,69 +1,38 @@
-// frontend/src/stores/constants.js
 import { defineStore } from 'pinia'
-import { shallowRef } from 'vue'
-
-import {
-  FOLLOW_UP_METHODS,
-  LEVEL_OF_CARE,
-  MARITAL_STATUS_FEMALE,
-  MARITAL_STATUS_MALE,
-  SUICIDE_RISK_LEVELS,
-  VIOLENCE_RISK_LEVELS,
-} from '@/constants/statusConstants'
-import apiClient from '@/services/apiClient'
-import { reportError } from '@/utils/reportError'
+import { ref, shallowRef } from 'vue'
+import systemService from '@/services/systemService'
+import { applyWorkflowChoices } from '@/constants/statusConstants'
+import { applyStatusPresentation } from '@/constants/statusPresentation'
 
 export const useConstantsStore = defineStore('constants', () => {
-  const data = shallowRef({
-    record_choices: {},
-    suicide_risk_levels: SUICIDE_RISK_LEVELS,
-    violence_risk_levels: VIOLENCE_RISK_LEVELS,
-    level_of_care: LEVEL_OF_CARE,
-    follow_up_methods: FOLLOW_UP_METHODS,
-    marital_status_male: MARITAL_STATUS_MALE,
-    marital_status_female: MARITAL_STATUS_FEMALE,
-  })
-
-  let fetched = false
-  let fetchPromise = null
-
+  const data = shallowRef({ record_choices: {} })
+  const ready = ref(false), loading = ref(false), error = ref('')
+  let promise
   async function fetch() {
-    if (fetched || fetchPromise) return fetchPromise
-
-    fetchPromise = (async () => {
+    if (ready.value) return data.value
+    if (promise) return promise
+    loading.value = true; error.value = ''
+    promise = (async () => {
       try {
-        const res = await apiClient.get('/options/clinical-constants/')
-        const payload = res?.data?.data || res?.data || {}
-        if (payload && typeof payload === 'object') {
-          data.value = {
-            record_choices: payload.record_choices || {},
-            suicide_risk_levels:
-              payload.suicide_risk_levels || SUICIDE_RISK_LEVELS,
-            violence_risk_levels:
-              payload.violence_risk_levels || VIOLENCE_RISK_LEVELS,
-            level_of_care: payload.level_of_care || LEVEL_OF_CARE,
-            follow_up_methods: payload.follow_up_methods || FOLLOW_UP_METHODS,
-            marital_status_male:
-              payload.marital_status_male || MARITAL_STATUS_MALE,
-            marital_status_female:
-              payload.marital_status_female || MARITAL_STATUS_FEMALE,
-          }
+        const [statuses, clinical] = await Promise.all([systemService.statusConstants(), systemService.clinicalConstants()])
+        for (const domain of ['appointment', 'visit', 'task', 'invoice']) {
+          const choices = statuses?.[`${domain}_status`]
+          if (!choices || !Object.keys(choices).length || Object.values(choices).some(choice => !Array.isArray(choice.allowed_transitions))) throw new Error('Invalid workflow metadata')
         }
-        fetched = true
-      } catch (e) {
-        reportError('constants', e)
-      } finally {
-        fetchPromise = null
-      }
+        for (const key of ['suicide_risk_levels', 'violence_risk_levels', 'level_of_care', 'follow_up_methods', 'marital_status_male', 'marital_status_female']) {
+          if (!Array.isArray(clinical?.[key]) || !clinical[key].length) throw new Error('Invalid clinical metadata')
+        }
+        if (!clinical.record_choices || !statuses.user_roles || !statuses.risk_levels) throw new Error('Missing metadata')
+        applyWorkflowChoices(statuses, clinical)
+        applyStatusPresentation(statuses)
+        data.value = clinical
+        ready.value = true
+        return clinical
+      } catch (failure) { error.value = 'تعذر تحميل خيارات النظام؛ أعد المحاولة قبل متابعة العمل.'; throw failure }
+      finally { loading.value = false; promise = null }
     })()
-
-    return fetchPromise
+    return promise
   }
-
-  function invalidate() {
-    fetched = false
-    fetchPromise = null
-  }
-
-  return { data, fetch, invalidate }
+  function invalidate() { ready.value = false }
+  return { data, ready, loading, error, fetch, invalidate }
 })

@@ -2,6 +2,7 @@ import apiClient from '@/services/apiClient'
 import { unwrapResponse } from '@/services/apiClient'
 
 export default {
+  deleteAllRead() { return apiClient.delete('/notifications/delete_all_read/') },
   async getAll(params = {}) {
     const res = await apiClient.get('/notifications', { params })
     return unwrapResponse(res)

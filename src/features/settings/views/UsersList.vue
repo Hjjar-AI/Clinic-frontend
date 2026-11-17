@@ -138,10 +138,10 @@ const fetchFn = makeCursorFetchFn(userService, {
   getParams: (values) => ({ ...values }),
 })
 
-const { execute: doDelete } = useApi((id) => userService.delete(id))
+const { execute: doDelete } = useApi((user) => userService.delete(user.id, user.version))
 
 async function deleteUserItem(user) {
-  await doDelete(user.id)
+  await doDelete(user)
   // The backend deactivates rather than physically deleting the account so
   // historical visits, tasks, and audit ownership remain readable.
   refreshKey.value++ // trigger list refresh

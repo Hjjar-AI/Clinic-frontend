@@ -23,9 +23,16 @@ export function handleApiError(error, options = {}) {
 
   if (axios.isCancel(error)) return true
 
+  if (error.code === 'OPENING_VERSION_REQUIRED') {
+    if (!silent) notify(error.message, 'warning')
+    return true
+  }
+
   if (!error.response || error.code === 'ECONNABORTED' || !navigator.onLine) {
     if (!silent) {
-      notify('فشل الاتصال بالخادم. تحقق من الشبكة.', 'danger', { persistent: true })
+      notify(error.config?.idempotencyKey
+        ? 'لم نتأكد من نتيجة العملية. قد يكون الخادم ما زال يعمل؛ لا تبدأ عملية جديدة. احتفظ بالبيانات وأعد نفس الطلب للتحقق بأمان.'
+        : 'فشل الاتصال بالخادم. تحقق من الشبكة.', 'danger', { persistent: true })
     }
     emit(API_EVENTS.NETWORK_ERROR, error)
     return true
@@ -53,10 +60,17 @@ export function handleApiError(error, options = {}) {
       if (!silent) notify('الطريقة غير مسموحة لهذا المسار.', 'warning')
       return true
     }
-    case 409: {
-      if (data?.error?.code === 'duplicate_request' && !silent) {
-        notify('العملية قيد التنفيذ أو نُفذت بالفعل.', 'warning')
+    case 409:
+    case 410: {
+      const messages = {
+        idempotency_key_reused: 'استُخدم مفتاح العملية مع طلب مختلف؛ راجع العملية قبل المحاولة مجدداً.',
+        operation_interrupted: 'توقفت عملية سابقة وتحتاج إلى مراجعة المسؤول؛ لا تُعد تنفيذها.',
+        recovery_interrupted: 'توقفت الاستعادة. يجب أن يراجع المسؤول قاعدة البيانات والملفات والنسخة الآمنة قبل أي استعادة أخرى.',
+        recovery_reconciled: 'راجع المسؤول الاستعادة السابقة؛ يلزم إعداد معاينة جديدة قبل عملية أخرى.',
+        operation_expired: 'انتهت مدة التحقق من العملية؛ راجع نتيجتها قبل بدء عملية أخرى.',
+        operation_result_unavailable: 'العملية مسجلة لكن ملف نتيجتها غير متاح؛ لا تُعد إصدار المستند أو الاستعادة تلقائياً.',
       }
+      if (!silent) notify(messages[data?.error?.code] || data?.error?.message || 'تعارض في العملية؛ راجع البيانات.', 'warning', { persistent: true })
       return true
     }
     case 413: {

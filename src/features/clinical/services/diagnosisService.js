@@ -10,7 +10,7 @@ export default {
     // Use the exports app endpoint
     return apiClient.get('/exports/diagnoses/excel/', { params, responseType: 'blob' })
   },
-  reactivate(id) {
-    return apiClient.post(`/options/diagnoses/${id}/reactivate/`)
+  reactivate(id, version) {
+    return apiClient.post(`/options/diagnoses/${id}/reactivate/`, { version })
   }
 }

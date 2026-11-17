@@ -7,7 +7,7 @@ export const useVisitStore = createCrudStore('visits', {
   fetchOne: (id, include) => visitService.getById(id, include),
   create: (payload) => visitService.create(payload.patientId, payload),
   update: (id, payload) => visitService.update(id, payload),
-  remove: (id) => visitService.delete(id),
+  remove: (id, version) => visitService.delete(id, version),
   listKey: 'visits',
   extensions: {
     actions: {

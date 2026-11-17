@@ -29,7 +29,7 @@ export const usePatientStore = createCrudStore('patients', {
   fetchOne: (id, include) => patientService.getById(id, include),
   create: (payload) => patientService.create(payload),
   update: (id, payload) => patientService.update(id, payload),
-  remove: (id) => patientService.delete(id),
+  remove: (id, version) => patientService.delete(id, version),
   listKey: 'patients',
   extensions: {
     setup() {
@@ -55,7 +55,7 @@ export const usePatientStore = createCrudStore('patients', {
 
       async function searchPatients(params = {}) {
         const data = await patientService.search(params);
-        const list = data?.patients || [];
+        const list = data?.items || [];
         for (const p of list) {
           patientsById.value[p.id] = p;
           if (!allIds.value.includes(p.id)) allIds.value.push(p.id);
@@ -132,7 +132,7 @@ export const usePatientStore = createCrudStore('patients', {
         }
       }
 
-      async function deletePatient(id) {
+      async function deletePatient(id, version) {
         const epoch = sessionGeneration();
         const old = withoutHighlight(patientsById.value[id]);
         delete patientsById.value[id];
@@ -147,7 +147,7 @@ export const usePatientStore = createCrudStore('patients', {
         }
 
         try {
-          await patientService.delete(id);
+          await patientService.delete(id, version);
           announce('تم حذف المريض');
         } catch (error) {
           if (old && epoch === sessionGeneration()) {

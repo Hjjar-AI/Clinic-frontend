@@ -1,3 +1,4 @@
+import { reactive } from 'vue'
 import { statusLabels } from '@/constants/statusPresentation'
 // frontend/src/constants/statusConstants.js
 
@@ -43,34 +44,7 @@ export const TASK_STATUS_LABELS = statusLabels('task')
 
 export const VISIT_STATUS_LABELS = statusLabels('visit')
 
-export const STATUS_TRANSITIONS = {
-  appointment: {
-    scheduled: ['confirmed', 'arrived', 'cancelled', 'no-show'],
-    confirmed: ['arrived', 'cancelled', 'no-show'],
-    arrived: ['completed', 'cancelled'],
-    completed: [],
-    cancelled: ['scheduled'],
-    'no-show': ['scheduled'],
-  },
-  visit: {
-    draft: ['final'],
-    final: ['amended', 'locked'],
-    amended: ['final', 'locked'],
-    locked: [],
-  },
-  task: {
-    open: ['in_progress', 'completed', 'cancelled'],
-    in_progress: ['open', 'completed', 'cancelled'],
-    completed: ['open'],
-    cancelled: ['open'],
-  },
-  invoice: {
-    draft: ['issued', 'cancelled'],
-    issued: ['paid', 'cancelled'],
-    paid: [],
-    cancelled: [],
-  },
-}
+export const STATUS_TRANSITIONS = reactive({ appointment: {}, visit: {}, task: {}, invoice: {} })
 
 export const INVOICE_STATUS_LABELS = statusLabels('invoice')
 
@@ -81,23 +55,17 @@ export const RISK_LEVELS = {
 }
 
 // Clinical constants for validators
-export const SUICIDE_RISK_LEVELS = ['Low', 'Moderate', 'High']
-export const VIOLENCE_RISK_LEVELS = ['Low', 'Moderate', 'High']
-export const LEVEL_OF_CARE = [
-  'Outpatient',
-  'IOP',
-  'PHP',
-  'Inpatient',
-  'Residential',
-]
-export const FOLLOW_UP_METHODS = ['In-person', 'Telehealth', 'Phone']
+export const SUICIDE_RISK_LEVELS = reactive([])
+export const VIOLENCE_RISK_LEVELS = reactive([])
+export const LEVEL_OF_CARE = reactive([])
+export const FOLLOW_UP_METHODS = reactive([])
 
 export const GENDER_MALE = 'ذكر'
 export const GENDER_FEMALE = 'أنثى'
 export const GENDER_VALUES = [GENDER_MALE, GENDER_FEMALE]
 
-export const MARITAL_STATUS_MALE = ['single', 'married', 'divorced', 'widowed']
-export const MARITAL_STATUS_FEMALE = [...MARITAL_STATUS_MALE]
+export const MARITAL_STATUS_MALE = reactive([])
+export const MARITAL_STATUS_FEMALE = reactive([])
 export const MARITAL_STATUS_LABELS = {
   single: { male: 'أعزب', female: 'عزباء', unknown: 'أعزب / عزباء' },
   married: { male: 'متزوج', female: 'متزوجة', unknown: 'متزوج / متزوجة' },
@@ -116,4 +84,15 @@ export function maritalStatusLabel(value, gender = '') {
     value ||
     'غير معروف'
   )
+}
+
+export function applyWorkflowChoices(statuses, clinical) {
+  for (const domain of ['appointment', 'visit', 'task', 'invoice']) {
+    const entries = Object.entries(statuses[`${domain}_status`])
+    for (const key of Object.keys(STATUS_TRANSITIONS[domain])) delete STATUS_TRANSITIONS[domain][key]
+    for (const [key, definition] of entries) STATUS_TRANSITIONS[domain][key] = definition.allowed_transitions
+  }
+  for (const [target, key] of [[SUICIDE_RISK_LEVELS, 'suicide_risk_levels'], [VIOLENCE_RISK_LEVELS, 'violence_risk_levels'],
+    [LEVEL_OF_CARE, 'level_of_care'], [FOLLOW_UP_METHODS, 'follow_up_methods'], [MARITAL_STATUS_MALE, 'marital_status_male'],
+    [MARITAL_STATUS_FEMALE, 'marital_status_female']]) target.splice(0, target.length, ...clinical[key])
 }

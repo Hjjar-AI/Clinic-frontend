@@ -172,11 +172,11 @@ function patientLabel(patient) {
 const globalSearch = async (query) => {
   const result = await patientService.search({
     search: query,
-    limit: 5,
+    per_page: 5,
   });
 
   const payload = unwrapResponse(result);
-  const patients = payload?.patients || [];
+  const patients = payload?.items || [];
 
   return patients.map((patient) => ({
     id: patient.id,

@@ -1,13 +1,13 @@
 import { ref } from 'vue'
 
-import apiClient from '@/services/apiClient'
+import systemService from '@/services/systemService'
 
 const maintenance = ref(false)
 
 export function useMaintenanceMode() {
   async function check() {
     try {
-      const { data } = await apiClient.get('/system/health/full/')
+      const { data } = await systemService.health(true)
       maintenance.value = data?.data?.maintenance || false
     } catch {
       // Leave maintenance state unchanged on failure

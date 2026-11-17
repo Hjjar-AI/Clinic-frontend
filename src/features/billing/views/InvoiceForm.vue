@@ -73,15 +73,11 @@
       </BaseButton>
     </section>
     <div class="grid-2 gap-3">
-      <ApiSelect
-        v-model="form.patient_id"
-        url="/patients/all_light/"
-        value-key="id"
-        :label-fn="patientLabel"
-        label="المريض"
-        required
-        :error="errors.patient_id"
-      />
+      <div>
+        <label>المريض</label>
+        <SearchInput v-model="selectedPatient" :search-fn="searchPatients" :option-label="patientLabel" option-key="id" placeholder="ابحث عن المريض بالاسم أو رقم الملف" @select="form.patient_id = $event?.id || ''" @query-change="cancelPatientSearch" />
+        <p v-if="errors.patient_id" role="alert" class="text-danger">{{ errors.patient_id }}</p>
+      </div>
       <FormInput
         v-model="form.total_amount"
         label="المبلغ الإجمالي"
@@ -152,9 +148,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import SearchInput from '@/components/common/SearchInput.vue'
+import patientService from '@/features/patients/services/patientService'
 import ApiSelect from '@/components/ui/ApiSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
@@ -174,6 +172,16 @@ import invoiceService from '@/features/billing/services/invoiceService'
 import { unwrapResponse } from '@/services/apiClient'
 import { invoiceAmounts } from '@/utils/decimalMoney'
 
+const selectedPatient = ref(null)
+let patientSearchController
+function cancelPatientSearch() { patientSearchController?.abort() }
+onBeforeUnmount(cancelPatientSearch)
+async function searchPatients(search) {
+  cancelPatientSearch()
+  patientSearchController = new AbortController()
+  const data = await patientService.search({ search, per_page: 20 }, patientSearchController.signal)
+  return data.items
+}
 const route = useRoute()
 const router = useRouter()
 
@@ -292,7 +300,7 @@ const breadcrumbs = computed(() => [
 ])
 
 function patientLabel(option) {
-  return [option.first_name, option.surname].filter(Boolean).join(' ')
+  return `${option.patient_number || ''} ${option.full_name || [option.first_name, option.surname].filter(Boolean).join(' ')}`.trim()
 }
 
 function visitLabel(option) {
@@ -325,7 +333,10 @@ onMounted(() =>
       if (!form.lines.length) throw new Error('تعذر تحميل بنود الفاتورة')
 
       form.version = invoice.version || 1
-      form.patient_id = invoice.patient || ''
+      form.patient_id = typeof invoice.patient === 'object' ? invoice.patient.id : invoice.patient || ''
+      const patient = await patientService.getById(form.patient_id)
+      if (!isCurrent()) return
+      selectedPatient.value = patient
       form.visit_id = invoice.visit || ''
 
       if (form.issued_date) {

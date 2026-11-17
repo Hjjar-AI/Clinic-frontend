@@ -66,7 +66,7 @@
               :show-edit="false"
               :show-delete="item.is_active !== false"
               :confirm-message="`سيتم إيقاف المقياس مع حفظ ${item.usage_count || 0} استجابة تاريخية. متابعة؟`"
-              @delete="deactivateScale(item.id)"
+              @delete="deactivateScale(item)"
             >
               <BaseButton
                 v-if="item.is_active === false"
@@ -74,7 +74,7 @@
                 size="xs"
                 icon="rotate-left"
                 title="إعادة التفعيل"
-                @click.stop="reactivateScale(item.id)"
+                @click.stop="reactivateScale(item)"
               />
             </TableActions>
           </template>
@@ -342,14 +342,14 @@ const { loading: addingField, execute: doAddField } = useApi(async () => {
 
 const saveField = () => doAddField().catch(() => {}) // Shared error handling preserves the open draft.
 
-async function deactivateScale(id) {
-  await scaleService.delete(id)
+async function deactivateScale(item) {
+  await scaleService.delete(item.id, item.version)
   useScaleLookup().invalidateAll()
   refreshKey.value++
 }
 
-async function reactivateScale(id) {
-  await scaleService.reactivate(id)
+async function reactivateScale(item) {
+  await scaleService.reactivate(item.id, item.version)
   useScaleLookup().invalidateAll()
   refreshKey.value++
 }
