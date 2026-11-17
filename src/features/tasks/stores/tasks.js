@@ -60,13 +60,12 @@ export const useTaskStore = createCrudStore('tasks', {
       },
 
       async cancelTask(id, version, reason) {
-        await taskService.cancel(id, version, reason)
+        const result = await taskService.cancel(id, version, reason)
 
         const task = this.items.find((item) => item.id === id)
 
         if (task) {
-          task.status = 'cancelled'
-          task.cancelled_at = new Date().toISOString()
+          Object.assign(task, result?.data?.data ?? result?.data ?? result)
         }
       },
 

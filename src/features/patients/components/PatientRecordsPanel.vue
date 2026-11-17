@@ -236,7 +236,7 @@ const props = defineProps({
 const emit = defineEmits(['changed'])
 const auth = useAuthStore()
 const constants = useConstantsStore()
-constants.fetch()
+constants.fetch().catch(() => {})
 const availableKinds = computed(() =>
   recordKinds.filter((entry) => !entry.clinical || auth.can('view_visits')),
 )

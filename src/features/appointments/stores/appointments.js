@@ -18,27 +18,19 @@ export const useAppointmentStore = createCrudStore('appointments', {
       },
       // F6: `version` is now required for the backend to accept a reschedule.
       async rescheduleAppointment(id, newDate, newTime, version) {
-        await appointmentService.reschedule(id, newDate, newTime, version)
+        const updated = await appointmentService.reschedule(id, newDate, newTime, version)
         const apt = this.items.find(a => a.id === id)
-        if (apt) {
-          apt.appointment_date = newDate
-          apt.appointment_time = newTime
-          // Keep the local optimistic copy's version in step so a subsequent
-          // edit doesn't immediately conflict.
-          if (version !== undefined && version !== null) {
-            apt.version = version + 1
-          }
-        }
+        if (apt) Object.assign(apt, updated)
       },
       async cancelAppointment(id, version) {
-        await appointmentService.cancel(id, version)
+        const updated = await appointmentService.cancel(id, version)
         const apt = this.items.find(a => a.id === id)
-        if (apt) apt.status = 'cancelled'
+        if (apt) Object.assign(apt, updated)
       },
       async completeAppointment(id, version) {
-        await appointmentService.complete(id, version)
+        const updated = await appointmentService.complete(id, version)
         const apt = this.items.find(a => a.id === id)
-        if (apt) apt.status = 'completed'
+        if (apt) Object.assign(apt, updated)
       },
       async fetchAppointment(id) {
         return await appointmentService.getById(id)

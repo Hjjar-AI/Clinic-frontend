@@ -79,7 +79,7 @@ export default {
     const res = await apiClient.delete(`/patients/${patientId}/care-team/${userId}/`, { data: { version, reason } })
     return unwrapResponse(res)
   },
-  async getTeamCandidates() { return unwrapResponse(await apiClient.get('/patients/team_candidates/')).items.items },
+  async getTeamCandidates() { return unwrapResponse(await apiClient.get('/patients/team_candidates/')).items },
   async getRecords(id, kind, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/records/`, { params: { kind, offset, per_page: 100 } })) },
   async saveRecord(id, payload) { return unwrapResponse(await apiClient.post(`/patients/${id}/records/`, payload)) },
   async getCorrections(id, offset = 0) { return unwrapResponse(await apiClient.get(`/patients/${id}/corrections/`, { params: { offset, per_page: 100 } })) },
