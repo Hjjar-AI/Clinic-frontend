@@ -7,5 +7,6 @@
 3. Calibrate actual prescription printer/stock at 100%; check native PDF viewers/dialogs.
 4. Verify native Windows downloads/printing if targeted.
 5. Run the new [GitHub workflows](automation.md) after both repositories are pushed; verify Windows jobs and the backend-owned downloadable bundles. Manual browser workflow dispatch remains opt-in.
+6. Review dependency audit findings, including critical DOMPurify `GHSA-cg2g-xh64-v4q7`; dependency/version changes need separate authorization.
 
 The local build/task issue is resolved. Backend owns currency policy, conditional model extensions and fresh local setup; broader storage upgrades/deployment validation remain outside scope.
