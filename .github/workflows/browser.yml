@@ -1,0 +1,63 @@
+name: Browser checks (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_ref:
+        description: Backend commit SHA to check with this frontend
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: frontend
+          persist-credentials: false
+      - uses: actions/checkout@v6
+        with:
+          repository: Hjjar-AI/Clinic-backend
+          ref: ${{ inputs.backend_ref }}
+          path: backend
+          token: ${{ secrets.CLINIC_REPOSITORY_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.10.1'
+          package_json_file: frontend/package.json
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - uses: ./backend/.github/actions/native-dependencies
+      - run: python -m pip install -r backend/requirements/sqlite.txt
+      - run: pnpm install --frozen-lockfile
+        working-directory: frontend
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: frontend
+      - name: Record paired revisions
+        shell: bash
+        run: |
+          git -C frontend rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
+          git -C backend rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
+      - name: Run isolated browser workflows
+        working-directory: frontend
+        env:
+          CLINIC_TEST_PYTHON: python
+        run: pnpm test:e2e
+      - name: Retain synthetic failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failures-${{ github.run_id }}
+          path: frontend/.test-artifacts/playwright/
+          retention-days: 7
+          if-no-files-found: ignore
