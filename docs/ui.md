@@ -33,3 +33,10 @@ Preferences (density/split reference/progressive display, columns/sort) are acco
 Print/Download/Open/reprint use exact retained PDFs; another issuance needs fresh preview. Blob/pending windows stay memory-only, revoke on replacement/navigation/session change and reject late responses. Patient/visit history reprints without issuance; separate A4 Arabic handout uses issued snapshot only, no inferred schedule/duration. [Backend document rules](../../backend/docs/contracts.md#encounters-documents-and-operations).
 
 Replaceable preview reads use `useLatestResource`; form hydration retains `useResourceLoad`. Persistent previews use `useObjectUrl` and shared documents/PdfPreview with caller-supplied labels; issuance/token/window policy remains in features. One-shot downloads use `downloadBlob`. Default root/body/swatch palette declarations live in tokens/colors.css; theme-specific dark overrides stay separate.
+
+
+## Review workflow handoff
+
+Collection services consume `{items,meta}` after unwrapping; metadata owns paging, parent versions and supplementary context. Retain explicit opening versions in row/form actions and sequential attachment uploads. Never infer an edit version from a later read. Workflow/clinical metadata loads before ordinary authenticated screens, with retryable failure; forced password rotation remains available independently.
+
+Visit history shows immutable signed snapshots and exact retained documents. Patient risk history uses approved revisions, while the timeline explicitly distinguishes working data. Identity restriction explains retained historical identities before confirmation; restoration excludes merged source files. Admin audit visibility follows backend grants and the route's admin restriction. HTTP/LAN versus proxy HTTPS is backend configuration, not a patient-facing choice.

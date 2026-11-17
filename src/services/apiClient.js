@@ -209,7 +209,7 @@ apiClient.interceptors.response.use(
 
     const config = error.config
     const stale = config && config._sessionGeneration !== sessionGeneration()
-    if (!stale && !config?._duplicateRequest && config?.idempotencyKey && config._requestKey && (!error.response || ['operation_interrupted', 'recovery_interrupted', 'operation_expired', 'operation_result_unavailable'].includes(error.response?.data?.error?.code))) {
+    if (!stale && !config?._duplicateRequest && config?.idempotencyKey && config._requestKey && (!error.response || error.response.status >= 500 || ['operation_interrupted', 'recovery_interrupted', 'operation_expired', 'operation_result_unavailable'].includes(error.response?.data?.error?.code))) {
       uncertainOperations.set(config._requestKey, { key: config.idempotencyKey, expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 })
     }
     if (config?._isPersistent) {

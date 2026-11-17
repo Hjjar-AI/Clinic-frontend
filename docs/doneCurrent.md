@@ -1,6 +1,14 @@
 # Verification evidence
 
-Updated **2026-11-17**. [Remaining work](workCurrent.md) · [UI ownership](ui.md) · [Procedures](verification.md). Source completion, builds and browser evidence have distinct scopes.
+Updated **2026-11-18**. [Remaining work](workCurrent.md) · [UI ownership](ui.md) · [Procedures](verification.md). Source completion, builds and browser evidence have distinct scopes.
+
+## Review fixes and missing workflows (2026-11-18)
+
+Implemented the coordinated backend contract handoff: reference-based file receipts, explicit opening versions, session activity/expiry, operation-specific waits/errors, common collection metadata, visibility/backoff-aware polling, backend workflow/clinical metadata and centralized feature services. Added visit attachments, approved revisions and issued-document downloads; archived-patient restoration and explicit identity restriction; approved risk history/timeline/next appointment; admin audit viewer, read-notification clearing, searchable invoice patients and server-provided version display. Receptionist drafts and clinician-only signing remain unchanged. New UI uses existing Arabic/shared components and source-owned styles.
+
+Source-only verification on Linux Node **24.21.0**: **327 JS/Vue files**, **1,129 local imports/style links** and **two changed CSS modules** parsed/resolved. Read-only ESLint reported **zero errors**; style warnings remain. Backend records Python/contract checks. An empty-file-list formatting mistake temporarily formatted additional source/config/suite files; test/config changes were restored byte-for-byte without content review, and formatting-only unrelated source changes were reversed. Final suite/config diff is empty.
+
+No tests, builds, compilation, packaging, browser run, migration changes or clinic-storage operations. Source completion does not verify interaction, layout, Arabic/PDF rendering, session timing, concurrency, memory or hosting. The earlier browser stop remains in force; backend/frontend API changes require coordinated delivery. Temporary source reports are under `/tmp/clinic-review-*`.
 
 ## GitHub workflows (2026-11-17)
 

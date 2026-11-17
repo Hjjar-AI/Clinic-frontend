@@ -5,8 +5,8 @@
         <DateCell :date="row.visit_date" :relative="false" />
       </BaseButton>
       <template v-if="kind === 'risk'">
-        <p>خطر الانتحار: <Badge status-type="risk" :status="row.suicide_risk_level" /></p>
-        <p>خطر العنف: <Badge status-type="risk" :status="row.violence_risk_level" /></p>
+        <p>خطر الانتحار: <Badge status-type="risk" :status="row.suicide_risk_level ?? ''" /></p>
+        <p>خطر العنف: <Badge status-type="risk" :status="row.violence_risk_level ?? ''" /></p>
         <p>الوصول إلى سلاح: {{ row.firearm_access == null ? 'غير معروف' : row.firearm_access ? 'نعم' : 'لا' }}</p>
       </template>
       <template v-else>

@@ -35,8 +35,7 @@
         </BaseButton>
         <BaseButton
           v-if="
-            authStore.can('edit_visit') &&
-              ['draft', 'amended'].includes(visit?.status)
+            canTransition('final')
           "
           variant="success"
           confirm-message="سيتم اعتماد السجل السريري ومنع تعديله مباشرة. هل تريد المتابعة؟"
@@ -45,7 +44,7 @@
           اعتماد الزيارة
         </BaseButton>
         <BaseButton
-          v-if="authStore.can('edit_visit') && visit?.status === 'final'"
+          v-if="canTransition('amended')"
           variant="secondary"
           @click="amendVisit"
         >
@@ -53,8 +52,7 @@
         </BaseButton>
         <BaseButton
           v-if="
-            authStore.can('edit_visit') &&
-              ['final', 'amended'].includes(visit?.status)
+            canTransition('locked')
           "
           variant="danger"
           confirm-message="سيتم قفل الزيارة نهائياً. هل تريد المتابعة؟"
@@ -275,7 +273,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useNotify } from '@/composables/useNotify'
 import { usePageStatus } from '@/composables/usePageStatus'
-import { VISIT_STATUS_LABELS } from '@/constants/statusConstants'
+import { STATUS_TRANSITIONS, VISIT_STATUS_LABELS } from '@/constants/statusConstants'
 import { useAuthStore } from '@/features/auth/stores/auth'
 import DiagnosisList from '@/features/clinical/components/DiagnosisList.vue'
 import MedicationList from '@/features/clinical/components/MedicationList.vue'
@@ -345,6 +343,8 @@ function labStatusLabel(status) {
     'غير محدد'
   )
 }
+
+function canTransition(target) { return authStore.can('edit_visit') && (STATUS_TRANSITIONS.visit[visit.value?.status] || []).includes(target) }
 
 async function transitionVisit(status, reason = '') {
   try {

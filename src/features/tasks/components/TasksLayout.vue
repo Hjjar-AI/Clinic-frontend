@@ -65,21 +65,21 @@
         </template>
         <template #actions="{ item }">
           <BaseButton
-            v-if="['open', 'in_progress'].includes(item.status)"
+            v-if="canTransition(item, 'completed')"
             size="xs"
             icon="check"
             title="إكمال"
             @click="$emit('complete-task', item)"
           />
           <BaseButton
-            v-if="item.status === 'open'"
+            v-if="canTransition(item, 'in_progress')"
             size="xs"
             variant="secondary"
             title="بدء التنفيذ"
             @click="$emit('start-task', item)"
           />
           <BaseButton
-            v-if="['open', 'in_progress'].includes(item.status)"
+            v-if="canTransition(item, 'cancelled')"
             size="xs"
             variant="danger"
             icon="ban"
@@ -87,7 +87,7 @@
             @click="$emit('cancel-task', item)"
           />
           <BaseButton
-            v-if="['completed', 'cancelled'].includes(item.status)"
+            v-if="canTransition(item, 'open') && ['completed', 'cancelled'].includes(item.status)"
             size="xs"
             variant="secondary"
             icon="rotate-left"
@@ -109,6 +109,7 @@
 </template>
 
 <script setup>
+import { STATUS_TRANSITIONS } from '@/constants/statusConstants'
 import { ref } from 'vue'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
@@ -134,6 +135,8 @@ defineEmits([
   'filter-apply', 'filter-reset', 'complete-task', 'start-task', 'cancel-task',
   'reopen-task', 'delete-task'
 ])
+
+function canTransition(item, target) { return (STATUS_TRANSITIONS.task[item.status] || []).includes(target) }
 
 const newTaskTitle = ref('')
 const newTaskDueDate = ref('')

@@ -69,7 +69,7 @@
             :show-view="false"
           >
             <BaseButton
-              v-if="authStore.can('manage_billing') && item.status === 'draft'"
+              v-if="canTransition(item, 'issued')"
               size="xs"
               variant="primary"
               confirm-message="إصدار الفاتورة سيمنع تعديل المبالغ. هل تريد المتابعة؟"
@@ -78,7 +78,7 @@
               إصدار
             </BaseButton>
             <BaseButton
-              v-if="authStore.can('manage_billing') && item.status === 'issued'"
+              v-if="canTransition(item, 'paid')"
               size="xs"
               variant="success"
               confirm-message="تأكيد استلام الدفعة؟"
@@ -88,8 +88,7 @@
             </BaseButton>
             <BaseButton
               v-if="
-                authStore.can('manage_billing') &&
-                  ['draft', 'issued'].includes(item.status)
+                canTransition(item, 'cancelled')
               "
               size="xs"
               variant="danger"
@@ -113,6 +112,7 @@
 </template>
 
 <script setup>
+import { STATUS_TRANSITIONS } from '@/constants/statusConstants'
 import { computed, ref } from 'vue'
 
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
@@ -213,6 +213,8 @@ const fetchFn = makeCursorFetchFn(invoiceService, {
 function refreshAll() {
   refreshKey.value += 1
 }
+
+function canTransition(item, target) { return authStore.can('manage_billing') && (STATUS_TRANSITIONS.invoice[item.status] || []).includes(target) }
 
 async function transitionInvoice(invoice, status, reason = '') {
   await invoiceService.transition(invoice.id, status, invoice.version, reason)
