@@ -1,6 +1,14 @@
 # Verification evidence
 
-Updated **2026-11-11**. [Remaining work](workCurrent.md) · [UI ownership](ui.md) · [Procedures](verification.md). Source completion, builds and browser evidence have distinct scopes.
+Updated **2026-11-17**. [Remaining work](workCurrent.md) · [UI ownership](ui.md) · [Procedures](verification.md). Source completion, builds and browser evidence have distinct scopes.
+
+## GitHub workflows (2026-11-17)
+
+Added automatic Windows/Linux unit/component/build jobs and 14-day frontend artifacts, plus manual Chromium desktop/tablet/mobile checks against an exact backend SHA. Backend owns the manual Windows/Linux executable recipe and its regression gates. Both repositories are public; custom checkout secrets/variables are unnecessary. [Automation](automation.md) owns usage and coordination.
+
+Linux Node **24.21.0**, pnpm **12.10.1**, Vite **8.2.2**, Vitest **5.0.3**: **148/148** Node tests passed; production build passed with **1,435 modules**. Normal Vitest invocations stalled; the documented direct-Node/runner-loader/isolated-cache fallback completed **234 passing cases across 29 files**, across a bounded partial run and a successful remaining-file run. The interrupted file was rerun completely; these are combined results, not one clean full-suite run. CI uses that fallback. Existing Vue/router warnings were emitted; no dependency/lockfile or package-script changes.
+
+Actionlint **1.7.7**, YAML/Python source validation, new documentation references and diffs passed. No local browser run, migration inspection/changes or clinic storage operations. GitHub-hosted/Windows execution and downloaded archives remain unverified; the backend [log](../../backend/docs/doneCurrent.md#github-workflows-and-linux-bundle-2026-11-17) records successful Linux frozen-runtime/PDF/HTTP checks. The previous browser stop remains in force. Temporary evidence: `/tmp/clinic-workflows-*`.
 
 ## Build and editor tasks (2026-11-11)
 

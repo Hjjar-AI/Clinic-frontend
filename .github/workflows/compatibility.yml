@@ -1,0 +1,19 @@
+name: Frontend/backend compatibility
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_ref:
+        description: Exact backend commit SHA to test with the selected frontend revision
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    uses: ./.github/workflows/browser.yml
+    with:
+      backend_ref: ${{ inputs.backend_ref }}
+      frontend_ref: ${{ github.sha }}

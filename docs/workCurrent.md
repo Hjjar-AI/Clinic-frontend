@@ -6,5 +6,6 @@
 2. Broaden widths/zoom/overflow/long text, accessibility and browser engines: [rendered matrix](verification.md#rendered-matrix), including moved CSS/default palette in RTL/LTR and light/dark modes.
 3. Calibrate actual prescription printer/stock at 100%; check native PDF viewers/dialogs.
 4. Verify native Windows downloads/printing if targeted.
+5. Run the new [GitHub workflows](automation.md) after both repositories are pushed; verify Windows jobs and the backend-owned downloadable bundles. Manual browser workflow dispatch remains opt-in.
 
 The local build/task issue is resolved. Backend owns currency policy, conditional model extensions and fresh local setup; broader storage upgrades/deployment validation remain outside scope.
