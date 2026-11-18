@@ -8,7 +8,7 @@
 3. Broaden widths/zoom/overflow/long text, accessibility and browser engines: [rendered matrix](verification.md#rendered-matrix), including moved CSS/default palette in RTL/LTR and light/dark modes.
 4. Calibrate actual prescription printer/stock at 100%; check native PDF viewers/dialogs.
 5. Verify native Windows downloads/printing if targeted.
-6. Run the new [GitHub workflows](automation.md) after both repositories are pushed; verify Windows jobs and the backend-owned downloadable bundles. Manual browser workflow dispatch remains opt-in.
+6. Run the new [GitHub workflows](automation.md) after both repositories are pushed; verify Windows jobs, static validation, download caches, summaries, Dependabot action updates and the backend-owned downloadable bundles. The [maintenance evidence](doneCurrent.md#workflow-maintenance-2026-11-18) is source-only. Manual browser workflow dispatch remains opt-in.
 7. Review dependency audit findings, including critical DOMPurify `GHSA-cg2g-xh64-v4q7`; dependency/version changes need separate authorization.
 
 The local build/task issue is resolved. Backend owns currency policy, conditional model extensions and fresh local setup; broader storage upgrades/deployment validation remain outside scope.
