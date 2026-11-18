@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 
 import { useOverlay } from '@/composables/useOverlay'
 import Spinner from '@/components/common/Spinner.vue'
@@ -123,8 +123,9 @@ const emit = defineEmits(['update:modelValue', 'confirm'])
 const modalContent = ref(null)
 const modalOverlay = ref(null)
 
-const titleId = `modal-title-${crypto.randomUUID()}`
-const descriptionId = props.descriptionId || `modal-desc-${crypto.randomUUID()}`
+const modalId = useId()
+const titleId = `modal-title-${modalId}`
+const descriptionId = props.descriptionId || `modal-desc-${modalId}`
 
 const windowWidth = ref(window.innerWidth)
 const onResize = () => { windowWidth.value = window.innerWidth }

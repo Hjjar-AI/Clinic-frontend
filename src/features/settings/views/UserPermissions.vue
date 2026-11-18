@@ -32,12 +32,13 @@
             <template #checkbox="{ item }">
               <label class="checkbox">
                 <input
-                  v-model="selectedPerms"
                   type="checkbox"
                   :value="item.name"
+                  :checked="item.inherited || selectedPerms.includes(item.name)"
                   :disabled="item.inherited"
                   class="checkbox__input"
                   :aria-label="`${item.description || item.name}${item.inherited ? ' (موروثة)' : ''}`"
+                  @change="setPermission(item.name, $event.target.checked)"
                 >
               </label>
             </template>
@@ -90,6 +91,13 @@ const selectedPerms = ref([])
 const allPermissions = ref([])
 const inheritedPerms = ref([])
 const permissionVersion = ref(1)
+
+function setPermission(name, checked) {
+  if (inheritedPerms.value.includes(name)) return
+  selectedPerms.value = checked
+    ? [...new Set([...selectedPerms.value, name])]
+    : selectedPerms.value.filter(permission => permission !== name)
+}
 
 const columns = [
   { key: 'description', label: 'الصلاحية' },

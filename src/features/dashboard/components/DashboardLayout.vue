@@ -207,7 +207,7 @@ function fullName(p) {
 }
 
 function getPatientRiskLevel(patient) {
-  const visit = patient.latest_visit || {}
+  const visit = patient.approved_risk || {}
   if (
     visit.suicide_risk_level === 'High' ||
     visit.violence_risk_level === 'High'

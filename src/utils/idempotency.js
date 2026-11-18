@@ -4,5 +4,6 @@
  * Callers should generate one per logical operation and reuse it across retries.
  */
 export function generateIdempotencyKey() {
-  return `idem-${crypto.randomUUID()}`
+  const bytes = crypto.getRandomValues(new Uint8Array(16))
+  return `idem-${Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')}`
 }

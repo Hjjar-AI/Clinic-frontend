@@ -22,7 +22,7 @@
       <option
         v-if="placeholder"
         value=""
-        disabled
+        :disabled="required"
       >
         {{ placeholder }}
       </option>

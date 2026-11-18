@@ -11,13 +11,48 @@
       :create-custom="createCustomMedication"
       :search-fn="searchMedicationsFn"
       :option-label="
-        (m) => m.display_name || m.generic_arabic || m.generic_english || m.name
+        (m) => m.is_custom ? m.name : m.display_name || m.generic_arabic || m.generic_english || m.name
       "
       :option-key="(m) => m.id || m.name"
       :initial-options="medicationsInitial"
       placeholder="ابحث عن دواء..."
       custom-label="دواء مخصص"
     />
+    <div
+      v-for="(medication, index) in form.medications"
+      :key="medication.id ? `catalog-${medication.id}` : `custom-${index}`"
+      class="mb-3"
+    >
+      <h5 class="heading-5 mb-2">
+        {{ medication.name || medication.display_name || medication.generic_arabic || medication.generic_english }}
+      </h5>
+      <FormInput
+        v-if="!medication.id"
+        v-model="medication.name"
+        label="اسم الدواء المخصص"
+        :maxlength="200"
+      />
+      <div class="grid-2">
+        <FormInput
+          v-model="medication.dosage"
+          label="الجرعة"
+          help="مطلوبة عند توقيع الزيارة"
+          :maxlength="100"
+        />
+        <FormInput
+          v-model="medication.brand"
+          label="الاسم التجاري (اختياري)"
+          :maxlength="200"
+        />
+      </div>
+      <FormTextarea
+        v-model="medication.schedule"
+        label="تعليمات استخدام الدواء"
+        help="مطلوبة عند توقيع الزيارة؛ تُكتب كما شرحها الطبيب"
+        :maxlength="200"
+        rows="2"
+      />
+    </div>
     <div class="grid-2">
       <FormTextarea
         v-model="form.treatment_text"
@@ -209,6 +244,7 @@ import { ref } from 'vue'
 import CollapsibleSection from '@/components/ui/CollapsibleSection.vue'
 import FormDate from '@/components/ui/FormDate.vue'
 import FormField from '@/components/ui/FormField.vue'
+import FormInput from '@/components/ui/FormInput.vue'
 import FormTextarea from '@/components/ui/FormTextarea.vue'
 import ScoreInput from '@/components/ui/ScoreInput.vue'
 import SegmentedControl from '@/components/ui/SegmentedControl.vue'

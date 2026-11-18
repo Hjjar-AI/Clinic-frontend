@@ -16,7 +16,6 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useSystemConfig } from '@/composables/useSystemConfig'
 import { APP_CONFIG } from '@/config/app'
-import { useConstantsStore } from '@/features/clinical/stores/constants'
 import { onSessionChange, sessionStorePlugin } from '@/services/sessionState'
 import { persistPlugin } from '@/stores/plugins/persist'
 import { reportError } from '@/utils/reportError'
@@ -79,12 +78,6 @@ async function mount() {
   }
 
   await router.isReady()
-
-  // Load constants in the background (non-blocking)
-  const constantsStore = useConstantsStore()
-  constantsStore.fetch().catch((err) => {
-    if (APP_CONFIG.isDevelopment) reportError('main', err)
-  })
 
   // Fetch system config (non-blocking)
   const { fetchConfig } = useSystemConfig()

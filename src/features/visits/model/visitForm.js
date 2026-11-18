@@ -233,7 +233,14 @@ export function buildVisitCommand(form, getScalePayload = null) {
     is_custom: !!m.is_custom,
     schedule: m.schedule || '',
   }))
-  payload.lab_values_input = payload.lab_values || []
+  payload.lab_values_input = (payload.lab_values || []).map((lab) => ({
+    name: lab.name || '',
+    value: lab.value ?? '',
+    unit: lab.unit || '',
+    reference_range: lab.reference_range || '',
+    date: lab.date || '',
+    status: lab.status || '',
+  }))
 
   delete payload.diagnoses
   delete payload.medications

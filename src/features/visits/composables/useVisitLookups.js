@@ -37,8 +37,9 @@ export function useVisitLookups() {
     return all
       .filter(
         (d) =>
-          (d.arabic_name || d.english_name || '').toLowerCase().includes(q) ||
-          (d.code || '').toLowerCase().includes(q),
+          [d.arabic_name, d.english_name, d.code].some((value) =>
+            (value || '').toLowerCase().includes(q),
+          ),
       )
       .slice(0, 20)
   }
@@ -49,9 +50,8 @@ export function useVisitLookups() {
     const q = query.toLowerCase()
     return all
       .filter((m) =>
-        (m.generic_arabic || m.generic_english || m.display_name || '')
-          .toLowerCase()
-          .includes(q),
+        [m.generic_arabic, m.generic_english, m.brand_arabic, m.brand_english, m.display_name]
+          .some((value) => (value || '').toLowerCase().includes(q)),
       )
       .slice(0, 20)
   }

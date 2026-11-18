@@ -116,8 +116,15 @@ onMounted(async () => {
   }
 })
 
-watch(() => props.startDate, value => startFlatpickr?.setDate(parseDate(value), false))
-watch(() => props.endDate, value => endFlatpickr?.setDate(parseDate(value), false))
+function syncDate(instance, value) {
+  if (!instance || value === instance.input.value) return
+  const date = parseDate(value)
+  // Partial manual input remains visible until it becomes a complete date.
+  if (!value || date) instance.setDate(date, false)
+}
+
+watch(() => props.startDate, value => syncDate(startFlatpickr, value))
+watch(() => props.endDate, value => syncDate(endFlatpickr, value))
 
 onBeforeUnmount(() => {
   disposed = true

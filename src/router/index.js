@@ -6,6 +6,7 @@ import { cancelAllPending } from '@/services/apiClient'
 import { authGuard, fetchMeGuard, permissionGuard } from './guards'
 
 const routes = [
+  { path: '/', redirect: { name: 'Dashboard' } },
   { path: '/audit-logs', name: 'AuditLog', component: () => import('@/features/settings/views/AuditLog.vue'), meta: { requiresAuth: true, title: 'سجل التدقيق', role: 'admin', permission: 'manage_users' } },
   { path: '/notifications', name: 'Notifications', component: () => import('@/features/notifications/views/Notifications.vue'), meta: { requiresAuth: true, title: 'الإشعارات' } },
   {

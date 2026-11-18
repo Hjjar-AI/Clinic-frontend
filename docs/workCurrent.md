@@ -2,7 +2,7 @@
 
 [Evidence and limits](doneCurrent.md) · [Structure decisions](structureReview.md) · [Backend work](../../backend/docs/workCurrent.md).
 
-1. Review-fix source changes are complete. When separately authorized, verify coordinated session expiry/activity, replayed file references/recovery, collection paging and new screens; source-only evidence is in [the log](doneCurrent.md#review-fixes-and-missing-workflows-2026-11-18). Tests/builds were expressly excluded; browser work remains stopped.
+1. Review-fix source changes are complete. When separately authorized, verify coordinated session expiry/activity, replayed file references/recovery, collection paging and new screens; source-only evidence is in [the log](doneCurrent.md#review-fixes-and-missing-workflows-2026-11-18). The [remaining logic corrections](doneCurrent.md#logic-review-corrections-2026-11-18) also need runtime checks for medication entry/signing, partial date typing, public/root navigation, HTTP LAN writes/modals, demographic clearing, permission display and approved risk badges. Tests/builds were expressly excluded; browser work remains stopped.
 
 2. Browser verification was stopped at the user's request on **2026-11-07**; resume only when requested. Rerun corrected chart-readiness/scale-picker cases, complete the interrupted tablet workflow and remaining mobile/tablet cases, then run focused width/direction/theme checks. Prior counts belong in evidence; no S01–S15 implementation/removal candidate remains open.
 3. Broaden widths/zoom/overflow/long text, accessibility and browser engines: [rendered matrix](verification.md#rendered-matrix), including moved CSS/default palette in RTL/LTR and light/dark modes.
